@@ -1,0 +1,118 @@
+<!-- ... existing code ... -->
+    <style>
+        /* 1. GLOBAL LAYOUT SETUP */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0f172a;
+            display: grid;
+            gap: 40px;
+            grid-template-columns: 1fr;
+            margin: 0;
+            min-height: 100vh;
+            padding: 40px 0;
+            place-items: center;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+<!-- ... existing code ... -->
+        /* Bleed Layout Specifications */
+        .slide-container.bleed-image-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 0;
+            align-items: start;
+        }
+
+        .slide-container.bleed-image-layout > .content-container {
+            padding: 60px 0 60px 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide-container.bleed-image-layout > .image-container {
+            height: 720px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slide-container.bleed-image-layout img.bleed-image-side {
+            width: 100%;
+            height: 720px;
+            object-fit: cover;
+            border-radius: 0 16px 16px 0;
+        }
+
+        /* 6. PRINT & PDF EXPORT STYLES */
+        @media print {
+            html, body {
+                background-color: #0f172a !important;
+                color: #f8fafc !important;
+                display: block !important;
+                width: 1280px !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            @page {
+                size: 1280px 720px; /* Force-align to 16:9 Landscape dimensions */
+                margin: 0;
+            }
+
+            .slide-container {
+                width: 1280px !important;
+                height: 720px !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+                padding: 60px 80px !important;
+                position: relative !important;
+                float: none !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: flex-start !important;
+            }
+
+            /* Preserve layout splits for printing */
+            .slide-container.bleed-image-layout {
+                display: grid !important;
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            .two-column {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+            }
+
+            .tiled-content {
+                display: flex !important;
+                flex-direction: row !important;
+            }
+
+            .highlight-numbers-layout {
+                display: flex !important;
+                flex-direction: row !important;
+            }
+
+            .timeline-layout {
+                display: flex !important;
+                flex-direction: row !important;
+            }
+        }
+    </style>
+<style>
+  .lms-source-label {
+<!-- ... existing code ... -->

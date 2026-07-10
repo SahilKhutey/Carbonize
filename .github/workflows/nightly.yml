@@ -1,0 +1,22 @@
+name: Nightly Benchmarks
+
+on:
+  schedule:
+    - cron: "0 2 * * *"  # 2 AM UTC daily
+  workflow_dispatch:
+
+jobs:
+  performance:
+    name: Run Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: |
+          pip install poetry
+          poetry install
+      - name: Run benchmark tests
+        run: poetry run pytest -m "slow"

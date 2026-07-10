@@ -1,0 +1,16 @@
+# CODEOWNERS
+# Default owners for everything
+*                          @cbms/core-team
+
+# Backend modules
+/packages/sim-core/        @cbms/sim-core-maintainers
+/packages/api/             @cbms/api-maintainers
+/packages/workers/         @cbms/workers-maintainers
+/packages/shared/          @cbms/platform-team
+
+# Frontend modules
+/packages/web/             @cbms/web-maintainers
+
+# Infrastructure and CI/CD
+/packages/infra/           @cbms/devops-team
+/.github/workflows/        @cbms/devops-team

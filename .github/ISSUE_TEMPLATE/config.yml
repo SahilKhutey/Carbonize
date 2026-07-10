@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://docs.cbms.in
+    about: Read the official documentation
+  - name: 💬 Community Discussions
+    url: https://github.com/cbms/platform/discussions
+    about: Ask questions and discuss with the community

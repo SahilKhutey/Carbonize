@@ -1,0 +1,14 @@
+{
+  "name": "cbms-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Coral-inspired biomineralization multi-pollutant capture simulator monorepo",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "build:web": "pnpm --filter web build",
+    "test:web": "pnpm --filter web test"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

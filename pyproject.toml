@@ -1,0 +1,53 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "cbms-platform"
+version = "1.0.0"
+description = "Coral-inspired biomineralization multi-pollutant capture simulator monorepo"
+authors = ["CarbonLattice Team"]
+readme = "README.md"
+packages = [
+    { include = "cbms_sim", from = "packages/sim-core/src" },
+    { include = "cbms_api", from = "packages/api/src" },
+    { include = "cbms_workers", from = "packages/workers/src" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = ">=0.110.0"
+uvicorn = ">=0.28.0"
+sqlalchemy = { version = ">=2.0.28", extras = ["asyncio"] }
+asyncpg = ">=0.29.0"
+pydantic = ">=2.6.0"
+scipy = ">=1.12.0"
+numpy = ">=1.26.0"
+numba = ">=0.59.0"
+celery = ">=5.3.6"
+redis = ">=5.0.3"
+reportlab = ">=4.1.0"
+scikit-learn = ">=1.4.0"
+optuna = ">=3.6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0.0"
+pytest-asyncio = ">=0.23.0"
+pytest-cov = ">=4.1.0"
+
+[tool.pytest.ini_options]
+testpaths = ["packages/sim-core/tests"]
+asyncio_mode = "auto"
+pythonpath = [
+    "packages/shared/src",
+    "packages/sim-core/src",
+    "packages/sim-core/src/cbms_sim",
+    "packages/sim-core/src/cbms_sim/core",
+    "packages/sim-core/src/cbms_sim/ml",
+    "packages/api/src",
+    "packages/api/src/cbms_api",
+    "packages/api/src/cbms_api/api",
+    "packages/workers/src",
+    "packages/workers/src/cbms_workers",
+    "packages/workers/src/cbms_workers/workers"
+]
