@@ -18,7 +18,7 @@ import { AccessibleKpiCard } from "../../../components/kpi/AccessibleKpiCard";
 interface KPIDef {
   id: string;
   label: string;
-  value: string | number;
+  value: number;
   unit: string;
   status: "good" | "warning" | "critical" | "neutral";
   trend?: "up" | "down" | "flat";
@@ -30,7 +30,7 @@ interface LiveKPIGridProps {
   state: TwinState;
 }
 
-function captureStatus(pct: number | null | undefined): KPIStatus {
+function captureStatus(pct: number | null | undefined): "good" | "warning" | "critical" {
   const v = pct ?? 0;
   return v >= 80 ? "good" : v >= 60 ? "warning" : "critical";
 }

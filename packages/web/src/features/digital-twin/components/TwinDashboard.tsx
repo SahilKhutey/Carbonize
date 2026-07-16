@@ -103,7 +103,6 @@ export const TwinDashboard = memo(function TwinDashboard({
               <SensorTimeSeries
                 history={history}
                 metrics={["co2_outlet_pct", "so2_outlet_mg_nm3", "mesh_dp_mmH2O", "reactor_temp_c"]}
-                height="100%"
                 title="Sensor Trends"
               />
             </div>

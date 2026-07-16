@@ -31,6 +31,7 @@ export function LiveRegion({
         return () => clearTimeout(t);
       }
     }
+    return undefined;
   }, [message, clearAfterMs]);
   
   return (

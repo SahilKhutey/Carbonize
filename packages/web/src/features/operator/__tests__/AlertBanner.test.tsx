@@ -7,7 +7,7 @@ import { AlertBanner } from "../components/AlertBanner";
 import type { AlertData } from "../../../types/ws";
 
 function makeAlert(id: string, severity: AlertData["severity"]): AlertData {
-  return { alert_id: id, severity, title: `${severity} alert`, message: `${severity} message` };
+  return { alert_id: id, severity, title: `${severity} alert`, message: `${severity} message`, triggered_at: new Date().toISOString() };
 }
 
 describe("AlertBanner — hidden when empty", () => {

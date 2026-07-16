@@ -43,6 +43,7 @@ export function ReconnectionToast({
       }, TOAST_DURATION_MS);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [state, visible, onDismiss]);
   
   if (!visible || !toastType) return null;
