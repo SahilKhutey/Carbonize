@@ -1,0 +1,126 @@
+{
+  "title": "Celery Queue Health",
+  "uid": "cbms-celery-queue",
+  "description": "Celery task queue depth, throughput, failure rate, and stuck tasks",
+  "tags": ["cbms", "celery", "workers"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Queue Depth (⚠️ alert at 1000)",
+      "description": "Unbounded growth = DoS or worker shortage. Alert fires at 1000 tasks.",
+      "type": "timeseries",
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "cbms_celery_queue_depth",
+          "legendFormat": "{{queue_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {"lineWidth": 2},
+          "thresholds": {
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 500, "color": "yellow"},
+              {"value": 1000, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Task Throughput (tasks/min)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 9},
+      "targets": [
+        {
+          "expr": "60 * sum(rate(cbms_celery_tasks_total[1m])) by (task_name, status)",
+          "legendFormat": "{{task_name}} — {{status}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 3,
+      "title": "Task Failure Rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 9},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_celery_tasks_total{status=\"failure\"}[5m])) by (task_name)",
+          "legendFormat": "{{task_name}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {"mode": "fixed", "fixedColor": "red"}
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Task Duration p95",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 17},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(cbms_celery_task_duration_seconds_bucket[5m])) by (le, task_name))",
+          "legendFormat": "{{task_name}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}}
+    },
+    {
+      "id": 5,
+      "title": "Stuck Tasks",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 4, "x": 12, "y": 17},
+      "targets": [
+        {"expr": "sum(cbms_celery_stuck_tasks)", "legendFormat": "Stuck"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 1, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Active Workers",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 17},
+      "targets": [
+        {"expr": "sum(cbms_celery_active_workers)", "legendFormat": "Workers"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 7,
+      "title": "Task Retries (transient failures)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 21},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_celery_task_retries_total[5m])) by (task_name, queue)",
+          "legendFormat": "{{task_name}} [{{queue}}]"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}}
+    }
+  ]
+}

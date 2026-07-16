@@ -1,0 +1,155 @@
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: CBMS Critical Alerts
+    folder: CBMS Alerts
+    interval: 1m
+    rules:
+
+      # ------------------------------------------------------------------ #
+      # 🔴 CRITICAL: Celery queue backlog                                   #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-celery-queue-backlog
+        title: "[CRITICAL] Celery Queue Backlog"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 600, to: 0}
+            model:
+              expr: cbms_celery_queue_depth > 1000
+              instant: true
+              intervalMs: 1000
+              refId: A
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          summary: "Celery queue {{ $labels.queue_name }} has {{ $value }} pending tasks"
+          description: "Queue depth exceeded 1000 — possible DoS attack, misconfigured worker, or task explosion."
+          runbook_url: "https://docs.cbms.in/runbooks/celery-queue-backlog"
+        labels:
+          severity: critical
+          team: ops
+          notify: pagerduty
+
+      # ------------------------------------------------------------------ #
+      # 🟠 HIGH: API error rate > 5 %                                       #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-high-error-rate
+        title: "[HIGH] API Error Rate > 5%"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 600, to: 0}
+            model:
+              expr: |
+                100 * sum(rate(cbms_http_requests_total{status=~"5.."}[5m]))
+                    / sum(rate(cbms_http_requests_total[5m])) > 5
+              instant: true
+              refId: A
+        for: 5m
+        annotations:
+          summary: "API 5xx error rate is {{ $value | printf \"%.1f\" }}% (threshold: 5%)"
+          runbook_url: "https://docs.cbms.in/runbooks/high-error-rate"
+        labels:
+          severity: high
+          team: ops
+          notify: slack-ops
+
+      # ------------------------------------------------------------------ #
+      # 🟠 HIGH: p99 latency > 5 s                                          #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-high-latency
+        title: "[HIGH] API p99 Latency > 5s"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 600, to: 0}
+            model:
+              expr: |
+                histogram_quantile(0.99,
+                  sum(rate(cbms_http_request_duration_seconds_bucket[5m])) by (le)
+                ) > 5
+              instant: true
+              refId: A
+        for: 10m
+        annotations:
+          summary: "p99 request latency is {{ $value | printf \"%.1f\" }}s (threshold: 5s)"
+          runbook_url: "https://docs.cbms.in/runbooks/high-latency"
+        labels:
+          severity: high
+          team: ops
+          notify: slack-ops
+
+      # ------------------------------------------------------------------ #
+      # 🟡 MEDIUM: Rate-limit spike — possible DoS                          #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-rate-limit-spike
+        title: "[MEDIUM] Rate Limit Spike (>100/min)"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 300, to: 0}
+            model:
+              expr: sum(rate(cbms_rate_limit_hits_total[1m])) * 60 > 100
+              instant: true
+              refId: A
+        for: 1m
+        annotations:
+          summary: "Rate limiter is rejecting {{ $value | printf \"%.0f\" }} req/min — possible DoS"
+          description: "Check if this is a misbehaving client or an attack."
+          runbook_url: "https://docs.cbms.in/runbooks/rate-limit-spike"
+        labels:
+          severity: medium
+          team: ops
+          notify: slack-ops
+
+      # ------------------------------------------------------------------ #
+      # 🟠 HIGH: Stuck tasks                                                #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-stuck-tasks
+        title: "[HIGH] Celery Tasks Stuck"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 600, to: 0}
+            model:
+              expr: sum(cbms_celery_stuck_tasks) > 0
+              instant: true
+              refId: A
+        for: 5m
+        annotations:
+          summary: "{{ $value }} Celery tasks are stuck (status=GENERATING beyond timeout)"
+          runbook_url: "https://docs.cbms.in/runbooks/stuck-tasks"
+        labels:
+          severity: high
+          team: ops
+          notify: slack-ops
+
+      # ------------------------------------------------------------------ #
+      # 🟡 MEDIUM: Login failure spike (brute-force attempt)               #
+      # ------------------------------------------------------------------ #
+      - uid: cbms-login-failures
+        title: "[MEDIUM] Login Failure Spike"
+        condition: A
+        data:
+          - refId: A
+            datasourceUid: cbms-prometheus
+            relativeTimeRange: {from: 300, to: 0}
+            model:
+              expr: sum(rate(cbms_auth_login_total{status="failure"}[5m])) * 60 > 50
+              instant: true
+              refId: A
+        for: 2m
+        annotations:
+          summary: "{{ $value | printf \"%.0f\" }} failed logins/min — possible brute-force"
+          runbook_url: "https://docs.cbms.in/runbooks/brute-force"
+        labels:
+          severity: medium
+          team: security
+          notify: slack-security

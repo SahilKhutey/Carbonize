@@ -1,0 +1,92 @@
+# ============================================================================
+# CBMS-Sim Development Mode
+# ============================================================================
+# Usage: docker compose -f docker-compose.dev.yml up
+# 
+# Hot-reload for all services. Mount source code as volumes.
+# ============================================================================
+
+name: cbms-dev
+
+services:
+  # Infrastructure (same as prod)
+  postgres:
+    extends:
+      file: docker-compose.yml
+      service: postgres
+
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+
+  minio:
+    extends:
+      file: docker-compose.yml
+      service: minio
+
+  # API (with hot reload)
+  api:
+    extends:
+      file: docker-compose.yml
+      service: api
+    build:
+      target: deps  # Use deps stage, not runtime
+    command: uvicorn cbms_api.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./packages/api/src:/app/packages/api/src:ro
+      - ./packages/shared/src:/app/packages/shared/src:ro
+      - ./packages/sim-core/src:/app/packages/sim-core/src:ro
+    environment:
+      RELOAD: "true"
+      DEBUG: "true"
+
+  # Worker (with autoreload)
+  worker:
+    extends:
+      file: docker-compose.yml
+      service: worker
+    build:
+      target: deps
+    command: watchmedo auto-restart --directory=/app/packages/workers/src --pattern='*.py' -- celery -A cbms_workers.celery_app worker --loglevel=info -Q critical,compute_heavy,reporting,quick_sim
+    volumes:
+      - ./packages/workers/src:/app/packages/workers/src:ro
+      - ./packages/shared/src:/app/packages/shared/src:ro
+      - ./packages/sim-core/src:/app/packages/sim-core/src:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  beat:
+    extends:
+      file: docker-compose.yml
+      service: beat
+
+  prometheus:
+    extends:
+      file: docker-compose.yml
+      service: prometheus
+
+  grafana:
+    extends:
+      file: docker-compose.yml
+      service: grafana
+
+  # Web (Vite dev server with HMR)
+  web:
+    image: node:20-alpine
+    container_name: cbms-web-dev
+    working_dir: /app
+    volumes:
+      - ./packages/web:/app
+      - /app/node_modules
+    command: sh -c "corepack enable && corepack prepare pnpm@9.12.0 --activate && pnpm install && pnpm run dev --host 0.0.0.0"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api

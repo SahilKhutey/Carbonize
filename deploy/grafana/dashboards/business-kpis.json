@@ -1,0 +1,146 @@
+{
+  "title": "Business KPIs",
+  "uid": "cbms-business",
+  "description": "Simulation throughput, capture efficiency, economic outcomes, and CCTS credits",
+  "tags": ["cbms", "business", "kpi"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5m",
+  "time": {"from": "now-24h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Simulations Submitted (per hour)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "sum(increase(cbms_simulations_submitted_total[1h])) by (simulation_type)",
+          "legendFormat": "{{simulation_type}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 2,
+      "title": "Active Simulations",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "targets": [
+        {"expr": "sum(cbms_simulations_active)", "legendFormat": "Running"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 20, "color": "yellow"},
+              {"value": 50, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Tenants (7-day)",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "targets": [
+        {"expr": "cbms_tenants_active", "legendFormat": "Tenants"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 4,
+      "title": "Simulation Success / Failure Rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_simulations_completed_total[1h])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 5,
+      "title": "CO₂ Capture Efficiency Distribution",
+      "description": "Heat map: X = capture %, Y = time. Higher is better.",
+      "type": "heatmap",
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(increase(cbms_capture_efficiency_pct_bucket{pollutant=\"co2\"}[1h])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "NPV at Completion Distribution (₹)",
+      "type": "heatmap",
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8},
+      "targets": [
+        {
+          "expr": "sum(increase(cbms_npv_at_completion_inr_bucket[1h])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "CCTS Credits Generated (cumulative)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 17},
+      "targets": [
+        {
+          "expr": "sum(cbms_ccts_credits_generated_total) by (fiscal_year)",
+          "legendFormat": "FY{{fiscal_year}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 8,
+      "title": "CCTS Claims Submitted",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 17},
+      "targets": [
+        {
+          "expr": "sum(increase(cbms_ccts_claims_submitted_total[1d])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    },
+    {
+      "id": 9,
+      "title": "Payback Period Distribution (months)",
+      "type": "heatmap",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+      "targets": [
+        {
+          "expr": "sum(increase(cbms_payback_months_at_completion_bucket[1h])) by (le)",
+          "format": "heatmap",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "WebSocket Active Connections",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 25},
+      "targets": [
+        {"expr": "sum(cbms_ws_active_connections)", "legendFormat": "WS Connections"}
+      ],
+      "fieldConfig": {"defaults": {"unit": "short"}}
+    }
+  ]
+}

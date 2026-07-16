@@ -1,0 +1,56 @@
+# ============================================================================
+# worker: Celery worker for async tasks
+# 
+# Multi-stage build (shares base image with API)
+# ============================================================================
+
+# ============================================================================
+# Stage 1: Dependencies
+# ============================================================================
+FROM python-base AS deps
+
+WORKDIR /app
+
+# Worker system deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml poetry.lock ./
+COPY packages/shared/ /app/packages/shared/
+COPY packages/workers/ /app/packages/workers/
+COPY packages/sim-core/ /app/packages/sim-core/
+COPY packages/api/ /app/packages/api/  # API for schemas
+
+RUN poetry install --no-root
+
+# ============================================================================
+# Stage 2: Test
+# ============================================================================
+FROM deps AS test
+
+RUN poetry run pytest packages/workers/tests/ -v --tb=short
+
+# ============================================================================
+# Stage 3: Runtime
+# ============================================================================
+FROM python-base AS runtime
+
+WORKDIR /app
+
+COPY --from=deps --chown=app:app /app/.venv /app/.venv
+COPY --from=deps --chown=app:app /app/packages /app/packages
+COPY --from=deps --chown=app:app /app/pyproject.toml /app/poetry.lock ./
+
+USER app
+
+# Healthcheck (Celery ping)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD celery -A cbms_workers.celery_app inspect ping || exit 1
+
+# Default: run worker, multiple queues
+CMD ["celery", "-A", "cbms_workers.celery_app", "worker", 
+     "--loglevel=info",
+     "-Q", "critical,compute_heavy,reporting,quick_sim,low_priority",
+     "--concurrency=4"]

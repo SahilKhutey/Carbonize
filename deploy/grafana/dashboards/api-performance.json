@@ -1,0 +1,149 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "11.0.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"}
+  ],
+  "title": "CBMS API Performance",
+  "uid": "cbms-api-perf",
+  "description": "HTTP RED metrics — Rate, Errors, Duration for the CBMS API",
+  "tags": ["cbms", "api", "performance"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_http_requests_total[5m])) by (endpoint)",
+          "legendFormat": "{{endpoint}}",
+          "datasource": {"type": "prometheus"}
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {"lineWidth": 2}
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Error Rate (errors/s)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_http_request_errors_total[5m])) by (error_class, endpoint)",
+          "legendFormat": "{{error_class}} {{endpoint}}",
+          "datasource": {"type": "prometheus"}
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": {"mode": "fixed", "fixedColor": "red"},
+          "custom": {"lineWidth": 2}
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Request Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 16, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(cbms_http_request_duration_seconds_bucket[5m])) by (le, endpoint))",
+          "legendFormat": "p50 {{endpoint}}"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(cbms_http_request_duration_seconds_bucket[5m])) by (le, endpoint))",
+          "legendFormat": "p95 {{endpoint}}"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(cbms_http_request_duration_seconds_bucket[5m])) by (le, endpoint))",
+          "legendFormat": "p99 {{endpoint}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "s"}}
+    },
+    {
+      "id": 4,
+      "title": "Requests In-Flight",
+      "type": "gauge",
+      "gridPos": {"h": 4, "w": 4, "x": 16, "y": 8},
+      "targets": [
+        {"expr": "sum(cbms_http_requests_in_flight)", "legendFormat": "In-flight"}
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 50, "color": "yellow"},
+              {"value": 200, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Error Rate % (5xx)",
+      "type": "gauge",
+      "gridPos": {"h": 4, "w": 4, "x": 20, "y": 8},
+      "targets": [
+        {
+          "expr": "100 * sum(rate(cbms_http_requests_total{status=~\"5..\"}[5m])) / sum(rate(cbms_http_requests_total[5m]))",
+          "legendFormat": "5xx %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              {"value": 0, "color": "green"},
+              {"value": 1, "color": "yellow"},
+              {"value": 5, "color": "red"}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Top 10 Slowest Endpoints (p95)",
+      "type": "table",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "topk(10, histogram_quantile(0.95, sum by (endpoint, le) (rate(cbms_http_request_duration_seconds_bucket[5m]))))",
+          "format": "table",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Rate Limit Hits",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [
+        {
+          "expr": "sum(rate(cbms_rate_limit_hits_total[5m])) by (endpoint, tier)",
+          "legendFormat": "{{tier}} {{endpoint}}"
+        }
+      ],
+      "fieldConfig": {"defaults": {"unit": "reqps"}}
+    }
+  ]
+}

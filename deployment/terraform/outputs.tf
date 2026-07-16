@@ -17,3 +17,8 @@ output "eks_endpoint" {
   description = "EKS API server endpoint"
   value       = aws_eks_cluster.cbms_cluster.endpoint
 }
+
+output "db_secret_arn" {
+  description = "ARN of the Secrets Manager secret containing database credentials"
+  value       = aws_secretsmanager_secret.db_secret.arn
+}
