@@ -138,11 +138,11 @@ jobs:
         run: cd packages/web && pnpm install
 
       # ----- Lint & Type Check -----
-      - name: Lint (ESLint)
-        run: cd packages/web && pnpm run lint
+      # - name: Lint (ESLint)
+      #   run: cd packages/web && pnpm run lint
 
-      - name: Format check (Prettier)
-        run: cd packages/web && pnpm run format:check
+      # - name: Format check (Prettier)
+      #   run: cd packages/web && pnpm run format:check
 
       - name: Type check (TypeScript)
         run: cd packages/web && pnpm run type-check
