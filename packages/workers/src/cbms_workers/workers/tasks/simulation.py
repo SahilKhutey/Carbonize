@@ -1,20 +1,32 @@
 """
-workers/tasks.py
+workers/tasks/simulation.py
 Celery tasks for executing heavy physical/economic computations.
 """
 
 import asyncio
 import os
+import json
 from datetime import datetime
 from uuid import UUID
+
+import redis
 from celery import shared_task
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
+
 from workers.celery_app import celery_app
-import json
-import redis
 from database.connection import async_session_maker
 from database.models import SimulationRun, SimulationResult, PlantProfile, LogisticsConfig
+from cbms_workers.idempotency import run_async_task
+
+# Import core solver functions
+from core.kinetics import solve_reactor_kinetics
+from core.mass_balance import compute_mass_balance
+from core.wiener_process import simulate_saturation_fpt
+from core.block_strength import predict_compressive_strength, classify_block_grade
+from core.economic_engine import run_financial_analysis
+from core.uncertainty_engine import run_uncertainty_analysis
+
 
 # Establish a connection to Redis for progress publication
 REDIS_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
@@ -22,6 +34,7 @@ try:
     redis_client = redis.Redis.from_url(REDIS_URL)
 except Exception:
     redis_client = None
+
 
 def publish_progress(run_id_str: str, stage: str, pct: int, stage_pct: int, details: str = ""):
     """Publishes simulation run execution progress statistics to Redis channels."""
@@ -43,13 +56,6 @@ def publish_progress(run_id_str: str, stage: str, pct: int, stage_pct: int, deta
     except Exception:
         pass
 
-# Import core solver functions
-from core.kinetics import solve_reactor_kinetics
-from core.mass_balance import compute_mass_balance
-from core.wiener_process import simulate_saturation_fpt
-from core.block_strength import predict_compressive_strength, classify_block_grade
-from core.economic_engine import run_financial_analysis
-from core.uncertainty_engine import run_uncertainty_analysis
 
 async def _execute_simulation(
     run_id_str: str,
@@ -89,8 +95,6 @@ async def _execute_simulation(
 
             # 1. Run Kinetics Solver
             publish_progress(run_id_str, "KINETICS_SOLVE", 20, 0, "Solving stiff carbonation kinetics equations")
-            # Translate source parameters
-            # Map default values for calcium_source_g_per_l as 35.0
             kinetics_res = solve_reactor_kinetics(
                 co2_vol_pct=float(plant.co2_concentration),
                 so2_mg_per_nm3=float(plant.so2_concentration),
@@ -200,6 +204,7 @@ async def _execute_simulation(
             await session.commit()
             publish_progress(run_id_str, "FAILED", 100, 100, f"Simulation process failed: {str(e)}")
 
+
 @celery_app.task(name="workers.tasks.run_simulation_task", bind=True)
 def run_simulation_task(
     self,
@@ -209,4 +214,4 @@ def run_simulation_task(
     override_so2: float = None
 ):
     """Celery task entrypoint (synchronous wrapper for event loop execution)."""
-    asyncio.run(_execute_simulation(run_id_str, temp_c, override_co2, override_so2, self.request.id))
+    run_async_task(_execute_simulation(run_id_str, temp_c, override_co2, override_so2, self.request.id))
