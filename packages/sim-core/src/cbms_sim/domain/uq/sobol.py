@@ -50,3 +50,63 @@ class SobolAnalyzer:
             "reactor_temperature_c": s_temp,
             "flow_rate_nm3_hr": s_flow
         }
+
+
+def sobol_indices(
+    samples: np.ndarray,
+    Y: np.ndarray,
+    n_vars: int,
+    calc_second_order: bool = False,
+    names: list[str] = None
+) -> dict:
+    """
+    Calculate Sobol sensitivity indices (first-order and total-order).
+    Assumes SALib/Saltelli interleaved row ordering: A, then AB_i for each variable, then B.
+    """
+    step = 2 * n_vars + 2 if calc_second_order else n_vars + 2
+    N = len(Y) // step
+    
+    # Normalize the model output as SALib does
+    Y_std = Y.std()
+    if Y_std < 1e-12:
+        # Avoid divide-by-zero for constant models
+        first_order = {f"x{i+1}": 0.0 for i in range(n_vars)}
+        total_order = {f"x{i+1}": 0.0 for i in range(n_vars)}
+        return {"first_order": first_order, "total_order": total_order}
+        
+    Y_norm = (Y - Y.mean()) / Y_std
+    
+    A_norm = Y_norm[0 : len(Y_norm) : step]
+    B_norm = Y_norm[(step - 1) : len(Y_norm) : step]
+    
+    # Total variance of r_[A, B]
+    y_comb = np.concatenate([A_norm, B_norm])
+    var_y = np.var(y_comb)
+    if var_y < 1e-12:
+        var_y = 1.0
+        
+    if names is None:
+        names = [f"x{i+1}" for i in range(n_vars)]
+        
+    first_order = {}
+    total_order = {}
+    
+    for i in range(n_vars):
+        name = names[i]
+        AB_norm = Y_norm[(i + 1) : len(Y_norm) : step]
+        
+        # First-order estimator (Saltelli)
+        s1 = np.mean(B_norm * (AB_norm - A_norm)) / var_y
+        
+        # Total-order estimator (Jansen)
+        st = 0.5 * np.mean((A_norm - AB_norm)**2) / var_y
+        
+        first_order[name] = float(s1)
+        total_order[name] = float(st)
+        
+    return {
+        "first_order": first_order,
+        "total_order": total_order,
+    }
+
+

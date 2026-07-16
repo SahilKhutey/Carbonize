@@ -51,3 +51,23 @@ class EconomicEngine:
             "npv_10yr_inr": npv,
             "payback_months": payback
         }
+
+    def compute_npv(self, capex: float, annual_opex: float, annual_revenue: float, lifetime_years: int, discount_rate: float):
+        """Helper to calculate NPV for a given lifetime and discount rate."""
+        val = -capex
+        net_annual = annual_revenue - annual_opex
+        for year in range(1, lifetime_years + 1):
+            val += net_annual / ((1.0 + discount_rate) ** year)
+        from collections import namedtuple
+        return namedtuple("EconomicNPVResult", ["npv"])(val)
+
+    def compute_payback(self, capex: float, annual_opex: float, annual_revenue: float):
+        """Helper to calculate payback period in months."""
+        net_annual = annual_revenue - annual_opex
+        if net_annual > 0:
+            payback = (capex / net_annual) * 12.0
+        else:
+            payback = float('inf')
+        from collections import namedtuple
+        return namedtuple("EconomicPaybackResult", ["payback_months"])(payback)
+

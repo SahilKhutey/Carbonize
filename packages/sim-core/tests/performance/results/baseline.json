@@ -1,0 +1,527 @@
+{
+  "results": [
+    {
+      "name": "tolerance_rtol_0.0001",
+      "timestamp": "2026-07-11T03:15:17.288718+00:00",
+      "metrics": {
+        "rtol": 0.0001,
+        "atol": 1e-06,
+        "mean_ms": 42.036379978526384,
+        "nfev": 958,
+        "njev": 11
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "tolerance_rtol_1e-06",
+      "timestamp": "2026-07-11T03:15:17.632486+00:00",
+      "metrics": {
+        "rtol": 1e-06,
+        "atol": 1e-08,
+        "mean_ms": 57.14353999355808,
+        "nfev": 1372,
+        "njev": 6
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "tolerance_rtol_1e-08",
+      "timestamp": "2026-07-11T03:15:18.133762+00:00",
+      "metrics": {
+        "rtol": 1e-08,
+        "atol": 1e-10,
+        "mean_ms": 83.28194000059739,
+        "nfev": 2144,
+        "njev": 12
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "tolerance_rtol_1e-10",
+      "timestamp": "2026-07-11T03:15:19.092795+00:00",
+      "metrics": {
+        "rtol": 1e-10,
+        "atol": 1e-12,
+        "mean_ms": 160.2280799881555,
+        "nfev": 3812,
+        "njev": 29
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "engine_baseline_solve",
+      "timestamp": "2026-07-11T03:15:19.609667+00:00",
+      "metrics": {
+        "mean_ms": 83.47553999628872,
+        "median_ms": 83.82609998807311,
+        "n_runs": 5
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_samples_100",
+      "timestamp": "2026-07-11T03:15:21.491728+00:00",
+      "metrics": {
+        "n_samples": 100,
+        "total_ms": 1654.3965000309981,
+        "time_per_sample_ms": 16.54396500030998,
+        "throughput_samples_per_sec": 60.4450021491984
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_samples_500",
+      "timestamp": "2026-07-11T03:15:29.574645+00:00",
+      "metrics": {
+        "n_samples": 500,
+        "total_ms": 8080.700899998192,
+        "time_per_sample_ms": 16.161401799996383,
+        "throughput_samples_per_sec": 61.87582069769615
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_samples_1000",
+      "timestamp": "2026-07-11T03:15:45.727154+00:00",
+      "metrics": {
+        "n_samples": 1000,
+        "total_ms": 16150.315599981695,
+        "time_per_sample_ms": 16.150315599981695,
+        "throughput_samples_per_sec": 61.91829464937103
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_parallel_workers_1",
+      "timestamp": "2026-07-11T03:16:01.658494+00:00",
+      "metrics": {
+        "n_workers": 1,
+        "wall_time_s": 15.927707599999849,
+        "samples_per_sec": 62.78367390421014
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_parallel_workers_2",
+      "timestamp": "2026-07-11T03:16:12.029979+00:00",
+      "metrics": {
+        "n_workers": 2,
+        "wall_time_s": 10.36779089999618,
+        "samples_per_sec": 96.45256252229859
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "mc_parallel_workers_4",
+      "timestamp": "2026-07-11T03:16:19.847894+00:00",
+      "metrics": {
+        "n_workers": 4,
+        "wall_time_s": 7.813772199966479,
+        "samples_per_sec": 127.97915966942189
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "full_mc_100",
+      "timestamp": "2026-07-11T03:16:28.613267+00:00",
+      "metrics": {
+        "problem_size_name": "standard",
+        "n_samples": 100,
+        "wall_time_s": 8.762601999973413,
+        "throughput_samples_per_sec": 11.412135345220909,
+        "meets_target": false
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "full_mc_500",
+      "timestamp": "2026-07-11T03:17:11.634658+00:00",
+      "metrics": {
+        "problem_size_name": "standard",
+        "n_samples": 500,
+        "wall_time_s": 43.01797470002202,
+        "throughput_samples_per_sec": 11.623048353314132,
+        "meets_target": false
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "full_mc_1000",
+      "timestamp": "2026-07-11T03:18:38.435851+00:00",
+      "metrics": {
+        "problem_size_name": "standard",
+        "n_samples": 1000,
+        "wall_time_s": 86.79650799999945,
+        "throughput_samples_per_sec": 11.521200829876777,
+        "meets_target": false
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "full_mc_2000",
+      "timestamp": "2026-07-11T03:21:30.096286+00:00",
+      "metrics": {
+        "problem_size_name": "standard",
+        "n_samples": 2000,
+        "wall_time_s": 171.6570077999495,
+        "throughput_samples_per_sec": 11.651140991172447,
+        "meets_target": true
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "single_solve_warm",
+      "timestamp": "2026-07-11T03:21:31.024811+00:00",
+      "metrics": {
+        "n_runs": 10,
+        "mean_ms": 84.79202000889927,
+        "median_ms": 85.32920002471656,
+        "p95_ms": 87.80485001625493,
+        "min_ms": 80.13620000565425,
+        "max_ms": 88.21660000830889,
+        "std_ms": 2.4763035123245
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "cold_start_includes_warmup",
+      "timestamp": "2026-07-11T03:21:31.111265+00:00",
+      "metrics": {
+        "cold_start_ms": 84.12049995968118,
+        "includes_compilation": true,
+        "note": "One-time cost; subsequent calls are < 200ms"
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "scaling_flow_1000",
+      "timestamp": "2026-07-11T03:21:31.615561+00:00",
+      "metrics": {
+        "flow_rate": 1000,
+        "mean_ms": 83.46985998796299,
+        "median_ms": 83.2067999872379
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "scaling_flow_10000",
+      "timestamp": "2026-07-11T03:21:32.153678+00:00",
+      "metrics": {
+        "flow_rate": 10000,
+        "mean_ms": 85.23858000990003,
+        "median_ms": 86.06519998284057
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "scaling_flow_100000",
+      "timestamp": "2026-07-11T03:21:32.666470+00:00",
+      "metrics": {
+        "flow_rate": 100000,
+        "mean_ms": 84.68963998602703,
+        "median_ms": 84.56719998503104
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "scaling_flow_500000",
+      "timestamp": "2026-07-11T03:21:33.167870+00:00",
+      "metrics": {
+        "flow_rate": 500000,
+        "mean_ms": 82.29856002144516,
+        "median_ms": 82.63760001864284
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "solver_time_breakdown",
+      "timestamp": "2026-07-11T03:21:34.088363+00:00",
+      "metrics": {
+        "init_conditions_per_call_ms": 0.0013479997869580984,
+        "rhs_eval_per_call_us": 0.7362700009252876,
+        "full_solve_per_call_ms": 83.48635000293143,
+        "estimated_rhs_evals_per_solve": 300,
+        "estimated_rhs_time_per_solve_ms": 0.22088100027758628,
+        "estimated_solver_overhead_ms": 83.26546900265384
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "numba_compilation_and_cache",
+      "timestamp": "2026-07-11T03:21:34.090470+00:00",
+      "metrics": {
+        "single_numba_call_ms": 0.01279998105019331,
+        "thousand_numba_calls_ms": 0.8239999879151583,
+        "average_numba_call_us": 0.8239999879151583
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "concurrent_throughput",
+      "timestamp": "2026-07-11T03:21:36.636604+00:00",
+      "metrics": {
+        "batch_size": 10,
+        "serial_time_s": 0.8809308000491001,
+        "parallel_time_s": 1.6628268000204116,
+        "speedup": 0.52977904856855,
+        "throughput_per_sec_serial": 11.351629434959742,
+        "throughput_per_sec_parallel": 6.013855441755719
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+      }
+    },
+    {
+      "name": "registry_loading_overhead",
+      "timestamp": "2026-07-11T03:22:07.955776+00:00",
+      "metrics": {
+        "n_loads": 50,
+        "total_ms": 14.790199988055974,
+        "average_load_ms": 0.2958039997611195
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:22:07.940511+00:00"
+      }
+    },
+    {
+      "name": "json_serialization_overhead",
+      "timestamp": "2026-07-11T03:22:07.975395+00:00",
+      "metrics": {
+        "n_iterations": 1000,
+        "serialize_per_call_us": 6.6726000513881445,
+        "deserialize_per_call_us": 11.248900031205267
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "1.26.4",
+        "timestamp": "2026-07-11T03:22:07.940511+00:00"
+      }
+    }
+  ]
+}

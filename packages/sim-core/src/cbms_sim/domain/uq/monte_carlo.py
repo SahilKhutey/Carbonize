@@ -99,3 +99,35 @@ class MonteCarloEngine:
             statistics=statistics,
             diagnostics={"n_samples": self.n_samples}
         )
+
+    def generate_samples(self, specs: Dict[str, Dict[str, Any]]) -> List[Dict[str, float]]:
+        """Generate samples matching the given parameter specifications using LHS."""
+        from scipy.stats import norm, lognorm, uniform
+        # Let's generate self.n_samples samples
+        sampler = qmc.LatinHypercube(d=len(specs), seed=self.seed)
+        points = sampler.random(n=self.n_samples)
+        
+        results = [{} for _ in range(self.n_samples)]
+        for idx, (name, spec) in enumerate(specs.items()):
+            col = points[:, idx]
+            dist_type = spec["type"]
+            if dist_type == "normal":
+                loc = spec["mean"]
+                scale = spec["std"]
+                values = norm.ppf(col, loc=loc, scale=scale)
+            elif dist_type == "lognormal":
+                s = spec.get("sigma", 0.5)
+                mu = np.log(spec["mean"]) - 0.5 * (s ** 2)
+                values = lognorm.ppf(col, s=s, scale=np.exp(mu))
+            elif dist_type == "uniform":
+                loc = spec["min"]
+                scale = spec["max"] - loc
+                values = uniform.ppf(col, loc=loc, scale=scale)
+            else:
+                values = col
+                
+            for row_idx, val in enumerate(values):
+                results[row_idx][name] = float(val)
+                
+        return results
+

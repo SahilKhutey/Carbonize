@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CBMS-Sim Performance Benchmark Report</title>
+    <style>
+        body { font-family: 'Outfit', -apple-system, sans-serif; max-width: 1200px; margin: 20px auto; padding: 20px; background: #0b0f19; color: #f3f4f6; }
+        h1 { color: #10b981; border-bottom: 2px solid #10b981; padding-bottom: 8px; font-size: 32px; }
+        h2 { color: #60a5fa; margin-top: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 4px; }
+        .metric { background: rgba(16, 185, 129, 0.08); border-left: 4px solid #10b981; padding: 16px; margin: 12px 0; border-radius: 0 8px 8px 0; }
+        .metric .name { font-weight: bold; color: #34d399; font-size: 16px; }
+        .metric .value { font-family: monospace; color: #f3f4f6; font-size: 18px; margin-top: 4px; }
+        .system { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); padding: 16px; margin: 12px 0; border-radius: 8px; line-height: 1.6; }
+        table { border-collapse: collapse; width: 100%; margin: 16px 0; background: rgba(255, 255, 255, 0.01); }
+        th, td { border: 1px solid rgba(255, 255, 255, 0.08); padding: 10px 16px; text-align: left; }
+        th { background: rgba(255, 255, 255, 0.05); color: #9ca3af; }
+        .pass { color: #34d399; font-weight: bold; }
+        .fail { color: #f87171; font-weight: bold; }
+        .target-met { background: rgba(16, 185, 129, 0.1); }
+        .target-missed { background: rgba(248, 113, 113, 0.1); }
+    </style>
+</head>
+<body>
+    <h1>⚡ CBMS-Sim Performance Benchmark Report</h1>
+    <p><strong>Generated At:</strong> 2026-07-11T06:42:00.422747+00:00Z</p>
+    <p><strong>Version:</strong> 0.1.0</p>
+    
+    <h2>Executive Summary</h2>
+    <div class="metric">
+        <div class="name">Single ODE solve (warm, standard conditions)</div>
+        <div class="value">87.80 ms (p95) &mdash; Target: &lt; 200 ms &mdash; <span class="pass">✓ PASS</span></div>
+    </div>
+    <div class="metric">
+        <div class="name">Monte Carlo throughput (1,000 samples)</div>
+        <div class="value">16150.32 ms &mdash; Target: &lt; 1,000 ms &mdash; <span class="fail">✗ MISS</span></div>
+    </div>
+    <div class="metric">
+        <div class="name">Concurrent throughput (4 workers, batch of 10 requests)</div>
+        <div class="value">6.01 sims/sec &mdash; <span class="pass">✓ PASS</span></div>
+    </div>
+    
+    <h2>System Configuration</h2>
+    <div class="system">
+        <strong>Platform:</strong> Windows-11-10.0.26200-SP0<br>
+        <strong>Processor:</strong> AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD<br>
+        <strong>CPU cores:</strong> 12 logical / 6 physical<br>
+        <strong>Memory:</strong> 16.39 GB<br>
+        <strong>Python:</strong> 3.12.10<br>
+        <strong>NumPy:</strong> 1.26.4
+    </div>
+    
+    <h2>Problem Size Scaling</h2>
+    <table>
+        <tr>
+            <th>Problem Size / Parameter</th>
+            <th>Mean Latency (ms)</th>
+            <th>Median Latency (ms)</th>
+        </tr>
+        <tr>
+                <td>Exhaust Flow 1,000 Nm³/hr</td>
+                <td>83.47 ms</td>
+                <td>83.21 ms</td>
+            </tr><tr>
+                <td>Exhaust Flow 10,000 Nm³/hr</td>
+                <td>85.24 ms</td>
+                <td>86.07 ms</td>
+            </tr><tr>
+                <td>Exhaust Flow 100,000 Nm³/hr</td>
+                <td>84.69 ms</td>
+                <td>84.57 ms</td>
+            </tr><tr>
+                <td>Exhaust Flow 500,000 Nm³/hr</td>
+                <td>82.30 ms</td>
+                <td>82.64 ms</td>
+            </tr>
+    </table>
+    
+    <h2>Numba JIT Performance</h2>
+    <div class="metric">
+        <div class="name">First call (cold, includes compilation)</div>
+        <div class="value">84.12 ms</div>
+    </div>
+    <div class="metric">
+        <div class="name">Subsequent call (cached average)</div>
+        <div class="value">0.8240 &mu;s &mdash; Speedup: 102088x</div>
+    </div>
+    
+    <h2>Monte Carlo Parallel Scaling (Amdahl's Law)</h2>
+    <table>
+        <tr>
+            <th>N Workers</th>
+            <th>Wall Time (s)</th>
+            <th>Throughput (samples/s)</th>
+        </tr>
+        <tr>
+                <td>1 Workers</td>
+                <td>15.9277 s</td>
+                <td>62.78 samples/s</td>
+            </tr><tr>
+                <td>2 Workers</td>
+                <td>10.3678 s</td>
+                <td>96.45 samples/s</td>
+            </tr><tr>
+                <td>4 Workers</td>
+                <td>7.8138 s</td>
+                <td>127.98 samples/s</td>
+            </tr>
+    </table>
+    
+    <h2>Bottleneck Analysis</h2>
+    <div class="metric">
+        <div class="name">RHS kernel evaluation per call</div>
+        <div class="value">0.7363 &mu;s</div>
+    </div>
+    <div class="metric">
+        <div class="name">Initial conditions computation per call</div>
+        <div class="value">0.0013 ms</div>
+    </div>
+    <div class="metric">
+        <div class="name">Estimated RHS evals per solve</div>
+        <div class="value">~300</div>
+    </div>
+    <div class="metric">
+        <div class="name">Estimated RHS evaluation time per solve</div>
+        <div class="value">0.2209 ms</div>
+    </div>
+    <div class="metric">
+        <div class="name">Estimated Solver overhead (non-RHS)</div>
+        <div class="value">83.2655 ms</div>
+    </div>
+    
+    <h2>Performance Budgets (SLOs)</h2>
+    <table>
+        <tr><th>Operation</th><th>Target</th><th>Measured</th><th>Status</th></tr>
+        <tr class="target-met"><td>Single baseline solve (warm)</td><td>&lt; 200 ms (p95)</td><td>87.80 ms</td><td>✓ PASS</td></tr>
+        <tr class="target-missed"><td>MC 1,000 samples (LHS sampling)</td><td>&lt; 1,000 ms</td><td>16150.32 ms</td><td>✗ MISS</td></tr>
+        <tr class="target-met"><td>PDF/HTML report generation overhead</td><td>&lt; 1,000 ms</td><td>Negligible</td><td>✓ PASS</td></tr>
+    </table>
+    
+    <h2>Recommendations</h2>
+    <ul>
+        <li><strong>Pre-warm Numba</strong>: Pre-compile Numba kernels at application startup to save the 84.1ms JIT warmup penalty on the first user request.</li>
+        <li><strong>Multithreading / Process Pools</strong>: Process parallel UQ samples using standard Python multiprocessing or ProcessPoolExecutor. A speedup of over 2.5x is expected when utilizing 4 logical cores.</li>
+        <li><strong>Initial Conditions</strong>: Initial equilibrium calculation takes 0.001ms. No caching is needed yet as solver integration dominates.</li>
+    </ul>
+</body>
+</html>

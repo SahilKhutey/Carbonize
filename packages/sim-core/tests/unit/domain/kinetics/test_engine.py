@@ -1,0 +1,28 @@
+"""Tests for kinetics engines (standard and extended)."""
+
+import pytest
+from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsEngine
+from cbms_shared.exceptions import NumericalDivergenceError
+
+
+def test_standard_kinetics_engine_solve(sample_plant, sample_reagent, sample_conditions):
+    engine = KineticsEngine()
+    engine.warmup()
+    
+    res = engine.solve(sample_plant, sample_reagent, sample_conditions)
+    assert res.capture_efficiencies["co2_pct"] >= 0.0
+    assert res.capture_efficiencies["so2_pct"] >= 0.0
+    assert "co2_aq" in res.final_state
+    assert res.diagnostics["solver_method"] == "BDF"
+
+
+def test_extended_kinetics_engine_solve(sample_plant, sample_reagent, sample_conditions):
+    engine = ExtendedKineticsEngine()
+    engine.warmup()
+    
+    res = engine.solve(sample_plant, sample_reagent, sample_conditions)
+    assert res.capture_efficiencies["co2_pct"] >= 0.0
+    assert res.capture_efficiencies["so2_pct"] >= 0.0
+    assert "co2_aq" in res.final_state
+    assert res.diagnostics["solver_method"] == "BDF"

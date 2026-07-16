@@ -48,7 +48,8 @@ def reaction_rhs_numba(
     
     # 2) CO2 hydration (Michaelis-Menten with product inhibition)
     K_M_eff = K_M_co2 * (1.0 + hco3 / 26.0)
-    v_cat = (k_cat * ca_active * co2_aq) / (K_M_eff + co2_aq)
+    denom = K_M_eff + co2_aq
+    v_cat = (k_cat * ca_active * co2_aq) / denom if denom > 1e-15 else 0.0
     dCO2_dt = -v_cat
     dHCO3_dt = v_cat
     

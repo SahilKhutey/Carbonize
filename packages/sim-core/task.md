@@ -1,0 +1,25 @@
+- [x] Install test dependencies (`pytest-cov`, `httpx2`)
+- [x] Implement `ParameterRegistry` class and sub-package registry init
+- [x] Create `packages/sim-core/tests/unit/conftest.py` with standard fixtures
+- [x] Implement model validation tests (`test_plant.py`, `test_reagent.py`, `test_conditions.py`)
+- [x] Implement Numba kernel tests (`test_kernels.py`)
+- [x] Implement analytical solution tests (`test_analytical.py`)
+- [x] Implement boundary condition tests (`test_boundaries.py`)
+- [x] Implement conservation law tests (`test_conservation.py`)
+- [x] Implement mass balance engine tests (`test_engine.py`)
+- [x] Implement block strength predictor tests (`test_strength.py`)
+- [x] Implement economic calculations tests (`test_economic.py`)
+- [x] Implement uncertainty quantification and Wiener process tests (`test_uq.py`, `test_monte_carlo.py`)
+- [x] Run the complete test suite and verify >90% coverage on `cbms_sim/domain`
+- [x] Freeze the sim-core public API (Task 2.2):
+  - [x] Create Pydantic v2 types matching contract requirements (`v1/types.py`)
+  - [x] Create error code and custom exceptions hierarchy (`v1/exceptions.py`)
+  - [x] Create unit conversion and validation helpers (`v1/units.py`)
+  - [x] Create versioned parameter set registry loader (`v1/parameters.py`)
+  - [x] Create custom Pydantic validators (`v1/validators.py`)
+  - [x] Create private domain orchestration coordinator (`v1/_internal/engine.py`)
+  - [x] Create stateless facade simulation engine coordinator (`v1/engine.py`)
+  - [x] Export clean public symbols (`v1/__init__.py`)
+- [x] Verify stable v1 interface with contract tests:
+  - [x] Implement `tests/api_contract/test_v1_api.py`
+  - [x] Rerun complete test suite and achieve >90% coverage globally across domain & public API
