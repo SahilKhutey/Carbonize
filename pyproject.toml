@@ -51,3 +51,94 @@ pythonpath = [
     "packages/workers/src/cbms_workers",
     "packages/workers/src/cbms_workers/workers"
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [
+    "*/migrations/*",
+    "*/node_modules/*",
+    "build/*",
+    "dist/*",
+    ".venv/*",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes (undefined names, unused imports)
+    "I",    # isort (import sorting)
+    "N",    # pep8-naming
+    "UP",   # pyupgrade (modern Python syntax)
+    "B",    # flake8-bugbear (common bugs)
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "PIE",  # flake8-pie
+    "PT",   # flake8-pytest-style
+    "RET",  # flake8-return
+    "ARG",  # unused arguments
+    "PTH",  # use pathlib
+    "ERA",  # eradicate commented-out code
+    "PL",   # pylint
+    "TRY",  # tryceratops
+    "RUF",  # ruff-specific
+]
+
+ignore = [
+    "PLR0913",  # too many arguments (sometimes necessary)
+    "PLR2004",  # magic value (when intentional)
+    "TRY003",   # long messages outside exception class
+]
+
+fixable = ["ALL"]
+unfixable = ["B", "F"]  # Don't auto-fix bugs
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "PLR2004",  # magic value in tests is OK
+    "S101",     # assert is OK in tests
+    "ARG001",   # unused function arg in fixtures
+    "PLR0915",  # too many statements in test
+]
+"__init__.py" = ["F401"]  # unused imports in __init__ is OK
+"**/migrations/*" = ["N999"]  # alembic special names
+"**/kernels.py" = ["TID252"]  # Numba functions can have unusual patterns
+
+[tool.ruff.lint.isort]
+known-first-party = ["cbms_sim", "cbms_api", "cbms_workers", "cbms_cfd", "cbms_shared"]
+known-third-party = ["numpy", "scipy", "pandas", "fastapi", "sqlalchemy"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.coverage.run]
+source = ["packages/sim-core/src"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/conftest.py",
+    "*/kernels.py",
+    "*/cbms_sim/core/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "@njit",
+    "@njit\\(cache=True\\)",
+    "@njit\\(cache=True, fastmath=True\\)",
+    "pass",
+    "\\.\\.\\.",
+]
+fail_under = 90
+show_missing = true
+skip_empty = true
+precision = 1
+

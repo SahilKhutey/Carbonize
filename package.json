@@ -4,11 +4,13 @@
   "private": true,
   "description": "Coral-inspired biomineralization multi-pollutant capture simulator monorepo",
   "scripts": {
-    "dev:web": "pnpm --filter web dev",
-    "build:web": "pnpm --filter web build",
-    "test:web": "pnpm --filter web test"
+    "dev:web": "pnpm --filter biomimetic-sim-frontend dev",
+    "build:web": "pnpm --filter biomimetic-sim-frontend build",
+    "test:web": "pnpm --filter biomimetic-sim-frontend test"
   },
   "devDependencies": {
+    "@types/jest-axe": "^3.5.9",
+    "jest-axe": "^10.0.0",
     "typescript": "^5.0.0"
   }
 }

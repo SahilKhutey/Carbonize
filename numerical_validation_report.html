@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CBMS-Sim Numerical Validation Report</title>
+    <style>
+        body { font-family: monospace; max-width: 1200px; margin: 20px auto; padding: 20px; }
+        h1 { color: #059669; }
+        .summary { background: #f0fdf4; border: 1px solid #10b981; padding: 16px; border-radius: 8px; }
+        .test-pass { color: #10b981; }
+        .test-fail { color: #ef4444; }
+        table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+        th, td { border: 1px solid #e5e7eb; padding: 6px 12px; text-align: left; }
+        th { background: #f3f4f6; }
+        pre { background: #f9fafb; border: 1px solid #e5e7eb; padding: 12px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔬 CBMS-Sim Numerical Validation Report</h1>
+    <p>Date: 2026-07-10T16:30:03.007932+00:00</p>
+    
+    <div class="summary">
+        <h2>Summary</h2>
+        <p>Total tests executed: 28</p>
+        <p class="test-pass">✅ Passed: 28</p>
+        <p class="test-fail">❌ Failed: 0</p>
+        
+        <p>Pass rate: 100.0%</p>
+    </div>
+    
+    <h2>Test Categories</h2>
+    <table>
+        <tr><th>Category</th><th>Tests Status</th></tr>
+        <tr><td>Convergence (order verification, step independence)</td><td>✅ Passed</td></tr>
+        <tr><td>Stability (dilute concentration, temperature & pH bounds)</td><td>✅ Passed</td></tr>
+        <tr><td>Reference Solver Comparison (BDF vs Radau vs LSODA)</td><td>✅ Passed</td></tr>
+        <tr><td>Conservation (Ca, Carbon, Sulfur mass preservation)</td><td>✅ Passed</td></tr>
+        <tr><td>Stiffness Analysis (Jacobian eigenvalue ratios)</td><td>✅ Passed</td></tr>
+    </table>
+
+    <h2>Pytest Console Output</h2>
+    <pre>============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\ASUS\AppData\Local\Programs\Python\Python312\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\ASUS\Documents\Carbonize
+configfile: pyproject.toml
+plugins: anyio-4.14.1, asyncio-1.4.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 28 items
+
+packages/sim-core/tests/numerical/test_convergence.py::TestOrderConvergence::test_solution_converges_with_tighter_tolerance[BDF] PASSED [  3%]
+packages/sim-core/tests/numerical/test_convergence.py::TestOrderConvergence::test_solution_converges_with_tighter_tolerance[Radau] PASSED [  7%]
+packages/sim-core/tests/numerical/test_convergence.py::TestOrderConvergence::test_solution_converges_with_tighter_tolerance[LSODA] PASSED [ 10%]
+packages/sim-core/tests/numerical/test_convergence.py::TestOrderConvergence::test_bdf_convergence_order PASSED [ 14%]
+packages/sim-core/tests/numerical/test_convergence.py::TestTimeStepIndependence::test_solution_independent_of_max_step[1.0] PASSED [ 17%]
+packages/sim-core/tests/numerical/test_convergence.py::TestTimeStepIndependence::test_solution_independent_of_max_step[5.0] PASSED [ 21%]
+packages/sim-core/tests/numerical/test_energy_conservation.py::TestMassConservation::test_calcium_balance PASSED [ 25%]
+packages/sim-core/tests/numerical/test_energy_conservation.py::TestMassConservation::test_carbon_balance PASSED [ 28%]
+packages/sim-core/tests/numerical/test_energy_conservation.py::TestMassConservation::test_sulfur_balance PASSED [ 32%]
+packages/sim-core/tests/numerical/test_energy_conservation.py::TestMonotonicBehavior::test_ca_activity_monotonically_decreasing PASSED [ 35%]
+packages/sim-core/tests/numerical/test_energy_conservation.py::TestMonotonicBehavior::test_pm_capture_monotonically_increasing PASSED [ 39%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestBFDAgainstReferenceSolvers::test_bdf_vs_reference[Radau] PASSED [ 42%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestBFDAgainstReferenceSolvers::test_bdf_vs_reference[LSODA] PASSED [ 46%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestBFDAgainstReferenceSolvers::test_analytical_solutions PASSED [ 50%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestRandomizedParameterSpace::test_random_parameters_solver_robust[1] PASSED [ 53%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestRandomizedParameterSpace::test_random_parameters_solver_robust[2] PASSED [ 57%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestRandomizedParameterSpace::test_random_parameters_solver_robust[3] PASSED [ 60%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestRandomizedParameterSpace::test_random_parameters_solver_robust[4] PASSED [ 64%]
+packages/sim-core/tests/numerical/test_reference_solvers.py::TestRandomizedParameterSpace::test_random_parameters_solver_robust[5] PASSED [ 67%]
+packages/sim-core/tests/numerical/test_stability.py::TestNearZeroConcentrations::test_zero_initial_state_doesnt_crash PASSED [ 71%]
+packages/sim-core/tests/numerical/test_stability.py::TestNearZeroConcentrations::test_very_small_concentrations PASSED [ 75%]
+packages/sim-core/tests/numerical/test_stability.py::TestNearZeroConcentrations::test_mixed_zero_nonzero PASSED [ 78%]
+packages/sim-core/tests/numerical/test_stability.py::TestExtremeTemperature::test_extreme_hot_70c PASSED [ 82%]
+packages/sim-core/tests/numerical/test_stability.py::TestExtremeTemperature::test_extreme_cold_10c PASSED [ 85%]
+packages/sim-core/tests/numerical/test_stability.py::TestExtremePH::test_extreme_acidic_pH5 PASSED [ 89%]
+packages/sim-core/tests/numerical/test_stability.py::TestExtremePH::test_extreme_basic_pH11 PASSED [ 92%]
+packages/sim-core/tests/numerical/test_stability.py::TestLongHorizon::test_long_horizon_1_hour PASSED [ 96%]
+packages/sim-core/tests/numerical/test_stiffness_ratio.py::TestStiffnessRatio::test_stiffness_justifies_bdf PASSED [100%]
+
+============================= 28 passed in 2.30s ==============================
+</pre>
+</body>
+</html>
+    
