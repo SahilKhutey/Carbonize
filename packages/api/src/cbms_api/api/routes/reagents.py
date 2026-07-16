@@ -5,25 +5,22 @@ Endpoints for managing reagent formulations and costing design.
 
 from typing import List, Optional
 from uuid import UUID, uuid4
-from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+
+from cbms_api.schemas.reagent import ReagentCreateRequest
+from cbms_api.middleware.rate_limiting import rate_limit_write, rate_limit_read, rate_limit_expensive
 
 router = APIRouter(prefix="/reagents", tags=["Reagents"])
-
-class ReagentSchema(BaseModel):
-    name: str
-    description: Optional[str] = None
-    chitosan_wt_pct: float = Field(..., ge=0.5, le=6.0)
-    ca_source_type: str = "Ca(OH)2"
-    ca_wt_pct: float = Field(..., ge=1.0, le=10.0)
-    enzyme_type: str = "bovine_CA"
-    enzyme_mg_per_l: float = Field(..., ge=1.0, le=50.0)
 
 # Local memory-backed storage for tenant-scoped custom designer configurations
 _REAGENTS_DB = {}
 
 @router.post("", response_model=None, status_code=status.HTTP_201_CREATED)
-async def create_reagent(schema: ReagentSchema):
+@rate_limit_write(limit="30/minute")
+async def create_reagent(
+    request: Request,
+    schema: ReagentCreateRequest,
+):
     """
     Creates a new custom reagent formulation and registers it.
     """
@@ -36,14 +33,21 @@ async def create_reagent(schema: ReagentSchema):
     return record
 
 @router.get("", response_model=None)
-async def list_reagents():
+@rate_limit_read(limit="300/minute")
+async def list_reagents(
+    request: Request,
+):
     """
     Lists all custom formulations.
     """
     return list(_REAGENTS_DB.values())
 
 @router.get("/{reagent_id}", response_model=None)
-async def get_reagent(reagent_id: UUID):
+@rate_limit_read(limit="600/minute")
+async def get_reagent(
+    request: Request,
+    reagent_id: UUID,
+):
     """
     Retrieves a specific formulation.
     """
@@ -55,7 +59,11 @@ async def get_reagent(reagent_id: UUID):
     return _REAGENTS_DB[reagent_id]
 
 @router.post("/calculate-cost", response_model=None)
-async def calculate_cost(schema: ReagentSchema):
+@rate_limit_expensive(limit="10/minute")
+async def calculate_cost(
+    request: Request,
+    schema: ReagentCreateRequest,
+):
     """
     Calculates operational and material costs per kg of matrix slurry.
     """
@@ -76,7 +84,12 @@ async def calculate_cost(schema: ReagentSchema):
     }
 
 @router.post("/{reagent_id}/clone", response_model=None)
-async def clone_reagent(reagent_id: UUID, new_name: str):
+@rate_limit_write(limit="30/minute")
+async def clone_reagent(
+    request: Request,
+    reagent_id: UUID,
+    new_name: str,
+):
     """
     Clones an existing reagent formulation under a new design profile name.
     """

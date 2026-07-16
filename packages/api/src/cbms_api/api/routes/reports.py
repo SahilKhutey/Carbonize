@@ -5,7 +5,7 @@ Endpoints to fetch and compile PDF reports for simulation runs.
 
 import os
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import FileResponse
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -13,11 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies import get_db, get_active_tenant_id
 from database.models import SimulationRun, PlantProfile
 from workers.report_generator import generate_pdf_report_file
+from cbms_api.middleware.rate_limiting import rate_limit_expensive
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
 @router.get("/{run_id}", response_class=FileResponse)
+@rate_limit_expensive(limit="5/minute;50/hour")
 async def get_pdf_report(
+    request: Request,
     run_id: UUID,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)

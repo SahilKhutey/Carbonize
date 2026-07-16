@@ -4,13 +4,14 @@ import hashlib
 import asyncio
 import redis.asyncio as async_redis
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, status, Request, WebSocket, WebSocketDisconnect
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies import get_db, get_active_tenant_id
 from database.models import PlantProfile, SimulationRun, SimulationResult
-from core.validators import SimulationRequestSchema
+from cbms_api.schemas.simulation import SimulationCreateRequest
+from cbms_api.middleware.rate_limiting import rate_limit_expensive, rate_limit_read, rate_limit_write
 
 router = APIRouter(prefix="/simulations", tags=["Simulations"])
 REDIS_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
@@ -26,8 +27,10 @@ def generate_input_hash(
     return hashlib.sha256(raw_str.encode('utf-8')).hexdigest()
 
 @router.post("", response_model=None, status_code=status.HTTP_202_ACCEPTED)
+@rate_limit_expensive(limit="10/minute;100/hour")
 async def trigger_simulation(
-    schema: SimulationRequestSchema,
+    request: Request,
+    schema: SimulationCreateRequest,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)
 ):
@@ -156,7 +159,9 @@ async def trigger_simulation(
     return run
 
 @router.get("/{run_id}", response_model=None)
+@rate_limit_read(limit="300/minute")
 async def get_simulation_status(
+    request: Request,
     run_id: UUID,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)
@@ -179,7 +184,9 @@ async def get_simulation_status(
     return run
 
 @router.delete("/{run_id}/cancel", status_code=status.HTTP_200_OK)
+@rate_limit_expensive(limit="30/minute")
 async def cancel_simulation(
+    request: Request,
     run_id: UUID,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)

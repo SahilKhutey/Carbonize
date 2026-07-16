@@ -16,33 +16,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async for session in get_db_session():
         yield session
 
+from cbms_api.auth.rbac import get_current_active_user, AuthUser
+
+
 async def get_active_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-ID"),
-    db: AsyncSession = Depends(get_db)
+    user: AuthUser = Depends(get_current_active_user)
 ) -> UUID:
     """
-    Retrieves the tenant organization context from request headers.
-    Falls back to a default organization if the header is omitted.
+    Retrieves the tenant organization context from the authenticated user context.
     """
-    if x_tenant_id:
-        try:
-            return UUID(x_tenant_id)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid X-Tenant-ID header. Must be a valid UUID v4."
-            )
+    return user.org_id
 
-    result = await db.execute(select(Organization).limit(1))
-    org = result.scalars().first()
-    
-    if not org:
-        org = Organization(
-            name="CarbonLattice Operations India",
-            industry_type="power_generation"
-        )
-        db.add(org)
-        await db.commit()
-        await db.refresh(org)
-        
-    return org.id

@@ -5,19 +5,22 @@ Endpoints for managing industrial plant profiles.
 
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.dependencies import get_db, get_active_tenant_id
 from database.models import PlantProfile, LogisticsConfig
-from core.validators import PlantProfileSchema
+from cbms_api.schemas.plant import PlantProfileCreateRequest
+from cbms_api.middleware.rate_limiting import rate_limit_write, rate_limit_read
 
 router = APIRouter(prefix="/plants", tags=["Plants"])
 
 @router.post("", response_model=None, status_code=status.HTTP_201_CREATED)
+@rate_limit_write(limit="30/minute")
 async def create_plant(
-    schema: PlantProfileSchema,
+    request: Request,
+    schema: PlantProfileCreateRequest,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)
 ):
@@ -63,7 +66,9 @@ async def create_plant(
     return result.scalars().first()
 
 @router.get("", response_model=None)
+@rate_limit_read(limit="300/minute")
 async def list_plants(
+    request: Request,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)
 ):
@@ -78,7 +83,9 @@ async def list_plants(
     return result.scalars().all()
 
 @router.get("/{plant_id}", response_model=None)
+@rate_limit_read(limit="600/minute")
 async def get_plant(
+    request: Request,
     plant_id: UUID,
     db: AsyncSession = Depends(get_db),
     org_id: UUID = Depends(get_active_tenant_id)
