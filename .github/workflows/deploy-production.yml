@@ -42,7 +42,7 @@ jobs:
         run: |
           aws ecs update-service \
             --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${env.ECS_SERVICE_API}-canary \
+            --service ${{ env.ECS_SERVICE_API }}-canary \
             --task-definition cbms-api-prod:${{ github.event.inputs.ref }} \
             --force-new-deployment
 
@@ -58,7 +58,8 @@ jobs:
             --dimensions Name=ServiceName,Value=cbms-api-prod-canary \
             --start-time $(date -u -d '5 minutes ago' '+%Y-%m-%dT%H:%M:%S') \
             --end-time $(date -u '+%Y-%m-%dT%H:%M:%S') \
-            --period 60 --statistics Sum)
+            --period 60 --statistics Sum \
+            | jq -r '[.Datapoints[].Sum] | add // 0')
           
           if [ "$ERRORS" -gt 10 ]; then
             echo "::error::Canary has too many errors: $ERRORS"
