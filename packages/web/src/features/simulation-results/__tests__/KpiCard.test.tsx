@@ -47,7 +47,7 @@ describe("KpiCard — rendering", () => {
   });
 
   it("renders the UncertaintyBadge button", () => {
-    render(<KpiCard label="Capture" metric={HIGH_METRIC} unit="%" />);
+    render(<KpiCard label="Capture" metric={HIGH_METRIC} unit="%" onClick={() => {}} />);
     // UncertaintyBadge renders a <button>
     // KpiCard itself is a <button> → should be >= 2
     const buttons = screen.getAllByRole("button");
@@ -113,7 +113,7 @@ describe("KpiCard — interaction", () => {
   });
 
   it("has accessible aria-label on the card", () => {
-    render(<KpiCard label="CO₂ Capture" metric={HIGH_METRIC} unit="%" />);
+    render(<KpiCard label="CO₂ Capture" metric={HIGH_METRIC} unit="%" onClick={() => {}} />);
     const buttons = screen.getAllByRole("button");
     // The KpiCard outer button should have an aria-label
     const cardBtn = buttons.find((b) => b.getAttribute("aria-label")?.includes("CO₂ Capture"));
