@@ -1,0 +1,43 @@
+parameter_id,symbol,value,unit,distribution,dist_params,source,source_type,confidence,conditions,extrapolation_risk,owner,notes
+kinetics.k_cat,k_cat,1.0e6,s^-1,lognormal,"mu=13.82, sigma=0.40",Mirjafari 2007,literature,MEDIUM,"25°C, pH 7.4, bovine CA",HIGH,@chem-team,Used at 40°C; need bench validation
+kinetics.K_M_co2,K_M_co2,8.5,mM,lognormal,"mu=2.14, sigma=0.30",Mirjafari 2007,literature,MEDIUM,"25°C, pH 7.4",MEDIUM,@chem-team,Will be measured in CE-1
+kinetics.k_inact,k_inact,5.0e-5,s^-1,lognormal,"mu=-9.90, sigma=0.50",Rigkos 2024,literature,MEDIUM,"40°C, pH 8.5, CA-KR1",LOW,@bio-team,Thermostable variant; validate
+kinetics.E_a_inact,E_a_inact,85.0,kJ/mol,normal,"mu=85, sigma=5",Rigkos 2024,literature,MEDIUM,30-50°C,LOW,@bio-team,Need 2-3 temperature points
+kinetics.k_so2_abs,k_so2,2.5e-2,m/s,lognormal,"mu=-3.69, sigma=0.30",EPA AP-42,literature,MEDIUM,"L/G=8.5, pH>7",MEDIUM,@aero-team,Will validate in CE-4
+kinetics.k_chel_Hg,k_Hg,8.0e-3,m^3/(mol*s),lognormal,"mu=-4.83, sigma=0.40",Wu 2010,literature,MEDIUM,"pH 7, 25°C",HIGH,@chem-team,Per-metal rates needed
+kinetics.k_chel_Pb,k_Pb,1.2e-2,m^3/(mol*s),lognormal,"mu=-4.42, sigma=0.40",Wu 2010,literature,MEDIUM,"pH 7, 25°C",HIGH,@chem-team,Per-metal rates needed
+kinetics.k_chel_Cd,k_Cd,6.0e-3,m^3/(mol*s),lognormal,"mu=-5.12, sigma=0.40",Wu 2010,literature,MEDIUM,"pH 7, 25°C",HIGH,@chem-team,Per-metal rates needed
+kinetics.k_chel_As,k_As,4.0e-3,m^3/(mol*s),lognormal,"mu=-5.52, sigma=0.40",Wu 2010,literature,LOW,"pH 7, 25°C",HIGH,@chem-team,Per-metal rates needed
+kinetics.k_precip_caco3,k_p_CaCO3,1.5e-2,m/s,lognormal,"mu=-4.20, sigma=0.35",Zeng 2024,literature,MEDIUM,"25°C, I=0.1M",MEDIUM,@chem-team,Chitosan template effect
+kinetics.k_precip_caso4,k_p_CaSO4,5.0e-3,m/s,normal,"mu=0.005, sigma=0.001",EPA AP-42,literature,HIGH,"25°C, I=0.1M",LOW,@chem-team,Well-established reaction
+kinetics.k_pm_capture,k_PM,0.18,m/s,lognormal,"mu=-1.71, sigma=0.30",Stokes settling,calculated,MEDIUM,"25°C, dp=10um",MEDIUM,@aero-team,Need PM size distribution
+kinetics.H_co2,H_CO2,3.4e-2,mol/(m^3*Pa),lognormal,"mu=-3.38, sigma=0.10",Sander 2015,literature,HIGH,25°C,water,@chem-team,Henry's law constant
+kinetics.H_so2,H_SO2,1.2,mol/(m^3*Pa),lognormal,"mu=0.18, sigma=0.10",Sander 2015,literature,HIGH,25°C,water,@chem-team,Henry's law constant
+kinetics.dens_chitosan,rho_chitosan,1400.0,kg/m^3,normal,"mu=1400, sigma=50",Supplier spec,measured,HIGH,Dry film,LOW,@materials-team,Verified batch
+thermo.Ksp_caco3,Ksp_CaCO3,3.3e-9,(mol/m^3)^2,lognormal,"mu=-19.53, sigma=0.15",CRC Handbook,literature,HIGH,"25°C, I=0",LOW,@chem-team,Well-established
+thermo.Ksp_caso4,Ksp_CaSO4,4.93e-5,(mol/m^3)^2,lognormal,"mu=-9.92, sigma=0.10",CRC Handbook,literature,HIGH,"25°C, I=0",LOW,@chem-team,Well-established
+thermo.K_f_Pb,K_f_Pb,1.2e-2,L/mg,lognormal,"mu=-4.42, sigma=0.20",Wu 2010,literature,MEDIUM,Freundlich isotherm,MEDIUM,@chem-team,pH-dependent
+thermo.n_Pb,n_Pb,0.85,-,normal,"mu=0.85, sigma=0.05",Wu 2010,literature,MEDIUM,Freundlich exponent,MEDIUM,@chem-team,pH-dependent
+thermo.pKa_chitosan_NH2,pKa_NH2,6.5,-,normal,"mu=6.5, sigma=0.10",Rinaudo 2006,literature,HIGH,Chitosan amine,LOW,@materials-team,For speciation
+ops.reactor_temp_c,T,40.0,°C,normal,"mu=40.0, sigma=2.0",Design spec,specified,HIGH,Mesh tower,LOW,@aero-team,Tunable
+ops.pH_initial,pH_0,8.5,-,normal,"mu=8.5, sigma=0.30",Design spec,specified,HIGH,Buffer assumed,LOW,@chem-team,Tunable
+ops.liquid_to_gas_ratio,L_G,8.5,L/m^3,normal,"mu=8.5, sigma=0.50",EPA AP-42,specified,HIGH,Standard range,LOW,@aero-team,Tunable
+ops.residence_time_s,tau,27.0,s,normal,"mu=27.0, sigma=1.0",Design spec,calculated,MEDIUM,Based on mesh geometry,LOW,@aero-team,Design dep
+transport.k_L_a,k_L_a,0.02,s^-1,lognormal,"mu=-3.91, sigma=0.20",EPA AP-42,literature,MEDIUM,"Bubble column, I=0.1M",MEDIUM,@aero-team,Needs pilot validation
+transport.dp_bubble,d_b,3.0,mm,normal,"mu=3.0, sigma=0.5",Calculated,assumed,MEDIUM,Coalesced bubbles,MEDIUM,@aero-team,PLACEHOLDER
+transport.U_g,U_g,0.15,m/s,design,"mu=0.15, sigma=0.01",Mesh tower,specified,HIGH,Operating condition,LOW,@aero-team,Measured in pilot
+econ.ccts_price_inr,P_CCTS,1850.0,Rs/tCO2,triangular,"min=1200, max=2500, mode=1500",BEE 2024 Q3,market,LOW,India 2024,HIGH,@economics-team,Subject to policy change
+econ.block_market_price,P_block,12.0,Rs/block,normal,"mu=12.0, sigma=1.5",Industry survey,market,MEDIUM,M20 grade,LOW,@economics-team,Depends on grade
+econ.chitosan_cost,C_chitosan,320.0,Rs/kg,normal,"mu=320.0, sigma=30.0",Supplier quote,market,MEDIUM,2024 Q4,LOW,@materials-team,Subject to supplier
+econ.lime_cost,C_lime,8.5,Rs/kg,normal,"mu=8.5, sigma=0.5",Market,market,HIGH,Bulk Ca(OH)2,LOW,@economics-team,Stable
+econ.steel_slag_cost,C_slag,1.2,Rs/kg,normal,"mu=1.2, sigma=0.2",Waste market,market,HIGH,Negative cost potential,LOW,@materials-team,Zero or credit
+econ.enzyme_cost,C_CA,40000.0,Rs/g,lognormal,"mu=10.60, sigma=0.50",Sigma-Aldrich,market,MEDIUM,"Bovine CA, research grade",HIGH,@bio-team,Scale-up uncertain
+econ.power_cost,C_power,8.5,Rs/kWh,normal,"mu=8.5, sigma=0.5",State tariff,specified,HIGH,Industrial HT,LOW,@economics-team,Stable
+econ.water_cost,C_water,65.0,Rs/kL,normal,"mu=65.0, sigma=5.0",Municipal,specified,HIGH,Industrial use,LOW,@economics-team,Stable
+phys.MW_CO2,M_CO2,44.01,g/mol,fixed,-,IUPAC,literature,HIGH,-,LOW,@chem-team,Universal constant
+phys.MW_SO2,M_SO2,64.07,g/mol,fixed,-,IUPAC,literature,HIGH,-,LOW,@chem-team,Universal constant
+phys.MW_CaCO3,M_CaCO3,100.09,g/mol,fixed,-,IUPAC,literature,HIGH,-,LOW,@chem-team,Universal constant
+phys.MW_CaSO4_2H2O,M_gypsum,172.17,g/mol,fixed,-,IUPAC,literature,HIGH,-,LOW,@chem-team,Universal constant
+phys.dens_water,rho_water,1000.0,kg/m^3,fixed,-,CRC,literature,HIGH,4°C,LOW,@chem-team,Reference
+phys.dens_slurry,rho_slurry,1010.0,kg/m^3,normal,"mu=1010, sigma=10",Measured,measured,MEDIUM,3% chitosan,LOW,@materials-team,Batch-dependent
+phys.viscosity_slurry,eta_slurry,1.2e-3,Pa*s,normal,"mu=0.0012, sigma=0.0001",Measured,measured,MEDIUM,"3% chitosan, 40°C",LOW,@materials-team,Rheology dep

@@ -1,0 +1,220 @@
+# ============================================================================
+# Deploy to Staging: runs on every push to main
+# ============================================================================
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+
+# Prevent concurrent deploys
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+  ECS_CLUSTER: cbms-staging
+  ECS_SERVICE_API: cbms-api-staging
+  ECS_SERVICE_WORKER: cbms-worker-staging
+  ECS_SERVICE_WEB: cbms-web-staging
+
+jobs:
+  # ============================================================================
+  # 1. BUILD + PUSH IMAGES
+  # ============================================================================
+  build:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate version
+        id: version
+        run: |
+          VERSION="${GITHUB_SHA::7}"
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "SHORT_VERSION=${VERSION::7}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/api.Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/cbms-api:${{ steps.version.outputs.VERSION }}
+            ${{ env.ECR_REGISTRY }}/cbms-api:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/worker.Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/cbms-worker:${{ steps.version.outputs.VERSION }}
+            ${{ env.ECR_REGISTRY }}/cbms-worker:staging
+
+      - name: Build and push Web
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: deploy/docker/web.Dockerfile
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/cbms-web:${{ steps.version.outputs.VERSION }}
+            ${{ env.ECR_REGISTRY }}/cbms-web:staging
+
+  # ============================================================================
+  # 2. RUN DATABASE MIGRATIONS
+  # ============================================================================
+  migrate:
+    name: Database Migrations
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Run migrations
+        run: |
+          # Use ECS Run Task to execute migration job
+          aws ecs run-task \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --task-definition cbms-migrate-staging \
+            --launch-type FARGATE \
+            --network-configuration 'awsvpcConfiguration={...}' \
+            --overrides '{"containerOverrides":[{"name":"api","command":["alembic","upgrade","head"]}]}'
+
+  # ============================================================================
+  # 3. DEPLOY TO ECS STAGING
+  # ============================================================================
+  deploy:
+    name: Deploy to ECS Staging
+    needs: [build, migrate]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy API service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE_API }} \
+            --force-new-deployment
+
+      - name: Deploy Worker service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE_WORKER }} \
+            --force-new-deployment
+
+      - name: Deploy Web service
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE_WEB }} \
+            --force-new-deployment
+
+      - name: Wait for services stable
+        run: |
+          sleep 60
+          aws ecs wait services-stable \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --services ${{ env.ECS_SERVICE_API }} ${{ env.ECS_SERVICE_WORKER }} ${{ env.ECS_SERVICE_WEB }}
+
+  # ============================================================================
+  # 4. SMOKE TESTS IN STAGING
+  # ============================================================================
+  smoke:
+    name: Staging Smoke Tests
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with: { python-version: ${{ env.PYTHON_VERSION }} }
+      - run: pip install poetry && poetry install
+
+      - name: Health check
+        run: |
+          STATUS=$(curl -fsS https://staging-api.cbms.in/health)
+          echo "Health: ${STATUS}"
+          echo "${STATUS}" | grep -q "ok"
+
+      - name: Auth flow test
+        run: |
+          # Login
+          TOKEN=$(curl -fsS -X POST https://staging-api.cbms.in/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@cbms.in","password":"test123"}' | jq -r .access_token)
+          echo "Token: ${TOKEN:0:20}..."
+
+      - name: List plants
+        run: |
+          TOKEN=$(curl -fsS -X POST https://staging-api.cbms.in/api/v1/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"test@cbms.in","password":"test123"}' | jq -r .access_token)
+          
+          curl -fsS -H "Authorization: Bearer ${TOKEN}" \
+            https://staging-api.cbms.in/api/v1/plants
+
+  # ============================================================================
+  # 5. NOTIFY
+  # ============================================================================
+  notify:
+    name: Notify Slack
+    needs: [deploy, smoke]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Slack notification
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "${{ job.status == 'success' && '✅' || '❌' }} Staging deploy ${{ job.status }}: ${{ github.event.head_commit.message }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEPLOY }}

@@ -1,22 +1,63 @@
-COMMERCIAL LICENSE AGREEMENT AND COPYRIGHT NOTICE
+Business Source License 1.1
 
-Copyright (c) 2026 Sahil Khutey. All Rights Reserved.
+Licensor:  CBMS Technologies Pvt. Ltd.
+Licensed Work:  CBMS-Sim v0.3.0
+Change Date:  2028-02-14
+Change License:  Apache License 2.0
 
-This software and all associated documentation, code, media, algorithms, and designs (collectively, the "Work") are the sole and exclusive intellectual property of Sahil Khutey.
+Additional Use Grant:
 
-TERMS AND CONDITIONS
+  You may use the Licensed Work for non-production purposes, including:
+  
+  (a) Personal use
+  (b) Academic research and education
+  (c) Internal testing and evaluation
+  (d) Open-source development and contribution
+  (e) Pilot projects and proof-of-concept deployments
+      (defined as: <100 hours of operation OR <10 tonnes CO₂ processed
+       per calendar month, whichever is less)
+  
+  You may NOT use the Licensed Work for production purposes without a 
+  separate commercial license from the Licensor.
+  
+  Production use includes, but is not limited to:
+  - Operating the software in a commercial environment
+  - Processing real customer data for commercial purposes
+  - Providing carbon capture as a service to third parties
+  - Generating carbon credits for commercial sale
+  - Manufacturing products using outputs from the Licensed Work
 
-1. OWNERSHIP
-Sahil Khutey retains all rights, title, and interest in and to the Work, including but not limited to all copyright, patent, trademark, and trade secret rights. No license or transfer of ownership is implied or granted except as explicitly detailed herein.
+  For commercial licensing, contact: licensing@cbms.in
 
-2. LICENSE GRANT
-Subject to the terms and conditions of this Agreement, Sahil Khutey hereby grants to authorized entities a limited, non-exclusive, non-transferable, revocable license to install, run, and execute the software for internal business operations.
+Terms:
 
-3. RESTRICTIONS
-Licensee shall not:
-- Modify, disassemble, decompile, reverse engineer, or create derivative works of the Work.
-- Copy, distribute, sell, lease, sublicense, or rent the Work to any third party without explicit written permission from Sahil Khutey.
-- Remove or alter any proprietary notices, labels, or marks from the Work.
+1. Change Date: 2028-02-14
+   On this date, the Licensed Work will be made available under the 
+   Apache License 2.0.
 
-4. WARRANTY DISCLAIMER
-THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK.
+2. Change License: Apache License 2.0
+   The Change License applies to the Licensed Work as of the Change Date.
+
+3. Additional Use Grant: As specified above
+
+4. Patent Grant: Licensor grants you a non-exclusive, worldwide, 
+   royalty-free patent license to use the Licensed Work, subject to 
+   the conditions of this License.
+
+5. Restrictions:
+   a. You may not use the Licensed Work for production purposes without
+      a commercial license.
+   b. You may not distribute modifications without releasing them 
+      under this License.
+   c. You may not sublicense the Licensed Work.
+   d. You may not remove or alter any license notices.
+
+6. Trademarks: This License does not grant any rights to use the 
+   Licensor's name, logo, or trademarks.
+
+7. Disclaimer: THE LICENSED WORK IS PROVIDED "AS IS". LICENSOR DISCLAIMS 
+   ALL WARRANTIES. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF 
+   THE LICENSED WORK IS WITH YOU.
+
+For the full Business Source License 1.1 text, see:
+https://mariadb.com/bsl11/

@@ -1,0 +1,1320 @@
+﻿{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CBMS WebSocket Protocol v1",
+  "description": "Auto-generated JSON Schema from Pydantic models. DO NOT EDIT. Re-generate with: python scripts/generate_ws_schema.py",
+  "protocol_version": "1.0",
+  "subprotocol": "cbms-twin.v1",
+  "messages": {
+    "WelcomeMessage": {
+      "properties": {
+        "type": {
+          "const": "welcome",
+          "default": "welcome",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/WelcomeData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "WelcomeMessage",
+      "type": "object"
+    },
+    "SubscribeMessage": {
+      "properties": {
+        "type": {
+          "const": "subscribe",
+          "default": "subscribe",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/SubscribeData"
+        }
+      },
+      "title": "SubscribeMessage",
+      "type": "object"
+    },
+    "TickMessage": {
+      "properties": {
+        "type": {
+          "const": "tick",
+          "default": "tick",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/TickData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "TickMessage",
+      "type": "object"
+    },
+    "AlertMessage": {
+      "properties": {
+        "type": {
+          "const": "alert",
+          "default": "alert",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/AlertData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "AlertMessage",
+      "type": "object"
+    },
+    "AlertClearedMessage": {
+      "properties": {
+        "type": {
+          "const": "alert_cleared",
+          "default": "alert_cleared",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/AlertClearedData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "AlertClearedMessage",
+      "type": "object"
+    },
+    "CommandMessage": {
+      "properties": {
+        "type": {
+          "const": "command",
+          "default": "command",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/CommandData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "CommandMessage",
+      "type": "object"
+    },
+    "CommandAckMessage": {
+      "properties": {
+        "type": {
+          "const": "command_ack",
+          "default": "command_ack",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/CommandAckData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "CommandAckMessage",
+      "type": "object"
+    },
+    "PingMessage": {
+      "properties": {
+        "type": {
+          "const": "ping",
+          "default": "ping",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/PingData"
+        }
+      },
+      "title": "PingMessage",
+      "type": "object"
+    },
+    "PongMessage": {
+      "properties": {
+        "type": {
+          "const": "pong",
+          "default": "pong",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/PongData"
+        }
+      },
+      "title": "PongMessage",
+      "type": "object"
+    },
+    "ErrorMessage": {
+      "properties": {
+        "type": {
+          "const": "error",
+          "default": "error",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/ErrorData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "ErrorMessage",
+      "type": "object"
+    },
+    "GoodbyeMessage": {
+      "properties": {
+        "type": {
+          "const": "goodbye",
+          "default": "goodbye",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/GoodbyeData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "GoodbyeMessage",
+      "type": "object"
+    },
+    "ResumeMessage": {
+      "properties": {
+        "type": {
+          "const": "resume",
+          "default": "resume",
+          "title": "Type",
+          "type": "string"
+        },
+        "version": {
+          "default": "1.0",
+          "description": "Protocol version (major.minor)",
+          "pattern": "^\\d+\\.\\d+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique message ID for deduplication",
+          "format": "uuid",
+          "title": "Id",
+          "type": "string"
+        },
+        "ts": {
+          "description": "Sender timestamp (UTC ISO 8601)",
+          "format": "date-time",
+          "title": "Ts",
+          "type": "string"
+        },
+        "seq": {
+          "default": 0,
+          "description": "Monotonic sequence number",
+          "maximum": 2147483647,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "data": {
+          "$ref": "#/$defs/ResumeData"
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "title": "ResumeMessage",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "field": "type",
+    "mapping": {
+      "welcome": "WelcomeMessage",
+      "subscribe": "SubscribeMessage",
+      "tick": "TickMessage",
+      "alert": "AlertMessage",
+      "alert_cleared": "AlertClearedMessage",
+      "command": "CommandMessage",
+      "command_ack": "CommandAckMessage",
+      "ping": "PingMessage",
+      "pong": "PongMessage",
+      "error": "ErrorMessage",
+      "goodbye": "GoodbyeMessage",
+      "resume": "ResumeMessage"
+    }
+  },
+  "$defs": {
+    "WelcomeData": {
+      "properties": {
+        "connection_id": {
+          "description": "Server-assigned connection ID",
+          "format": "uuid",
+          "title": "Connection Id",
+          "type": "string"
+        },
+        "plant_id": {
+          "description": "Plant being streamed",
+          "format": "uuid",
+          "title": "Plant Id",
+          "type": "string"
+        },
+        "org_id": {
+          "description": "Tenant org ID (from JWT)",
+          "format": "uuid",
+          "title": "Org Id",
+          "type": "string"
+        },
+        "initial_state": {
+          "additionalProperties": true,
+          "description": "Current TwinState snapshot",
+          "title": "Initial State",
+          "type": "object"
+        },
+        "server_time": {
+          "description": "Server clock for client synchronisation",
+          "format": "date-time",
+          "title": "Server Time",
+          "type": "string"
+        },
+        "reconnect_token": {
+          "description": "Opaque token for session resumption",
+          "maxLength": 512,
+          "minLength": 16,
+          "title": "Reconnect Token",
+          "type": "string"
+        },
+        "tick_interval_seconds": {
+          "default": 5,
+          "description": "Default tick rate",
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Tick Interval Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "connection_id",
+        "plant_id",
+        "org_id",
+        "server_time",
+        "reconnect_token"
+      ],
+      "title": "WelcomeData",
+      "type": "object"
+    },
+    "SubscribeData": {
+      "properties": {
+        "tick_interval_seconds": {
+          "anyOf": [
+            {
+              "maximum": 60,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tick Interval Seconds"
+        },
+        "include_alerts": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Include Alerts"
+        },
+        "include_predictions": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Include Predictions"
+        },
+        "resume_from_seq": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resume From Seq"
+        },
+        "reconnect_token": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "minLength": 16,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconnect Token"
+        }
+      },
+      "title": "SubscribeData",
+      "type": "object"
+    },
+    "ActualsData": {
+      "additionalProperties": true,
+      "description": "Live sensor readings. Extra fields allowed for forward-compat.",
+      "properties": {
+        "co2_inlet_pct": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Co2 Inlet Pct"
+        },
+        "co2_outlet_pct": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Co2 Outlet Pct"
+        },
+        "so2_inlet_mg_nm3": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "So2 Inlet Mg Nm3"
+        },
+        "so2_outlet_mg_nm3": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "So2 Outlet Mg Nm3"
+        },
+        "mesh_dp_mmH2O": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mesh Dp Mmh2O"
+        },
+        "reactor_temp_c": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reactor Temp C"
+        }
+      },
+      "title": "ActualsData",
+      "type": "object"
+    },
+    "MaintenancePrediction": {
+      "additionalProperties": true,
+      "properties": {
+        "type": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Type",
+          "type": "string"
+        },
+        "predicted_at": {
+          "format": "date-time",
+          "title": "Predicted At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "predicted_at"
+      ],
+      "title": "MaintenancePrediction",
+      "type": "object"
+    },
+    "OperatingMode": {
+      "enum": [
+        "idle",
+        "starting",
+        "running",
+        "stopping",
+        "fault",
+        "maintenance"
+      ],
+      "title": "OperatingMode",
+      "type": "string"
+    },
+    "PerformanceData": {
+      "additionalProperties": true,
+      "description": "Computed performance metrics.",
+      "properties": {
+        "co2_capture_pct": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Co2 Capture Pct"
+        },
+        "so2_capture_pct": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "So2 Capture Pct"
+        },
+        "energy_consumption_kw": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Energy Consumption Kw"
+        }
+      },
+      "title": "PerformanceData",
+      "type": "object"
+    },
+    "TickData": {
+      "description": "Periodic state update \u2014 sent every N seconds.",
+      "properties": {
+        "operating_mode": {
+          "$ref": "#/$defs/OperatingMode",
+          "default": "idle"
+        },
+        "current_actuals": {
+          "$ref": "#/$defs/ActualsData"
+        },
+        "current_setpoints": {
+          "additionalProperties": true,
+          "title": "Current Setpoints",
+          "type": "object"
+        },
+        "performance": {
+          "$ref": "#/$defs/PerformanceData"
+        },
+        "next_maintenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MaintenancePrediction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "uptime_seconds": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Uptime Seconds",
+          "type": "number"
+        }
+      },
+      "title": "TickData",
+      "type": "object"
+    },
+    "AlertData": {
+      "properties": {
+        "alert_id": {
+          "format": "uuid",
+          "title": "Alert Id",
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/AlertSeverity"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "metric": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Metric"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Threshold"
+        },
+        "triggered_at": {
+          "format": "date-time",
+          "title": "Triggered At",
+          "type": "string"
+        },
+        "recommended_action": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Action"
+        }
+      },
+      "required": [
+        "alert_id",
+        "severity",
+        "title",
+        "message",
+        "triggered_at"
+      ],
+      "title": "AlertData",
+      "type": "object"
+    },
+    "AlertSeverity": {
+      "enum": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "title": "AlertSeverity",
+      "type": "string"
+    },
+    "AlertClearedData": {
+      "properties": {
+        "alert_id": {
+          "format": "uuid",
+          "title": "Alert Id",
+          "type": "string"
+        },
+        "cleared_at": {
+          "format": "date-time",
+          "title": "Cleared At",
+          "type": "string"
+        },
+        "auto_resolved": {
+          "default": false,
+          "title": "Auto Resolved",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "alert_id",
+        "cleared_at"
+      ],
+      "title": "AlertClearedData",
+      "type": "object"
+    },
+    "CommandData": {
+      "properties": {
+        "command": {
+          "$ref": "#/$defs/CommandType"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "equipment_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equipment Id"
+        },
+        "alert_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alert Id"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "title": "CommandData",
+      "type": "object"
+    },
+    "CommandType": {
+      "enum": [
+        "set_setpoint",
+        "start_equipment",
+        "stop_equipment",
+        "acknowledge_alert"
+      ],
+      "title": "CommandType",
+      "type": "string"
+    },
+    "CommandAckData": {
+      "properties": {
+        "command_id": {
+          "description": "Echoes the originating client message ID",
+          "format": "uuid",
+          "title": "Command Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/CommandAckStatus"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        },
+        "new_state": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "New State"
+        }
+      },
+      "required": [
+        "command_id",
+        "status"
+      ],
+      "title": "CommandAckData",
+      "type": "object"
+    },
+    "CommandAckStatus": {
+      "enum": [
+        "success",
+        "rejected",
+        "error"
+      ],
+      "title": "CommandAckStatus",
+      "type": "string"
+    },
+    "PingData": {
+      "properties": {
+        "client_ts": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Client Ts"
+        }
+      },
+      "title": "PingData",
+      "type": "object"
+    },
+    "PongData": {
+      "properties": {
+        "client_ts": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Echoed from ping for RTT calculation",
+          "title": "Client Ts"
+        },
+        "rtt_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rtt Ms"
+        }
+      },
+      "title": "PongData",
+      "type": "object"
+    },
+    "ErrorCode": {
+      "enum": [
+        "INVALID_MESSAGE",
+        "UNKNOWN_TYPE",
+        "RATE_LIMITED",
+        "AUTH_EXPIRED",
+        "FORBIDDEN",
+        "INVALID_COMMAND",
+        "INTERNAL_ERROR"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
+    "ErrorData": {
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ErrorCode"
+        },
+        "message": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "fatal": {
+          "default": false,
+          "description": "If true, client should not attempt reconnect",
+          "title": "Fatal",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ErrorData",
+      "type": "object"
+    },
+    "GoodbyeData": {
+      "properties": {
+        "reason": {
+          "$ref": "#/$defs/GoodbyeReason"
+        },
+        "reconnect_after_seconds": {
+          "default": 5,
+          "maximum": 300,
+          "minimum": 0,
+          "title": "Reconnect After Seconds",
+          "type": "integer"
+        },
+        "message": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "title": "GoodbyeData",
+      "type": "object"
+    },
+    "GoodbyeReason": {
+      "enum": [
+        "server_shutdown",
+        "auth_expired",
+        "rate_limited",
+        "normal",
+        "unauthorized"
+      ],
+      "title": "GoodbyeReason",
+      "type": "string"
+    },
+    "ResumeData": {
+      "properties": {
+        "from_seq": {
+          "description": "Last sequence number client received",
+          "minimum": 0,
+          "title": "From Seq",
+          "type": "integer"
+        },
+        "reconnect_token": {
+          "maxLength": 512,
+          "minLength": 16,
+          "title": "Reconnect Token",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from_seq",
+        "reconnect_token"
+      ],
+      "title": "ResumeData",
+      "type": "object"
+    }
+  }
+}

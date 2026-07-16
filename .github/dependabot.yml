@@ -1,26 +1,15 @@
 version: 2
 updates:
-  # Python dependencies (Poetry)
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Asia/Kolkata"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "python"
-    
-  # Frontend dependencies (npm/pnpm)
+  # Check for npm/pnpm updates weekly
   - package-ecosystem: "npm"
     directory: "/packages/web"
     schedule:
       interval: "weekly"
-      day: "tuesday"
-      time: "09:00"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "frontend"
+    open-pull-requests-limit: 5
+
+  # Check for Poetry dependency updates weekly
+  - package-ecosystem: "pip" # Note: dependabot uses 'pip' for poetry projects and automatically detects pyproject.toml
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

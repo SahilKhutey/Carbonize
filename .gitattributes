@@ -1,0 +1,17 @@
+# Force LF line endings for all text files (reproducible builds across Linux/macOS/Windows)
+* text=auto eol=lf
+
+# Force CRLF for Windows script files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Ensure binary files are marked as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary

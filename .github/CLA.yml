@@ -1,0 +1,13 @@
+# Configuration for CLA Assistant
+# https://github.com/cla-assistant/cla-assistant
+contact: ip@cbms.in
+GPG: false
+signatures:
+  - name: CBMS Individual CLA
+    file: ./cla/individual-cla.md
+    target: cbms/platform
+    pr: true
+  - name: CBMS Entity CLA
+    file: ./cla/entity-cla.md
+    target: cbms/platform
+    pr: true

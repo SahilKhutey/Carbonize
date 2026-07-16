@@ -1,0 +1,92 @@
+# ============================================================================
+# Promote to Production: triggered manually from GitHub UI
+# ============================================================================
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment: production
+      ref: main
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+  ECS_CLUSTER: cbms-production
+  ECS_SERVICE_API: cbms-api-prod
+  ECS_SERVICE_WORKER: cbms-worker-prod
+  ECS_SERVICE_WEB: cbms-web-prod
+
+jobs:
+  deploy:
+    name: Canary Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_PROD_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Deploy to canary first (10% of traffic)
+      - name: Deploy canary (10%)
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${env.ECS_SERVICE_API}-canary \
+            --task-definition cbms-api-prod:${{ github.event.inputs.ref }} \
+            --force-new-deployment
+
+      - name: Wait for canary
+        run: sleep 300  # 5 min to observe
+
+      - name: Check canary metrics
+        run: |
+          # Query CloudWatch for canary errors
+          ERRORS=$(aws cloudwatch get-metric-statistics \
+            --namespace AWS/ECS \
+            --metric-name 5XXCount \
+            --dimensions Name=ServiceName,Value=cbms-api-prod-canary \
+            --start-time $(date -u -d '5 minutes ago' '+%Y-%m-%dT%H:%M:%S') \
+            --end-time $(date -u '+%Y-%m-%dT%H:%M:%S') \
+            --period 60 --statistics Sum)
+          
+          if [ "$ERRORS" -gt 10 ]; then
+            echo "::error::Canary has too many errors: $ERRORS"
+            exit 1
+          fi
+          echo "Canary errors: $ERRORS (acceptable)"
+
+      # Promote to full
+      - name: Promote to 100%
+        run: |
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE_API }} \
+            --task-definition cbms-api-prod:${{ github.event.inputs.ref }} \
+            --force-new-deployment
+          
+          aws ecs update-service \
+            --cluster ${{ env.ECS_CLUSTER }} \
+            --service ${{ env.ECS_SERVICE_WORKER }} \
+            --task-definition cbms-worker-prod:${{ github.event.inputs.ref }} \
+            --force-new-deployment
+
+      - name: Notify
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "🚀 *Production deploy successful!*\nVersion: `${{ github.event.inputs.ref }}`\nBy: ${{ github.actor }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_DEPLOY }}

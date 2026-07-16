@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900" width="1000" height="900">
+  <rect width="1000" height="900" fill="#ffffff" />
+  <g font-family="monospace" font-size="14" fill="#000000">
+    <text x="50" y="50">┌────────────────────────────────────────────────────────────────┐</text>
+    <text x="50" y="70">│                        GAS INLET                                │</text>
+    <text x="50" y="90">│  [FT-101]──[PT-101]──[TT-101]──┐                              │</text>
+    <text x="50" y="110">│   Flow       Pressure   Temp    │                              │</text>
+    <text x="50" y="130">│  ₹1,80,000   ₹45,000  ₹8,000  │                              │</text>
+    <text x="50" y="150">│                                ▼                              │</text>
+    <text x="50" y="170">│                     [NDIR CO₂]   [UV SO₂]   [CL NOₓ]            │</text>
+    <text x="50" y="190">│                     ₹5,50,000    ₹6,50,000  ₹5,80,000         │</text>
+    <text x="50" y="210">└────────────────────────────────┬───────────────────────────────┘</text>
+    <text x="50" y="230">                                 │</text>
+    <text x="50" y="250">                                 ▼</text>
+    <text x="50" y="270">┌────────────────────────────────────────────────────────────────┐</text>
+    <text x="50" y="290">│                     SLURRY REACTOR (100L)                        │</text>
+    <text x="50" y="310">│                                                                │</text>
+    <text x="50" y="330">│   [FT-201 Slurry in]    [FT-202 Reagent 1]    [FT-203 Reagent 2]│</text>
+    <text x="50" y="350">│     ₹1,40,000              ₹2,80,000              ₹2,80,000   │</text>
+    <text x="50" y="370">│                                                                │</text>
+    <text x="50" y="390">│   ┌─────────────────────────────────────────┐                 │</text>
+    <text x="50" y="410">│   │  [pH-301] [Cond-302] [T-303] [ORP-304]  │                 │</text>
+    <text x="50" y="430">│   │  ₹45K     ₹38K      ₹8K   ₹32K         │                 │</text>
+    <text x="50" y="450">│   │                                         │                 │</text>
+    <text x="50" y="470">│   │  [DO-305]  [Turb-306]  [d-CO₂-307]      │                 │</text>
+    <text x="50" y="490">│   │  ₹1,40K   ₹1,60K     ₹1,80K            │                 │</text>
+    <text x="50" y="510">│   │                                         │                 │</text>
+    <text x="50" y="530">│   │  [d-SO₂-308]  [dP-309]               │                 │</text>
+    <text x="50" y="550">│   │  ₹1,20K      ₹45K                    │                 │</text>
+    <text x="50" y="570">│   └─────────────────────────────────────────┘                 │</text>
+    <text x="50" y="590">│                              │                                │</text>
+    <text x="50" y="610">│                              ▼                                │</text>
+    <text x="50" y="630">│                       [FT-204 Slurry out]                      │</text>
+    <text x="50" y="650">│                          ₹1,40,000                             │</text>
+    <text x="50" y="670">└────────────────────────────────────────────────────────────────┘</text>
+    <text x="50" y="690">                                 │</text>
+    <text x="50" y="710">                                 ▼</text>
+    <text x="50" y="730">┌────────────────────────────────────────────────────────────────┐</text>
+    <text x="50" y="750">│                      GAS OUTLET (cleaned)                       │</text>
+    <text x="50" y="770">│  [FT-401]──[PT-401]──[TT-401]──[PM-402]──→ STACK              │</text>
+    <text x="50" y="790">│  Flow      Pressure   Temp     Particulate                    │</text>
+    <text x="50" y="810">│ ₹1,80K    ₹45K      ₹8K     ₹2,40K                            │</text>
+    <text x="50" y="830">│  + [CO₂]  [SO₂]  [NOₓ] analyzers (shared from inlet side)    │</text>
+    <text x="50" y="850">└────────────────────────────────────────────────────────────────┘</text>
+  </g>
+</svg>

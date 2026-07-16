@@ -1,21 +1,19 @@
 ---
 name: ✨ Feature Request
-about: Suggest an idea for this project
+about: Propose a new feature or enhancement for the CBMS-Sim platform.
 title: "[FEATURE] "
-labels: ["enhancement", "triage"]
-assignees: ""
+labels: enhancement
+assignees: ''
 ---
 
-## Problem Statement
-<!-- What problem does this feature solve? -->
+**Is your feature request related to a problem?**
+A clear and concise description of what the problem is. (e.g. "I'm frustrated when...")
 
-## Proposed Solution
-<!-- A clear and concise description of what you want to happen. -->
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
 
-## Alternatives Considered
-<!-- What other approaches did you consider? -->
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
 
-## Priority
-- [ ] 🔴 Must have
-- [ ] 🟠 Should have
-- [ ] 🟡 Nice to have
+**Additional context**
+Add any other context or screenshots/mockups about the feature request here.

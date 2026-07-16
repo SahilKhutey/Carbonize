@@ -1,27 +1,28 @@
 ---
 name: 🐛 Bug Report
-about: Create a report to help us improve
+about: Create a report to help us improve and fix CBMS-Sim.
 title: "[BUG] "
-labels: ["bug", "triage"]
-assignees: ""
+labels: bug
+assignees: ''
 ---
 
-## Bug Description
-<!-- A clear and concise description of what the bug is. -->
+**Describe the bug**
+A clear and concise description of what the bug is.
 
-## Steps to Reproduce
-1. Go to '...'
-2. Click on '...'
-3. Scroll down to '...'
-4. See error
+**To Reproduce**
+Steps to reproduce the behavior:
+1. Run command '...'
+2. Call API endpoint '...'
+3. See error
 
-## Expected Behavior
-<!-- A clear and concise description of what you expected to happen. -->
+**Expected behavior**
+A clear and concise description of what you expected to happen.
 
-## Actual Behavior
-<!-- What actually happened. -->
+**Screenshots/Logs**
+If applicable, add screenshots or console/terminal logs to help explain your problem.
 
-## Environment
-- **CBMS-Sim Version**: [e.g., v0.2.0]
-- **OS**: [e.g., macOS 14, Windows 11]
-- **Python Version**: [e.g., 3.12]
+**Environment info:**
+- OS: (e.g. Windows, Ubuntu)
+- Python Version: (e.g. 3.12.10)
+- Node/pnpm version:
+- Repository Commit Hash:

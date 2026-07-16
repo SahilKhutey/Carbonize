@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "CBMS-Sim: Coral-Inspired Biomineralization Multi-Pollutant Capture Simulator"
+version: 0.3.0
+date-released: 2025-02-14
+url: "https://github.com/cbms/platform"
+repository-code: "https://github.com/cbms/platform"
+license: "Business Source License 1.1"
+authors:
+  - name: "CBMS Research Working Group"
+  - name: "CBMS Engineering Team"

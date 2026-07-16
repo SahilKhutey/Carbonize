@@ -1,0 +1,25 @@
+Tier,Item,Vendor,Part #,Qty,Unit ₹,Total ₹
+Tier 1,pH probe (alkalinity-resistant),Mettler Toledo,InPro 4260i,1,45000,45000
+Tier 1,Conductivity (4-electrode),Mettler Toledo,InPro 7100i,1,38000,38000
+Tier 1,Temp RTD (Pt100 Class A),Endress+Hauser,TR10,2,8000,16000
+Tier 1,Turbidity (in-line),Hach,SOLITAX sc,1,160000,160000
+Tier 1,Slurry flow (EM),Endress+Hauser,Promag P100,1,140000,140000
+Tier 1,Gas flow (vortex),Endress+Hauser,Prowirl 200,1,180000,180000
+Tier 1,ΔP transmitter,Endress+Hauser,Deltabar,3,45000,135000
+Tier 1,CO₂ NDIR,LI-COR,LI-840A,1,550000,550000
+Tier 1,SO₂ UV fluorescence,Thermo,43iQ,1,650000,650000
+Tier 1,NOₓ chemiluminescence,Thermo,42iQ,1,580000,580000
+Tier 2,DO sensor (luminescent),Hach,LDO 101,1,140000,140000
+Tier 2,ORP sensor,Mettler Toledo,InPro 3250i,1,32000,32000
+Tier 2,Dissolved CO₂,Mettler Toledo,InPro 5000i,1,180000,180000
+Tier 2,Dissolved SO₂,Hach,9184 sc,1,120000,120000
+Tier 2,PM in-stack,Sick,FW100,1,240000,240000
+Tier 2,Reagent flow (Coriolis),Bronkhorst,M13V14I,2,280000,560000
+Tier 3,Edge DAQ (8-slot),National Instruments,cDAQ-9189,1,350000,350000
+Tier 3,AI module (8-ch),NI,9208,2,60000,120000
+Tier 3,TC module,NI,9213,1,45000,45000
+Tier 3,PLC (Siemens),Siemens,S7-1200,1,85000,85000
+Tier 3,HMI panel (10"),Siemens,KTP1200,1,120000,120000
+Tier 3,Edge gateway (Pi+4G),Custom,-,1,60000,60000
+Tier 3,Enclosure (IP65),Rittal,SE 1935,1,45000,45000
+Tier 3,Power supply (24V),Phoenix Contact,-,1,15000,15000

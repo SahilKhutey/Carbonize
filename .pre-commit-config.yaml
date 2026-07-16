@@ -1,0 +1,256 @@
+# =============================================================================
+# CBMS-Sim Pre-Commit Configuration
+# =============================================================================
+# Install: poetry run pre-commit install
+# Run all: poetry run pre-commit run --all-files
+# Update: poetry run pre-commit autoupdate
+# Skip:  git commit --no-verify (use sparingly)
+# =============================================================================
+
+minimum_pre_commit_version: "3.5.0"
+default_install_hook_types: [pre-commit]
+default_stages: [pre-commit]
+fail_fast: false
+
+repos:
+  # ----- Standard utility hooks -----
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+        description: Prevent committing files larger than 1MB
+      - id: check-merge-conflict
+        description: Check for merge conflict markers
+      - id: check-yaml
+        description: Validate YAML files
+      - id: check-toml
+        description: Validate TOML files
+      - id: check-json
+        description: Validate JSON files
+      - id: end-of-file-fixer
+        description: Ensure files end with a newline
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+        description: Trim trailing whitespace
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        description: Force LF line endings
+      - id: check-case-conflict
+        description: Check for case-insensitive filename conflicts
+      - id: check-executables-have-shebangs
+        description: Ensure executable files have shebangs
+      - id: check-symlinks
+        description: Check for broken symlinks
+      - id: detect-private-key
+        description: Detect private keys in commits
+
+  # ----- Secret detection (prevent API keys, passwords) -----
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            .*\.lock|
+            .*\.json|
+            .*\.md|
+            packages/.*/tests/fixtures/.*
+          )$
+
+  # ----- Python: Ruff (fast linter, replaces flake8/isort/pyupgrade) -----
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^packages/.*\.py$
+        description: Run ruff linter with auto-fix
+      - id: ruff-format
+        files: ^packages/.*\.py$
+        description: Run ruff formatter
+
+  # ----- Python: Black (uncompromising formatter) -----
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        language_version: python3.12
+        files: ^packages/.*\.py$
+        args: [--line-length=100]
+        description: Run black formatter (line length 100)
+
+  # ----- Python: isort (import sorting) -----
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=100]
+        files: ^packages/.*\.py$
+        description: Sort imports (compatible with black)
+
+  # ----- Python: mypy (static type checking, fast mode) -----
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        files: ^packages/.*\.py$
+        exclude: ^packages/.*/tests/.*\.py$
+        additional_dependencies:
+          - types-requests
+          - types-redis
+          - numpy==1.26.4
+          - pydantic==2.9.2
+        args: [--no-strict, --ignore-missing-imports]
+        description: Type check (non-strict; full strict in CI)
+
+  # ----- Python: Bandit (security linter) -----
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: [-ll, --confidence-level=medium]
+        files: ^packages/.*\.py$
+        exclude: ^packages/.*/tests/.*\.py$
+        description: Security linter
+
+  # ----- TypeScript: ESLint -----
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.14.0
+    hooks:
+      - id: eslint
+        files: ^packages/web/.*\.(ts|tsx|js|jsx)$
+        types: [file]
+        additional_dependencies:
+          - eslint@9.14.0
+          - '@typescript-eslint/parser@8.14.0'
+          - '@typescript-eslint/eslint-plugin@8.14.0'
+          - eslint-plugin-react@7.37.2
+          - eslint-plugin-react-hooks@5.0.0
+          - eslint-plugin-jsx-a11y@6.10.2
+        args: [--max-warnings=0]
+        description: ESLint with TypeScript and React rules
+
+  # ----- TypeScript: Prettier -----
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.3.3
+    hooks:
+      - id: prettier
+        files: ^packages/web/.*\.(ts|tsx|js|jsx|json|css|md)$
+        additional_dependencies:
+          - prettier@3.3.3
+        args: [--write]
+        description: Prettier formatter
+
+  # ----- TypeScript: Type check (tsc) -----
+  - repo: local
+    hooks:
+      - id: tsc-check
+        name: TypeScript Type Check
+        entry: bash -c 'cd packages/web && pnpm run type-check'
+        language: system
+        files: ^packages/web/.*\.(ts|tsx)$
+        pass_filenames: false
+        description: Run TypeScript compiler in noEmit mode
+
+  # ----- Markdown: Lint and format -----
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.42.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        exclude: |
+          (?x)^(
+            CHANGELOG\.md|
+            .*node_modules/.*|
+            packages/api/openapi\..*|
+            docs/adr/template\.md
+          )$
+        description: Markdown linter
+
+  # ----- Shell: ShellCheck -----
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: [--severity=warning]
+        description: Shell script linter
+
+  # ----- Docker: Hadolint -----
+  - repo: https://github.com/AleksaC/hadolint
+    rev: v2.13.0-beta
+    hooks:
+      - id: hadolint-docker
+        args: [--failure-threshold=warning]
+        description: Dockerfile linter
+
+  # ----- GitHub Actions: actionlint -----
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.22.1
+    hooks:
+      - id: actionlint
+        files: ^.github/workflows/.*\.yml$
+        description: GitHub Actions workflow linter
+
+  # ----- Local hooks (project-specific) -----
+  - repo: local
+    hooks:
+      - id: check-no-bare-print
+        name: Check for bare print() statements
+        entry: >-
+          bash -c 'if grep -rn "^\s*print(" packages/ --include="*.py" | grep -v -E "(test_|conftest|scripts/|\.pyc)"; then echo "❌ Found bare print() statements. Use logging module instead."; exit 1; fi'
+        language: system
+        pass_filenames: false
+        types: [python]
+        description: Disallow print() in production code (use logging)
+
+      - id: check-no-todo-without-issue
+        name: Check TODO comments have issue links
+        entry: >-
+          bash -c 'hits=$(grep -rEn "TODO|FIXME|XXX" packages/ docs/ --include="*.py" --include="*.ts" --include="*.tsx" 2>/dev/null | grep -v -E "(#[0-9]+|TODO\(remove\)|TODO\(temporary\))" || true); if [ -n "$hits" ]; then echo "❌ Found TODO/FIXME/XXX without issue reference:"; echo "$hits"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        description: All TODO/FIXME must reference an issue
+
+      - id: check-no-secrets-in-tests
+        name: Prevent committing test secrets
+        entry: >-
+          bash -c 'if grep -rEn "(password|secret|api_key|token).*=\s*[\"\047][^\"\047]{8,}" packages/ --include="*.py" | grep -v "test_" | grep -v "example" | grep -v "fake" | grep -v "mock"; then echo "❌ Possible hardcoded secret in non-test code"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        description: Prevent hardcoded secrets
+
+      - id: check-pyproject-consistent
+        name: Check pyproject.toml is consistent
+        entry: poetry check
+        language: system
+        pass_filenames: false
+        types: [toml]
+        description: Validate pyproject.toml with poetry
+
+      - id: check-package-json-valid
+        name: Validate package.json
+        entry: >-
+          bash -c 'for f in $(find . -name "package.json" -not -path "*/node_modules/*"); do node -e "JSON.parse(require(\"fs\").readFileSync(\"$f\"))" || (echo "Invalid JSON - $f" && exit 1); done'
+        language: system
+        pass_filenames: false
+        description: Validate all package.json files
+
+exclude: |
+  (?x)^(
+    .*\.min\.js|
+    .*\.min\.css|
+    .*\.lock|
+    .*\.pyc|
+    .*\.wasm|
+    .*\.map|
+    packages/web/dist/.*|
+    packages/web/node_modules/.*|
+    packages/web/coverage/.*|
+    htmlcov/.*|
+    .coverage|
+    .*\.snap
+  )$
+
+default_stages: [pre-commit]

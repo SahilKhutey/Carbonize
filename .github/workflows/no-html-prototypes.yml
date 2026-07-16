@@ -1,0 +1,95 @@
+# .github/workflows/no-html-prototypes.yml
+#
+# Blocks PRs that introduce hand-rolled HTML files into the build pipeline.
+# Also verifies the Digital Twin component tree exists and tests pass.
+
+name: No HTML Prototypes — Digital Twin Gate
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "packages/web/**"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "packages/web/**"
+
+jobs:
+  html-gate:
+    name: Verify No Hand-Rolled HTML in packages/web/public
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "❌ Check: no .html files in public/"
+        run: |
+          HTML_FILES=$(find packages/web/public -name "*.html" -type f 2>/dev/null || true)
+          if [ -n "$HTML_FILES" ]; then
+            echo "❌ Found HTML prototypes in packages/web/public/:"
+            echo "$HTML_FILES"
+            echo ""
+            echo "All UI must live in React (packages/web/src/features/)."
+            echo "Migrate these to React and remove them."
+            exit 1
+          fi
+          echo "✅ No hand-rolled HTML files found."
+
+      - name: "❌ Check: no inline event handlers in .tsx / .jsx"
+        run: |
+          INLINE=$(grep -rn 'on(click|change|submit|load)="' \
+            packages/web/src/ \
+            --include="*.tsx" --include="*.jsx" 2>/dev/null || true)
+          if [ -n "$INLINE" ]; then
+            echo "❌ Inline HTML event handlers found (use React props instead):"
+            echo "$INLINE"
+            exit 1
+          fi
+          echo "✅ No inline event handlers."
+
+      - name: "❌ Check: no inline <style> tags in .tsx / .jsx"
+        run: |
+          INLINE_STYLE=$(grep -rn '<style[^>]*>' \
+            packages/web/src/ \
+            --include="*.tsx" --include="*.jsx" 2>/dev/null || true)
+          if [ -n "$INLINE_STYLE" ]; then
+            echo "❌ Inline <style> tags found (use Tailwind classes or CSS modules):"
+            echo "$INLINE_STYLE"
+            exit 1
+          fi
+          echo "✅ No inline style tags."
+
+      - name: "❌ Check: Digital Twin component tree exists"
+        run: |
+          MISSING=()
+          [[ -f "packages/web/src/features/digital-twin/pages/TwinPage.tsx" ]]       || MISSING+=("TwinPage.tsx")
+          [[ -f "packages/web/src/features/digital-twin/hooks/useTwinStream.ts" ]]   || MISSING+=("useTwinStream.ts")
+          [[ -f "packages/web/src/features/digital-twin/components/LiveKPIGrid.tsx" ]] || MISSING+=("LiveKPIGrid.tsx")
+          [[ -f "packages/web/src/features/digital-twin/components/AlertPanel.tsx" ]] || MISSING+=("AlertPanel.tsx")
+          [[ -f "packages/web/src/features/digital-twin/types/twin.ts" ]]            || MISSING+=("twin.ts")
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "❌ Missing Digital Twin files: ${MISSING[*]}"
+            exit 1
+          fi
+          echo "✅ Digital Twin component tree complete."
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: "🧪 Run Digital Twin unit tests"
+        run: |
+          pnpm --filter biomimetic-sim-frontend test
+
+      - name: "🔷 TypeScript type-check"
+        run: |
+          pnpm --filter biomimetic-sim-frontend type-check

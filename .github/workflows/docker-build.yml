@@ -1,0 +1,80 @@
+name: Docker Build & Test
+
+on:
+  pull_request:
+    paths:
+      - 'Dockerfile*'
+      - 'deploy/docker/**'
+      - 'docker-compose*.yml'
+      - 'packages/**/pyproject.toml'
+      - 'packages/**/package.json'
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build API image
+        run: |
+          docker build \
+            -f deploy/docker/api.Dockerfile \
+            -t cbms-api:test \
+            .
+      
+      - name: Test API image
+        run: |
+          docker run --rm cbms-api:test \
+            python -c "from cbms_api.main import app; print('OK')"
+
+  build-worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Worker image
+        run: |
+          docker build \
+            -f deploy/docker/worker.Dockerfile \
+            -t cbms-worker:test \
+            .
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Web image
+        run: |
+          docker build \
+            -f deploy/docker/web.Dockerfile \
+            -t cbms-web:test \
+            .
+
+  e2e-test:
+    needs: [build-api, build-worker, build-web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Start full stack
+        run: |
+          docker compose -f deploy/docker-compose.yml up -d
+          sleep 30  # Wait for services to be healthy
+      
+      - name: Run E2E tests
+        run: |
+          docker compose -f deploy/docker-compose.yml run --rm api \
+            pytest tests/e2e/ -v
+
+  security-scan:
+    needs: [build-api, build-worker]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy vulnerability scan
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image --severity HIGH,CRITICAL \
+            --exit-code 1 cbms-api:test

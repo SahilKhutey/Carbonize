@@ -1,0 +1,30 @@
+# Markdown linting rules
+default: true
+
+# Allow inline HTML (we use it in some docs)
+MD033: false
+
+# Allow duplicate headings (different sections may have same name)
+MD024:
+  siblings_only: true
+
+# Allow long lines (technical docs often have long URLs)
+MD013: false
+
+# Allow bare URLs in some contexts
+MD034: false
+
+# Heading style
+MD003:
+  style: atx
+
+# Unordered list style
+MD004:
+  style: dash
+
+# Code block style
+MD046:
+  style: fenced
+
+# Allow inline links with brackets
+MD059: false

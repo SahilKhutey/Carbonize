@@ -1,0 +1,44 @@
+name: UQ Component Tests
+
+on:
+  push:
+    paths:
+      - 'packages/web/src/features/simulation-results/**'
+  pull_request:
+    paths:
+      - 'packages/web/src/features/simulation-results/**'
+
+jobs:
+  uq-tests:
+    name: UQ Visualization — Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        run: npm install -g pnpm@9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm --filter biomimetic-sim-frontend type-check
+
+      - name: Run UQ tests
+        run: pnpm --filter biomimetic-sim-frontend test -- --reporter=verbose
+
+      - name: Run coverage
+        run: pnpm --filter biomimetic-sim-frontend test:coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/web/coverage/lcov.info
+          flags: uq-components

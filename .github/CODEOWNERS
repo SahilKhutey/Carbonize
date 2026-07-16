@@ -1,16 +1,167 @@
-# CODEOWNERS
-# Default owners for everything
-*                          @cbms/core-team
+# CBMS-Sim CODEOWNERS
+# Each line is a file pattern followed by one or more GitHub teams/users.
+# The LAST matching pattern wins.
+# Order matters: more specific rules should come AFTER less specific ones.
 
-# Backend modules
-/packages/sim-core/        @cbms/sim-core-maintainers
-/packages/api/             @cbms/api-maintainers
-/packages/workers/         @cbms/workers-maintainers
-/packages/shared/          @cbms/platform-team
+# ============================================================
+# DEFAULT OWNERS
+# ============================================================
+# Anything not matched below defaults to the core platform team.
+/*                                                  @cbms/core-team
 
-# Frontend modules
-/packages/web/             @cbms/web-maintainers
+# ============================================================
+# CI/CD & DEVOPS
+# ============================================================
+# Workflow definitions, Codespaces, Docker
+/.github/workflows/                                 @cbms/devops-team @cbms/tech-lead
+/.github/CODEOWNERS                                 @cbms/tech-lead
+/.github/dependabot.yml                              @cbms/devops-team
+/.github/workflows/ci.yml                            @cbms/devops-team
+/.github/workflows/release.yml                       @cbms/devops-team
+/.github/workflows/security.yml                      @cbms/devops-team
+/.devcontainer/                                     @cbms/devops-team
+/docker-compose*.yml                                @cbms/devops-team
+/Dockerfile                                         @cbms/devops-team
+/Dockerfile.*                                       @cbms/devops-team
+/Makefile                                           @cbms/devops-team
+/.pre-commit-config.yaml                            @cbms/devops-team
+/pyproject.toml                                     @cbms/tech-lead
+/package.json                                      @cbms/web-team
+/pnpm-workspace.yaml                                @cbms/web-team
+/poetry.lock                                        @cbms/devops-team
+/pnpm-lock.yaml                                     @cbms/web-team
 
-# Infrastructure and CI/CD
-/packages/infra/           @cbms/devops-team
-/.github/workflows/        @cbms/devops-team
+# ============================================================
+# DOCUMENTATION
+# ============================================================
+/README.md                                          @cbms/tech-lead
+/CONTRIBUTING.md                                    @cbms/tech-lead
+/CHANGELOG.md                                       @cbms/tech-lead
+/SECURITY.md                                        @cbms/tech-lead
+/CODE_OF_CONDUCT.md                                 @cbms/tech-lead
+/docs/                                              @cbms/docs-team
+/manuscript/                                        @cbms/research-team
+/manuscript/theory/                                 @cbms/research-team
+/manuscript/validation/                             @cbms/research-team
+
+# ============================================================
+# SIM-CORE PACKAGE (Scientific Engine)
+# ============================================================
+/packages/sim-core/                                 @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/             @cbms/research-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/kinetics/   @cbms/chemistry-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/transport/   @cbms/aerospace-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/equilibrium/  @cbms/chemistry-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/block/       @cbms/materials-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/economic/    @cbms/economics-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/domain/uq/          @cbms/math-team @cbms/sim-core-team
+/packages/sim-core/data/parameters/                 @cbms/research-team
+/packages/sim-core/data/citations/                  @cbms/research-team
+/packages/sim-core/tests/validation/                @cbms/research-team @cbms/sim-core-team
+/packages/sim-core/src/cbms_sim/validation/         @cbms/research-team @cbms/sim-core-team
+
+# ============================================================
+# API PACKAGE (FastAPI Backend)
+# ============================================================
+/packages/api/                                      @cbms/api-team
+/packages/api/src/cbms_api/routers/                 @cbms/api-team
+/packages/api/src/cbms_api/services/                @cbms/api-team
+/packages/api/src/cbms_api/auth/                    @cbms/security-team @cbms/api-team
+/packages/api/src/cbms_api/middleware/              @cbms/api-team
+/packages/api/src/cbms_api/websocket/              @cbms/api-team
+/packages/api/src/cbms_api/db/                      @cbms/api-team
+/packages/api/src/cbms_api/observability/            @cbms/devops-team @cbms/api-team
+/packages/api/alembic/                              @cbms/api-team
+
+# ============================================================
+# WORKERS PACKAGE (Celery)
+# ============================================================
+/packages/workers/                                   @cbms/workers-team
+/packages/workers/src/cbms_workers/tasks/           @cbms/workers-team
+/packages/workers/src/cbms_workers/infrastructure/  @cbms/devops-team @cbms/workers-team
+
+# ============================================================
+# CFD PACKAGE (OpenFOAM)
+# ============================================================
+/packages/cfd/                                      @cbms/cfd-team @cbms/aerospace-team
+/packages/cfd/src/cbms_cfd/                         @cbms/cfd-team
+/packages/cfd/templates/                            @cbms/cfd-team
+
+# ============================================================
+# WEB PACKAGE (React Frontend)
+# ============================================================
+/packages/web/                                      @cbms/web-team
+/packages/web/src/                                  @cbms/web-team
+/packages/web/src/components/                       @cbms/web-team
+/packages/web/src/features/                         @cbms/web-team
+/packages/web/src/features/auth/                    @cbms/security-team @cbms/web-team
+/packages/web/src/features/admin/                   @cbms/admin-team @cbms/web-team
+/packages/web/src/hooks/                            @cbms/web-team
+/packages/web/src/stores/                           @cbms/web-team
+/packages/web/src/types/                            @cbms/web-team
+/packages/web/src/lib/                              @cbms/web-team
+/packages/web/tailwind.config.ts                    @cbms/web-team
+/packages/web/vite.config.ts                        @cbms/web-team
+/packages/web/tests/                                @cbms/web-team
+/packages/web/playwright.config.ts                  @cbms/web-team
+/packages/web/e2e/                                  @cbms/web-team @cbms/qa-team
+
+# ============================================================
+# DASHBOARDS PACKAGE (Grafana)
+# ============================================================
+/packages/dashboards/                               @cbms/observability-team
+/packages/dashboards/grafana/                       @cbms/observability-team
+/packages/dashboards/provisioning/                  @cbms/observability-team
+/packages/dashboards/alerts/                        @cbms/observability-team @cbms/sre-team
+
+# ============================================================
+# INFRASTRUCTURE (Terraform)
+# ============================================================
+/packages/infra/                                    @cbms/devops-team
+/packages/infra/terraform/                          @cbms/devops-team
+/packages/infra/terraform/modules/network/          @cbms/devops-team
+/packages/infra/terraform/modules/compute/          @cbms/devops-team
+/packages/infra/terraform/modules/database/         @cbms/devops-team
+/packages/infra/terraform/modules/security/         @cbms/security-team @cbms/devops-team
+/packages/infra/terraform/environments/prod/        @cbms/devops-team @cbms/tech-lead
+/packages/infra/terraform/environments/staging/     @cbms/devops-team
+/packages/infra/helm/                               @cbms/devops-team
+
+# ============================================================
+# SCRIPTS
+# ============================================================
+/scripts/                                           @cbms/devops-team
+/scripts/setup/                                     @cbms/devops-team
+/scripts/deploy/                                   @cbms/devops-team
+/scripts/maintenance/                               @cbms/devops-team
+/scripts/seed/                                      @cbms/api-team
+
+# ============================================================
+# TESTS
+# ============================================================
+/tests/                                             @cbms/qa-team
+/tests/integration/                                 @cbms/qa-team @cbms/api-team
+/tests/e2e/                                         @cbms/qa-team @cbms/web-team
+/tests/load/                                        @cbms/sre-team @cbms/qa-team
+/tests/chaos/                                       @cbms/sre-team @cbms/qa-team
+/tests/security/                                   @cbms/security-team @cbms/qa-team
+/tests/architecture/                                @cbms/tech-lead
+
+# ============================================================
+# DATA
+# ============================================================
+/data/                                              @cbms/data-team
+/data/parameters/                                  @cbms/research-team
+/data/citations/                                   @cbms/research-team
+/data/benchmarks/                                  @cbms/qa-team
+/data/validation/                                  @cbms/research-team
+
+# ============================================================
+# SECURITY-SENSITIVE
+# ============================================================
+# Require extra scrutiny
+/.env.example                                       @cbms/security-team
+/docker-compose.prod.yml                           @cbms/security-team @cbms/devops-team
+/packages/api/src/cbms_api/auth/                    @cbms/security-team
+/.github/SECURITY.md                                @cbms/security-team
+/SECURITY.md                                        @cbms/security-team
