@@ -8,24 +8,7 @@ from uuid import uuid4, UUID
 from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
-# -----------------------------------------------------------------------------
-# MONKEYPATCH DATABASE CONFIGURATION FOR IN-MEMORY SQLITE TESTING
-# -----------------------------------------------------------------------------
 import cbms_api.database.connection as conn_mod
-import database.connection as conn_mod_alt
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-
-sqlite_test_engine = create_async_engine("sqlite+aiosqlite:///:memory:")
-sqlite_sessionmaker = async_sessionmaker(
-    bind=sqlite_test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-
-conn_mod.engine = sqlite_test_engine
-conn_mod.async_session_maker = sqlite_sessionmaker
-conn_mod_alt.engine = sqlite_test_engine
-conn_mod_alt.async_session_maker = sqlite_sessionmaker
 # -----------------------------------------------------------------------------
 
 import pytest_asyncio
@@ -38,13 +21,13 @@ from workers.tasks.cleanup import recover_stuck_reports_async, scrub_orphaned_te
 import workers.tasks.cleanup as cleanup_mod
 
 # Ensure the cleanup module uses the test session maker (it imported it at module load)
-cleanup_mod.async_session_maker = sqlite_sessionmaker
+cleanup_mod.async_session_maker = conn_mod.async_session_maker
 
 
 @pytest_asyncio.fixture(autouse=True)
 async def setup_db():
     """Clean database and setup schema."""
-    async with sqlite_test_engine.begin() as conn:
+    async with conn_mod.engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 

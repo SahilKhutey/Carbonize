@@ -21,32 +21,7 @@ def _safe_hashpw(password, salt):
 bcrypt.hashpw = _safe_hashpw
 # -----------------------------------------------------------------------------
 
-# -----------------------------------------------------------------------------
-# MONKEYPATCH DATABASE CONFIGURATION FOR IN-MEMORY SQLITE TESTING
-# -----------------------------------------------------------------------------
 import cbms_api.database.connection as conn_mod
-import database.connection as conn_mod_alt
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-
-# Overwrite database URL and async engine to SQLite memory for self-contained tests
-from sqlalchemy.pool import StaticPool
-sqlite_test_engine = create_async_engine(
-    "sqlite+aiosqlite:///:memory:",
-    poolclass=StaticPool,
-    connect_args={"check_same_thread": False},
-)
-sqlite_sessionmaker = async_sessionmaker(
-    bind=sqlite_test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-
-# Apply monkeypatching before importing app/routes
-conn_mod.engine = sqlite_test_engine
-conn_mod.async_session_maker = sqlite_sessionmaker
-
-conn_mod_alt.engine = sqlite_test_engine
-conn_mod_alt.async_session_maker = sqlite_sessionmaker
 # -----------------------------------------------------------------------------
 
 import pytest_asyncio
