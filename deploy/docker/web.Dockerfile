@@ -15,11 +15,13 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
 
 # Copy dependency files
-COPY packages/web/package.json packages/web/pnpm-lock.yaml ./
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml ./
+COPY packages/web/package.json ./packages/web/
 RUN pnpm install --frozen-lockfile
 
 # Copy source and build
-COPY packages/web/ ./
+COPY packages/web/ ./packages/web/
+WORKDIR /app/packages/web
 RUN pnpm run build
 
 # ============================================================================
@@ -31,7 +33,7 @@ FROM nginx:1.25-alpine AS runtime
 RUN sed -i 's|^user .*$|user nginx;|' /etc/nginx/nginx.conf || true
 
 # Copy built static files
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/packages/web/dist /usr/share/nginx/html
 
 # Custom nginx config (SPA support, security headers)
 COPY deploy/docker/nginx.conf /etc/nginx/conf.d/default.conf
