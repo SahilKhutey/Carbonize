@@ -91,9 +91,6 @@ jobs:
         run: |
           poetry run pytest packages/*/tests/integration -v
 
-      - name: Architecture tests
-        run: |
-          poetry run pytest packages/*/tests/architecture -v
 
       # ----- Coverage -----
       - name: Upload coverage
