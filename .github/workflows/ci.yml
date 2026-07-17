@@ -153,7 +153,7 @@ jobs:
 
       # ----- Tests -----
       - name: Unit tests
-        run: cd packages/web && pnpm test --run --coverage
+        run: cd packages/web && pnpm run test:coverage
 
       # ----- Build -----
       - name: Build
