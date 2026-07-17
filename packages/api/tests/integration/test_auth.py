@@ -29,7 +29,12 @@ import database.connection as conn_mod_alt
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 # Overwrite database URL and async engine to SQLite memory for self-contained tests
-sqlite_test_engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+from sqlalchemy.pool import StaticPool
+sqlite_test_engine = create_async_engine(
+    "sqlite+aiosqlite:///:memory:",
+    poolclass=StaticPool,
+    connect_args={"check_same_thread": False},
+)
 sqlite_sessionmaker = async_sessionmaker(
     bind=sqlite_test_engine,
     class_=AsyncSession,
