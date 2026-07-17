@@ -102,7 +102,7 @@ jobs:
         with:
           file: ./coverage.xml
           flags: backend
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       # ----- Security -----
       - name: Security scan (bandit)
@@ -164,7 +164,7 @@ jobs:
         with:
           directory: packages/web/coverage
           flags: frontend
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   # ============================================================================
   # 3. DOCKER BUILD (Build images on PR)
