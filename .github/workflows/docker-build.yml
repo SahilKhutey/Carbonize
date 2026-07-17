@@ -10,7 +10,7 @@ on:
       - 'packages/**/package.json'
 
 jobs:
-  build-api:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,11 +27,6 @@ jobs:
           docker run --rm cbms-api:test \
             python -c "from cbms_api.main import app; print('OK')"
 
-  build-worker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
       - name: Build Worker image
         run: |
           docker build \
@@ -39,11 +34,6 @@ jobs:
             -t cbms-worker:test \
             .
 
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
       - name: Build Web image
         run: |
           docker build \
@@ -51,15 +41,9 @@ jobs:
             -t cbms-web:test \
             .
 
-  e2e-test:
-    needs: [build-api, build-worker, build-web]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
       - name: Start full stack
         run: |
-          docker compose -f deploy/docker-compose.yml up -d
+          docker compose -f deploy/docker-compose.yml up -d --build
           sleep 30  # Wait for services to be healthy
       
       - name: Run E2E tests
@@ -67,11 +51,6 @@ jobs:
           docker compose -f deploy/docker-compose.yml run --rm api \
             pytest tests/e2e/ -v
 
-  security-scan:
-    needs: [build-api, build-worker]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - name: Trivy vulnerability scan
         run: |
           docker run --rm \
