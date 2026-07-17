@@ -248,14 +248,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: ${{ env.PYTHON_VERSION }} }
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
       - run: pip install poetry && poetry install
 
       - name: WebSocket contract
-        run: poetry run pytest tests/contract/test_ws_protocol.py -v
+        run: poetry run pytest packages/api/tests/contract/test_ws_protocol.py -v
 
       - name: Multi-tenant isolation
-        run: poetry run pytest tests/security/test_tenant_isolation.py -v
+        run: poetry run pytest packages/api/tests/security/test_tenant_isolation.py -v
 
       - name: Property-based tests
-        run: poetry run pytest tests/property/ -v --timeout=60
+        run: poetry run pytest packages/sim-core/tests/property/ -v --timeout=60

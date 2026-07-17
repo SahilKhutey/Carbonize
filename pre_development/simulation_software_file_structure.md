@@ -11,14 +11,18 @@ CBMS-Sim is structured as a polyglot monorepo using **Poetry** for Python depend
 ```
 cbms-platform/
 ├── packages/
-│   ├── shared/                           # Shared schemas, typings, and helpers
+│   ├── shared/                           # Shared schemas, typings, and helpers (Python)
 │   ├── sim-core/                         # Pure scientific core (Python)
 │   ├── api/                              # FastAPI HTTP/WebSocket gateway (Python)
 │   ├── workers/                          # Celery background queue processing (Python)
-│   ├── cfd/                              # snappyHexMesh & OpenFOAM CFD (C++/Python)
-│   ├── web/                              # React 19 Client Dashboard (TypeScript)
-│   ├── dashboards/                       # Prometheus & Grafana telemetry
-│   └── infra/                            # Terraform cloud configurations
+│   └── web/                              # React 19 Client Dashboard (TypeScript/React)
+├── deploy/
+│   ├── grafana/                          # Grafana telemetry dashboard configs
+│   └── prometheus/                       # Prometheus metric collection configs
+└── deployment/
+    └── terraform/                        # Terraform infrastructure configurations
+
+*Note: `packages/cfd` (OpenFOAM CFD) was proposed in early designs but is not currently implemented in the codebase.*
 ```
 
 ---

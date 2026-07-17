@@ -6,8 +6,16 @@ name: Deploy to Production
 on:
   workflow_dispatch:
     inputs:
-      environment: production
-      ref: main
+      environment:
+        description: "Target environment"
+        default: "production"
+        required: true
+        type: string
+      ref:
+        description: "Git ref / tag to deploy"
+        default: "main"
+        required: true
+        type: string
 
 concurrency:
   group: production-deploy

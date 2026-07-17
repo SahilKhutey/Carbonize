@@ -79,17 +79,15 @@ The scientific core of CBMS-Sim models the accelerated capture of $\text{CO}_2$,
 *   **Chitosan-Templated Mineralization**: Simulates the nucleation and crystal growth of $\text{CaCO}_3$ on chitosan polymer scaffolds.
 *   **Uncertainty Quantification**: Runs parallel Monte Carlo simulations and Latin Hypercube Sampling (LHS) paired with Sobol global sensitivity analysis to map key parameters.
 
-### Empirical Validation Baseline
-The simulator is validated against published physical datasets to ensure scientific integrity:
-1.  **$\text{CO}_2$ Hydration**: Validated against *Mirjafari et al. 2007* (deviation $\le 5\%$).
-2.  **$\text{CaCO}_3$ Morphology**: Compares nucleation rates to SEM observations from *Zeng et al. 2024*.
-3.  **Gypsum Equilibrium**: Validated against PHREEQC speciation software (deviation $\le 2\%$).
-4.  **$\text{SO}_2$ Scrubbing**: Validated against EPA Air Pollution Control Manual.
-5.  **Heavy Metal Sorption**: Batch adsorption isotherms modeled using Langmuir/Freundlich equations (deviation $\le 10\%$).
+### Empirical Validation & Parameter Confidence
+The mathematical models and calibration pipelines are structured for multi-stage empirical validation:
+1.  **Literature-Derived Benchmarks**: Initial model equations and core physical constants are derived from and aligned with peer-reviewed literature (e.g., $\text{CO}_2$ hydration rates within 5% of *Mirjafari et al. 2007*, gypsum equilibrium comparisons to PHREEQC within 2%).
+2.  **Parameter Confidence Tiers**: As documented in [provenance.md](data/parameters/provenance.md), currently approximately 10% of simulation parameters are directly measured in-house, with the remaining 90% literature-derived or initial design placeholders.
+3.  **Validation Pipeline**: The calibration pipeline is currently validated using synthetic assays (e.g., mock CE-1 rates). Phase 1 research targets transitioning the codebase to $\ge 60\%$ in-house measured parameters as experimental data from physical CE-1, CE-2, and CE-3 trials becomes available.
 
 ### Theoretical Literature
 The mathematical framework, stochastic modeling methods, and parameter registries are detailed in the peer-reviewed canonical manuscript:
-*   [Stochastic Modeling in the CBMS-Sim Platform (v1.0)](file:///c:/Users/ASUS/Documents/Carbonize/manuscript/theory/stochastic_modeling_v1.0.md)
+*   [Stochastic Modeling in the CBMS-Sim Platform (v1.0)](manuscript/theory/stochastic_modeling_v1.0.md)
 
 ---
 

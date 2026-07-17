@@ -233,3 +233,10 @@ def result_collector():
     collector = BenchmarkResultCollector(output_path)
     yield collector
     collector.save()
+
+
+def pytest_collection_modifyitems(_config, items):
+    """Automatically mark all benchmark tests in this folder as slow."""
+    for item in items:
+        item.add_marker(pytest.mark.slow)
+        item.add_marker(pytest.mark.benchmark)
