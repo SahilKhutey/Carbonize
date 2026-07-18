@@ -16,6 +16,7 @@ import {
   CommandData,
 } from "../../../types/ws";
 import { TwinState, ConnectionState } from "../types/twin";
+import { useAuthStore } from "../../../store/authStore";
 
 // ---------------------------------------------------------------------------
 // State shape
@@ -159,7 +160,7 @@ export function useTwinStream(opts: UseTwinStreamOptions): UseTwinStreamReturn {
   const {
     plantId,
     baseUrl = window.location.origin,
-    getToken = () => localStorage.getItem("access_token"),
+    getToken = () => useAuthStore.getState().accessToken,
     tickIntervalSeconds = 5,
     maxReconnectAttempts = 10,
     autoConnect = true,
