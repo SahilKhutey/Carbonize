@@ -16,6 +16,7 @@ import { RefreshCw }          from "lucide-react";
 import { DisconnectedBanner } from "../../../components/realtime/DisconnectedBanner";
 import { ReconnectionToast }  from "../../../components/realtime/ReconnectionToast";
 import { SkipLink, LiveRegion, useLiveAnnouncer } from "../../../components/a11y";
+import { useAuth }            from "../../../hooks/useAuth";
 
 // ---------------------------------------------------------------------------
 // Loading skeleton
@@ -105,8 +106,8 @@ export function TwinPage() {
   const history = useStateHistory(twinState);
   const [dismissedDisconnect, setDismissedDisconnect] = React.useState(false);
 
-  // Derive RBAC from auth context — placeholder (always engineer for now)
-  const canControl = true;
+  const { user } = useAuth();
+  const canControl = user ? (user.role === "operator" || user.role === "engineer") : false;
   
   const { message, announce } = useLiveAnnouncer();
   
