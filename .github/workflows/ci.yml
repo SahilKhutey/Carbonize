@@ -20,6 +20,10 @@ env:
   NODE_VERSION: "22"
   REGISTRY: ghcr.io
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   # ============================================================================
   # 1. BACKEND CI (Python)
