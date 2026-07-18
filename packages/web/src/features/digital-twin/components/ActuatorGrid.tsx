@@ -43,7 +43,8 @@ const ACTUATORS: ActuatorDef[] = [
   {
     id: "reagent_pump_b",
     label: "Reagent Pump B",
-    isOn: (_s) => false,
+    isOn: (s) =>
+      s.operating_mode === "running" && (s.current_actuals.reagent_pump_b_flow ?? 0) > 0,
     colour: "blue",
   },
   {
@@ -55,7 +56,8 @@ const ACTUATORS: ActuatorDef[] = [
   {
     id: "hydraulic_press",
     label: "Hydraulic Press",
-    isOn: (_s) => false,
+    isOn: (s) =>
+      s.operating_mode === "running" && (s.current_actuals.hydraulic_press_flow ?? 0) > 0,
     colour: "amber",
     requiresConfirmation: true,
   },

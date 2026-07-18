@@ -329,6 +329,42 @@ async def _execute_command(conn: TwinConnection, msg: CommandMessage, get_sessio
             await session.commit()
         return {"target": cmd.target, "new_value": cmd.value}
 
+    elif cmd.command in (CommandType.START_EQUIPMENT, CommandType.STOP_EQUIPMENT):
+        target = cmd.target or cmd.equipment_id
+        if not target:
+            raise ValueError("Target or equipment_id is required")
+        is_start = cmd.command == CommandType.START_EQUIPMENT
+        async with get_session() as session:
+            try:
+                await session.execute(
+                    text("SET LOCAL app.current_org_id = :oid"), {"oid": str(conn.org_id)}
+                )
+            except Exception:
+                pass
+
+            if target == "id_fan":
+                await session.execute(
+                    text("""
+                        UPDATE twin_states
+                        SET operating_mode = :mode
+                        WHERE plant_id = :pid
+                    """),
+                    {"pid": str(conn.plant_id), "mode": "running" if is_start else "idle"},
+                )
+            else:
+                flow_val = 1500.0 if is_start else 0.0
+                await session.execute(
+                    text("""
+                        UPDATE twin_states
+                        SET current_actuals =
+                            json_patch(current_actuals, json_object(:key, :val))
+                        WHERE plant_id = :pid
+                    """),
+                    {"pid": str(conn.plant_id), "key": f"{target}_flow", "val": flow_val},
+                )
+            await session.commit()
+        return {"target": target, "status": "started" if is_start else "stopped"}
+
     raise NotImplementedError(f"Command {cmd.command.value!r} is not implemented yet")
 
 
