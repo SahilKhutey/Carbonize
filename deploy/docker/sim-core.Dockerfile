@@ -14,6 +14,8 @@ ARG BASE_IMAGE=python-base
 # ============================================================================
 FROM ${BASE_IMAGE} AS builder
 
+USER root
+
 WORKDIR /app
 
 # Copy only sim-core package first

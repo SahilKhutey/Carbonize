@@ -14,6 +14,8 @@ ARG BASE_IMAGE=python-base
 # ============================================================================
 FROM ${BASE_IMAGE} AS deps
 
+USER root
+
 WORKDIR /app
 
 # Install API-specific system dependencies

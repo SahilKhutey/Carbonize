@@ -11,6 +11,8 @@ ARG BASE_IMAGE=python-base
 # ============================================================================
 FROM ${BASE_IMAGE} AS deps
 
+USER root
+
 WORKDIR /app
 
 # Worker system deps
@@ -52,8 +54,4 @@ USER app
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
     CMD celery -A cbms_workers.celery_app inspect ping || exit 1
 
-# Default: run worker, multiple queues
-CMD ["celery", "-A", "cbms_workers.celery_app", "worker", 
-     "--loglevel=info",
-     "-Q", "critical,compute_heavy,reporting,quick_sim,low_priority",
-     "--concurrency=4"]
+CMD ["celery", "-A", "cbms_workers.celery_app", "worker", "--loglevel=info", "-Q", "critical,compute_heavy,reporting,quick_sim,low_priority", "--concurrency=4"]
