@@ -7,7 +7,7 @@
 # ============================================================================
 # Stage 1: Builder (with build tools)
 # ============================================================================
-FROM python:3.12-slim AS builder
+FROM python:3.12-slim-bookworm AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -36,7 +36,7 @@ RUN poetry install --without dev --no-root
 # ============================================================================
 # Stage 2: Runtime (minimal, no build tools)
 # ============================================================================
-FROM python:3.12-slim AS runtime
+FROM python:3.12-slim-bookworm AS runtime
 
 # Runtime system dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \
