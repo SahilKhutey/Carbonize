@@ -4,10 +4,12 @@
 # Multi-stage build (shares base image with API)
 # ============================================================================
 
+ARG BASE_IMAGE=python-base
+
 # ============================================================================
 # Stage 1: Dependencies
 # ============================================================================
-FROM python-base AS deps
+FROM ${BASE_IMAGE} AS deps
 
 WORKDIR /app
 
@@ -35,7 +37,7 @@ RUN poetry run pytest packages/workers/tests/ -v --tb=short
 # ============================================================================
 # Stage 3: Runtime
 # ============================================================================
-FROM python-base AS runtime
+FROM ${BASE_IMAGE} AS runtime
 
 WORKDIR /app
 

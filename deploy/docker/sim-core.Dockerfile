@@ -7,10 +7,12 @@
 # Multi-stage build for minimum final image size.
 # ============================================================================
 
+ARG BASE_IMAGE=python-base
+
 # ============================================================================
 # Stage 1: Builder
 # ============================================================================
-FROM python-base AS builder
+FROM ${BASE_IMAGE} AS builder
 
 WORKDIR /app
 
@@ -39,7 +41,7 @@ RUN poetry run pytest packages/sim-core/tests/ -v --tb=short
 # ============================================================================
 # Stage 3: Runtime (minimal, just the library installed)
 # ============================================================================
-FROM python-base AS runtime
+FROM ${BASE_IMAGE} AS runtime
 
 WORKDIR /app
 

@@ -50,6 +50,10 @@ jobs:
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Build python-base locally
+        run: |
+          docker build -t python-base:latest -f deploy/docker/base/python-base.Dockerfile .
+
       - name: Build and push API
         uses: docker/build-push-action@v5
         with:
