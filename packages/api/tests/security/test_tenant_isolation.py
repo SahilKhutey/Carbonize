@@ -258,3 +258,119 @@ class TestSearchIsolation:
             plant_ids = [p["id"] for p in plants]
             assert str(ids_b["plant"]) not in plant_ids, \
                 f"Search '{q}' leaked tenant B's plant!"
+
+
+class TestAnalyticsIsolation:
+    """Verifies that analytics endpoints are fully isolated across tenants."""
+
+    @pytest.mark.anyio
+    async def test_portfolio_analytics_isolation(
+        self, client, tenant_a, tenant_b, auth_a
+    ):
+        """Tenant A portfolio analytics should only reflect Tenant A data."""
+        # Tenant A request
+        response = await client.get(
+            "/api/analytics/portfolio",
+            headers=auth_a
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Verify plant count matches Tenant A (which is 1, whereas B also has 1)
+        assert data["total_plants"] == 1
+        
+        # Check that details list contains A's plant but not B's
+        _, _, ids_a = tenant_a
+        _, _, ids_b = tenant_b
+        plant_ids = [p["id"] for p in data["details"]]
+        assert str(ids_a["plant"]) in plant_ids
+        assert str(ids_b["plant"]) not in plant_ids
+
+
+class TestOperatorIsolation:
+    """Verifies that operator and shift auditing endpoints respect isolation and audit logs."""
+
+    @pytest.mark.anyio
+    async def test_get_alarms_requires_auth(self, client):
+        """Unauthenticated request to alarms endpoint should fail."""
+        response = await client.get("/api/operator/alarms")
+        assert response.status_code == 401
+
+    @pytest.mark.anyio
+    async def test_get_alarms_returns_success(self, client, auth_a):
+        """Authenticated tenant can retrieve alarms log page."""
+        response = await client.get(
+            "/api/operator/alarms",
+            headers=auth_a
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "alarms" in data
+        assert data["total"] > 0
+
+    @pytest.mark.anyio
+    async def test_shift_handover_logging_and_isolation(
+        self, client, tenant_a, tenant_b, auth_a
+    ):
+        """Shift handover logs to active tenant's audit log and is isolated."""
+        _, _, ids_a = tenant_a
+        
+        payload = {
+            "outgoing_operator": "Alice",
+            "incoming_operator": "Bob",
+            "notes": "All green.",
+            "shift_summary": ["Checked reagent pH"]
+        }
+        res_post = await client.post(
+            "/api/operator/handover",
+            json=payload,
+            headers=auth_a
+        )
+        assert res_post.status_code == 201
+        
+        # Check database directly for created audit event
+        from cbms_api.database.connection import async_session_maker
+        from cbms_api.database.models import AuditEvent
+        from sqlalchemy.future import select
+        
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(AuditEvent).filter(AuditEvent.event_type == "operator.shift_handover")
+            )
+            events = result.scalars().all()
+            assert len(events) > 0
+            # Ensure it is mapped to Org A's ID
+            assert events[0].organization_id == ids_a["org"]
+
+    @pytest.mark.anyio
+    async def test_alert_escalation_logging_and_isolation(
+        self, client, tenant_a, tenant_b, auth_a
+    ):
+        """Alert escalation logs to active tenant's audit log and is isolated."""
+        _, _, ids_a = tenant_a
+        
+        payload = {
+            "alert_id": "alert-123",
+            "plant_id": str(ids_a["plant"])
+        }
+        res_post = await client.post(
+            "/api/operator/escalate",
+            json=payload,
+            headers=auth_a
+        )
+        assert res_post.status_code == 200
+        
+        # Check database directly for created audit event
+        from cbms_api.database.connection import async_session_maker
+        from cbms_api.database.models import AuditEvent
+        from sqlalchemy.future import select
+        
+        async with async_session_maker() as session:
+            result = await session.execute(
+                select(AuditEvent).filter(AuditEvent.event_type == "operator.alarm_escalated")
+            )
+            events = result.scalars().all()
+            assert len(events) > 0
+            # Ensure it is mapped to Org A's ID
+            assert events[0].organization_id == ids_a["org"]
+

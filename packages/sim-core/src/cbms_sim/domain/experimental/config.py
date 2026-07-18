@@ -1,7 +1,6 @@
 """
-core/config.py
-Global physical constants, material properties, and tunable parameters
-for the biomimetic multi-pollutant solidification system.
+domain/experimental/config.py
+Physical constants, material properties, and default configs for experimental modules.
 """
 
 from dataclasses import dataclass, field
@@ -38,7 +37,6 @@ MOLAR = {
 class KineticsConfig:
     """
     Tunable parameters for the enzymatic CO2 hydration model.
-    Validated against: Mirjafari et al. 2007, Rigkos 2024.
     """
     # Carbonic anhydrase rate constants
     k_cat: float = 1.0e6          # Catalytic turnover [s^-1]
@@ -64,9 +62,8 @@ class KineticsConfig:
 @dataclass(frozen=True)
 class MaterialLibrary:
     """
-    Solid material database: density, compressive strength, leach rates.
+    Solid material database.
     """
-    # Pure mineralized outputs
     CACO3_DENSITY: float = 2710.0       # Calcite [kg/m³]
     CACO3_STRENGTH: float = 18.0        # MPa @ 48h curing
 
@@ -97,7 +94,6 @@ class MaterialLibrary:
 # ============================================================
 @dataclass(frozen=True)
 class EconomicConfig:
-    """Live-tuned market rates. Refreshed nightly from CCTS feed."""
     CCTS_CARBON_PRICE_INR: float = 1850.0      # INR per tCO2 (2026 spot)
     BRICK_MARKET_PRICE_INR: float = 12.0        # INR per construction block
     ELECTRICITY_TARIFF_INR: float = 8.5         # INR per kWh (industrial HT)
@@ -113,7 +109,6 @@ class EconomicConfig:
 # ============================================================
 @dataclass(frozen=True)
 class ReactorGeometry:
-    """Default 10,000 Nm³/hr system dimensions."""
     TOWER_WIDTH: float = 2.5          # m (square cross-section)
     TOWER_HEIGHT: float = 12.0        # m
     GAS_VELOCITY: float = 0.44        # m/s (superficial)

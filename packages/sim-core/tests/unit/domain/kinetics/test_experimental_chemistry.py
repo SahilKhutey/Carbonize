@@ -65,3 +65,28 @@ def test_magnesium_substitution_precipitation():
     res = solver.run()
     assert res["success"] is True
     assert res["final_state"]["MgCO3_s"] > 0.0
+
+
+def test_scrubber_sizing_calculations():
+    """Verify that sizing calculations return reasonable reactor dimensions and downtime metrics."""
+    solver = ExperimentalBiomineralizationSolver(
+        co2_vol_pct=14.0,
+        so2_mg_per_nm3=1200.0,
+        nox_inlet_ppm=250.0,
+        ca_concentration_mg_l=12.0,
+        calcium_source_g_per_l=35.0,
+        crosslinking_density=0.5,
+        mg_substitution_ratio=0.3,
+        flow_nm3_per_hr=12000.0,
+        l_g_ratio=10.0,
+        superficial_velocity=2.5
+    )
+    res = solver.run()
+    assert "sizing" in res
+    sizing = res["sizing"]
+    assert sizing["vessel_diameter_m"] > 0.0
+    assert sizing["vessel_height_m"] == pytest.approx(2.5 * 27.0) # velocity * tau
+    assert sizing["circulating_liquid_flow_m3_hr"] == pytest.approx(120.0) # flow * l_g / 1000
+    assert sizing["pump_power_kw"] > 0.0
+    assert sizing["descaling_interval_days"] > 0.0
+    assert sizing["adjusted_operating_hours"] <= 8760.0

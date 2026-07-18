@@ -21,6 +21,9 @@ class ExperimentalSimRequest(BaseModel):
     calcium_source_g_per_l: float = Field(default=35.0, ge=0.0)
     crosslinking_density: float = Field(default=0.5, ge=0.0, le=1.0)
     mg_substitution_ratio: float = Field(default=0.3, ge=0.0, le=1.0)
+    flow_nm3_per_hr: float = Field(default=10000.0, ge=0.0)
+    l_g_ratio: float = Field(default=8.5, ge=0.0, le=100.0)
+    superficial_velocity: float = Field(default=2.0, ge=0.1, le=10.0)
 
 
 @router.post("/simulate")
@@ -40,7 +43,10 @@ async def run_experimental_simulation(
         ca_concentration_mg_l=body.ca_concentration_mg_l,
         calcium_source_g_per_l=body.calcium_source_g_per_l,
         crosslinking_density=body.crosslinking_density,
-        mg_substitution_ratio=body.mg_substitution_ratio
+        mg_substitution_ratio=body.mg_substitution_ratio,
+        flow_nm3_per_hr=body.flow_nm3_per_hr,
+        l_g_ratio=body.l_g_ratio,
+        superficial_velocity=body.superficial_velocity
     )
     res = solver.run()
     return res

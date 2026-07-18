@@ -31,3 +31,6 @@ async def test_experimental_simulate_route_success():
         assert "efficiencies" in data
         assert data["efficiencies"]["NOx"] > 0.0
         assert data["block_strength_mpa"] > 0.0
+        assert "sizing" in data
+        assert data["sizing"]["vessel_diameter_m"] > 0.0
+        assert data["sizing"]["adjusted_operating_hours"] <= 8760.0

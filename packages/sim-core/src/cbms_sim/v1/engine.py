@@ -261,10 +261,14 @@ class SimulationEngine:
         mc_cap_dist = None
         mc_npv_dist = None
         mc_pay_dist = None
+        mc_so2_dist = None
+        mc_strength_dist = None
         if "capture_distribution" in internal_res:
             mc_cap_dist = DistributionStats(**internal_res["capture_distribution"])
             mc_npv_dist = DistributionStats(**internal_res["npv_distribution"])
             mc_pay_dist = DistributionStats(**internal_res["payback_distribution"])
+            mc_so2_dist = DistributionStats(**internal_res["so2_distribution"])
+            mc_strength_dist = DistributionStats(**internal_res["strength_distribution"])
             
         # Sobol sensitivity
         sens_out = None
@@ -293,6 +297,8 @@ class SimulationEngine:
             capture_distribution=mc_cap_dist,
             npv_distribution=mc_npv_dist,
             payback_distribution=mc_pay_dist,
+            so2_distribution=mc_so2_dist,
+            strength_distribution=mc_strength_dist,
             started_at=started_at,
             completed_at=completed_at,
             total_wall_clock_s=wall_clock,

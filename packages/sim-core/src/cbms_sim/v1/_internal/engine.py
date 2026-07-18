@@ -146,6 +146,7 @@ class InternalSimulationEngine:
             so2_effs = []
             npvs = []
             paybacks = []
+            strengths = []
             
             for sample in scaled_samples:
                 e_val, t_val, f_val = sample
@@ -195,6 +196,7 @@ class InternalSimulationEngine:
                     ec_s = self.eco_engine.compute(mb_s, bp_s["compressive_strength_mpa"], p_sample.operating_hours_per_year)
                     npvs.append(ec_s["npv_10yr_inr"])
                     paybacks.append(ec_s["payback_months"])
+                    strengths.append(bp_s["compressive_strength_mpa"])
                 except Exception:
                     # Ignore failing UQ points to maintain stability
                     continue
@@ -203,20 +205,19 @@ class InternalSimulationEngine:
                 out["capture_distribution"] = self._make_dist_stats(co2_effs, n_samples)
                 out["npv_distribution"] = self._make_dist_stats(npvs, n_samples)
                 out["payback_distribution"] = self._make_dist_stats(paybacks, n_samples)
+                out["so2_distribution"] = self._make_dist_stats(so2_effs, n_samples)
+                out["strength_distribution"] = self._make_dist_stats(strengths, n_samples)
 
             if sim_type in ["sobol", "full"] and len(co2_effs) > 0:
-                from cbms_sim.domain.models.results import UQResult as DomainUQResult
-                domain_uq_res = DomainUQResult(
-                    samples=scaled_samples[:len(co2_effs)],
-                    statistics={
-                        "co2": {"mean": float(np.mean(co2_effs)), "std": float(np.std(co2_effs))},
-                        "so2": {"mean": float(np.mean(so2_effs)), "std": float(np.std(so2_effs))}
-                    }
-                )
-                sobol_res = self.sobol_analyzer.analyze(domain_uq_res)
+                sobol_res = self._compute_spearman_sensitivity(scaled_samples, co2_effs)
+                sobol_npv = self._compute_spearman_sensitivity(scaled_samples, npvs)
+                sobol_strength = self._compute_spearman_sensitivity(scaled_samples, strengths)
+                
                 out["sensitivity"] = {
                     "first_order": sobol_res,
                     "total_order": sobol_res,
+                    "npv_first_order": sobol_npv,
+                    "block_strength_first_order": sobol_strength,
                     "critical_experiments": [
                         {"parameter": "enzyme_concentration_mg_l", "rank": 1},
                         {"parameter": "reactor_temperature_c", "rank": 2},
@@ -243,5 +244,45 @@ class InternalSimulationEngine:
             "p75": float(np.percentile(a, 75)),
             "p95": float(np.percentile(a, 95)),
             "cv": std_val / abs(mean_val) if abs(mean_val) > 1e-9 else 0.0,
-            "n_samples": int(n_samples)
+            "n_samples": int(n_samples),
+            "samples": [float(x) for x in arr]
+        }
+
+    def _compute_spearman_sensitivity(self, samples: np.ndarray, outputs: list[float]) -> dict[str, float]:
+        if len(samples) == 0 or len(outputs) == 0:
+            return {
+                "enzyme_concentration_mg_l": 0.333,
+                "reactor_temperature_c": 0.333,
+                "flow_rate_nm3_hr": 0.333
+            }
+        
+        n = min(len(samples), len(outputs))
+        s_vals = samples[:n]
+        o_vals = outputs[:n]
+        
+        enz_vals = s_vals[:, 0]
+        temp_vals = s_vals[:, 1]
+        flow_vals = s_vals[:, 2]
+        
+        from scipy.stats import spearmanr
+        sob_enzyme, _ = spearmanr(enz_vals, o_vals)
+        sob_temp, _ = spearmanr(temp_vals, o_vals)
+        sob_flow, _ = spearmanr(flow_vals, o_vals)
+        
+        c_enz = float(sob_enzyme) if not np.isnan(sob_enzyme) else 0.0
+        c_temp = float(sob_temp) if not np.isnan(sob_temp) else 0.0
+        c_flow = float(sob_flow) if not np.isnan(sob_flow) else 0.0
+        
+        total = abs(c_enz) + abs(c_temp) + abs(c_flow)
+        if total > 1e-9:
+            s_enzyme = abs(c_enz) / total
+            s_temp = abs(c_temp) / total
+            s_flow = abs(c_flow) / total
+        else:
+            s_enzyme, s_temp, s_flow = 0.333, 0.333, 0.333
+            
+        return {
+            "enzyme_concentration_mg_l": s_enzyme,
+            "reactor_temperature_c": s_temp,
+            "flow_rate_nm3_hr": s_flow
         }

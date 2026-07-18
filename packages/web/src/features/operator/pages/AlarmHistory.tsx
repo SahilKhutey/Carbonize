@@ -4,7 +4,7 @@
  * Route: /operator/alarms
  *
  * Paginated alarm audit log with severity filters and CSV export.
- * Uses mock data — replace fetchAlarmHistory() with real API call.
+ * Real API integration with backend pagination and filtering.
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";

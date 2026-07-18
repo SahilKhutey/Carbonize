@@ -133,6 +133,33 @@ function reconstructUQMetric(
   return uqFromSamples(samples);
 }
 
+function getUQMetric(
+  uq_metrics: any,
+  metricKey: string,
+  seedStr: string,
+  nSamples: number,
+  mean: number,
+  std: number,
+  minVal = 0,
+  maxVal = 100
+): UQMetric {
+  const data = uq_metrics[metricKey];
+  if (data && data.samples && data.samples.length > 0) {
+    return {
+      mean: data.mean,
+      std: data.std,
+      cv: data.std / Math.abs(data.mean || 1),
+      p5: data.p05 ?? data.p5,
+      p25: data.p25 ?? (data.mean - data.std * 0.67),
+      p50: data.p50 ?? data.mean,
+      p75: data.p75 ?? (data.mean + data.std * 0.67),
+      p95: data.p95,
+      samples: data.samples,
+    };
+  }
+  return reconstructUQMetric(seedStr + "-" + metricKey, nSamples, mean, std, minVal, maxVal);
+}
+
 function mapBackendResultToFrontend(run: any): SimulationResult {
   const resultObj = run.result;
   const N = run.n_samples || 500;
@@ -142,33 +169,29 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
   const co2_uq = uq_metrics.co2 || { mean: resultObj.co2_capture_efficiency_pct, std: resultObj.co2_capture_efficiency_pct * 0.02 };
   const so2_uq = uq_metrics.so2 || { mean: resultObj.so2_capture_efficiency_pct, std: resultObj.so2_capture_efficiency_pct * 0.05 };
 
-  const co2_pct = reconstructUQMetric(seed + "-co2", N, co2_uq.mean, co2_uq.std || 0.1, 0, 100);
-  const so2_pct = reconstructUQMetric(seed + "-so2", N, so2_uq.mean, so2_uq.std || 1.0, 0, 100);
+  const co2_pct = getUQMetric(uq_metrics, "co2", seed, N, co2_uq.mean, co2_uq.std || 0.1, 0, 100);
+  const so2_pct = getUQMetric(uq_metrics, "so2", seed, N, so2_uq.mean, so2_uq.std || 1.0, 0, 100);
   const nox_pct = reconstructUQMetric(seed + "-nox", N, parseFloat(run.plant?.nox_mg_per_nm3 || 450) > 0 ? 72.0 : 0.0, 8.0, 0, 100);
   const hm_pct  = reconstructUQMetric(seed + "-hm", N, 94.1, 3.2, 0, 100);
   const pm_pct  = reconstructUQMetric(seed + "-pm", N, 88.0, 5.5, 0, 100);
 
-  const strength_mpa = reconstructUQMetric(seed + "-strength", N, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.1, 0, 100);
+  const strength_mpa = getUQMetric(uq_metrics, "strength", seed, N, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.1, 0, 100);
   const output_kg_per_day = reconstructUQMetric(seed + "-output", N, resultObj.hourly_block_yield_kg * 24.0, resultObj.hourly_block_yield_kg * 24.0 * 0.05, 0, 1e7);
 
-  const npv_10yr_inr = reconstructUQMetric(seed + "-npv", N, resultObj.npv_10yr_inr, Math.abs(resultObj.npv_10yr_inr) * 0.15, -1e9, 1e9);
+  const npv_10yr_inr = getUQMetric(uq_metrics, "npv", seed, N, resultObj.npv_10yr_inr, Math.abs(resultObj.npv_10yr_inr) * 0.15, -1e9, 1e9);
   const irr_pct = reconstructUQMetric(seed + "-irr", N, resultObj.irr_pct, resultObj.irr_pct * 0.1, 0, 100);
-  const payback_years = reconstructUQMetric(seed + "-payback", N, resultObj.simple_payback_months / 12.0, (resultObj.simple_payback_months / 12.0) * 0.15, 0, 100);
+  const payback_years = getUQMetric(uq_metrics, "payback", seed, N, resultObj.simple_payback_months / 12.0, (resultObj.simple_payback_months / 12.0) * 0.15, 0, 100);
   const opex_inr_per_day = reconstructUQMetric(seed + "-opex", N, resultObj.annual_opex_inr / 365.0, (resultObj.annual_opex_inr / 365.0) * 0.05, 0, 1e9);
   const capex_inr = reconstructUQMetric(seed + "-capex", N, resultObj.capex_total_inr, resultObj.capex_total_inr * 0.05, 0, 1e9);
   const ccts_credits_yr = reconstructUQMetric(seed + "-ccts", N, resultObj.annual_ccts_revenue_inr / 1000.0, (resultObj.annual_ccts_revenue_inr / 1000.0) * 0.05, 0, 1e9);
   const annual_revenue_inr = reconstructUQMetric(seed + "-annrev", N, resultObj.annual_block_revenue_inr + resultObj.annual_ccts_revenue_inr, (resultObj.annual_block_revenue_inr + resultObj.annual_ccts_revenue_inr) * 0.08, 0, 1e9);
 
   const rand = mulberry32(12345);
-  const raw_sensitivity = uq_metrics.sensitivity || {
-    enzyme_concentration_mg_l: 0.45,
-    reactor_temperature_c: 0.20,
-    flow_rate_nm3_hr: 0.35
-  };
   
-  const mapSobol = (sobolIndices: SobolIndex[], keyMap: any) => {
+  const mapSobol = (sobolIndices: SobolIndex[], keyMap: any, sourceIndices?: any) => {
     return sobolIndices.map(item => {
-      const val = raw_sensitivity[keyMap[item.parameter] || item.parameter];
+      const mappedKey = keyMap[item.parameter] || item.parameter;
+      const val = sourceIndices ? sourceIndices[mappedKey] : (uq_metrics.sensitivity ? uq_metrics.sensitivity[mappedKey] : undefined);
       if (val !== undefined) {
         return {
           ...item,
@@ -188,14 +211,21 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
   };
   
   const sensitivity: SensitivityResult = {
-    co2_capture_indices: mapSobol(baseSens, co2_sens_map),
-    npv_indices: baseSens,
-    block_strength_indices: baseSens
+    co2_capture_indices: mapSobol(baseSens, co2_sens_map, uq_metrics.sobol?.co2_capture),
+    npv_indices: mapSobol(baseSens, {}, uq_metrics.sobol?.npv),
+    block_strength_indices: mapSobol(baseSens, {}, uq_metrics.sobol?.block_strength)
   };
 
   const completedTime = run.completed_at ? new Date(run.completed_at) : new Date();
   const duration = run.completed_at && run.created_at ? 
     Math.round((new Date(run.completed_at).getTime() - new Date(run.created_at).getTime()) / 1000.0) : 180;
+
+  const time_series = uq_metrics.time_series || {
+    co2_capture: makeTimeSeries(rand, 24, co2_uq.mean - co2_uq.std * 1.5, co2_uq.mean, co2_uq.std || 1.0),
+    so2_capture: makeTimeSeries(rand, 24, so2_uq.mean - so2_uq.std * 1.5, so2_uq.mean, so2_uq.std || 1.5),
+    block_strength: makeTimeSeries(rand, 24, resultObj.predicted_block_strength_mpa * 0.9, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.05),
+    ph_profile: makeTimeSeries(rand, 24, 8.2, 8.5, 0.2)
+  };
 
   return {
     id: run.id,
@@ -227,12 +257,7 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
       ccts_credits_yr,
       annual_revenue_inr
     },
-    time_series: {
-      co2_capture: makeTimeSeries(rand, 24, co2_uq.mean - co2_uq.std * 1.5, co2_uq.mean, co2_uq.std || 1.0),
-      so2_capture: makeTimeSeries(rand, 24, so2_uq.mean - so2_uq.std * 1.5, so2_uq.mean, so2_uq.std || 1.5),
-      block_strength: makeTimeSeries(rand, 24, resultObj.predicted_block_strength_mpa * 0.9, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.05),
-      ph_profile: makeTimeSeries(rand, 24, 8.2, 8.5, 0.2)
-    },
+    time_series,
     sensitivity
   };
 }

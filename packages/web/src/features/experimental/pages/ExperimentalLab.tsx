@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Beaker, 
   Settings2, 
-  HelpCircle, 
   Zap, 
   RefreshCw, 
-  ShieldCheck, 
   ArrowLeft,
   Flame,
   Leaf,
@@ -26,6 +24,16 @@ interface SimResults {
   block_strength_mpa: number;
   block_grade: string;
   final_state: Record<string, number>;
+  sizing?: {
+    vessel_diameter_m: number;
+    vessel_height_m: number;
+    circulating_liquid_flow_m3_hr: number;
+    pump_power_kw: number;
+    descaling_interval_days: number;
+    annual_downtime_hours: number;
+    adjusted_operating_hours: number;
+    total_scaling_rate_kg_hr: number;
+  };
 }
 
 export function ExperimentalLab() {
@@ -39,6 +47,9 @@ export function ExperimentalLab() {
   const [calciumSourceGPerL, setCalciumSourceGPerL] = useState(35.0);
   const [crosslinkingDensity, setCrosslinkingDensity] = useState(0.5);
   const [mgSubstitutionRatio, setMgSubstitutionRatio] = useState(0.3);
+  const [flowNm3PerHr, setFlowNm3PerHr] = useState(10000.0);
+  const [lGRatio, setLGRatio] = useState(8.5);
+  const [superficialVelocity, setSuperficialVelocity] = useState(2.0);
 
   // Results State
   const [loading, setLoading] = useState(false);
@@ -62,6 +73,9 @@ export function ExperimentalLab() {
           calcium_source_g_per_l: calciumSourceGPerL,
           crosslinking_density: crosslinkingDensity,
           mg_substitution_ratio: mgSubstitutionRatio,
+          flow_nm3_per_hr: flowNm3PerHr,
+          l_g_ratio: lGRatio,
+          superficial_velocity: superficialVelocity
         }),
       });
 
@@ -81,6 +95,9 @@ export function ExperimentalLab() {
           calcium_source_g_per_l: calciumSourceGPerL,
           crosslinking_density: 0.0,
           mg_substitution_ratio: 0.0,
+          flow_nm3_per_hr: flowNm3PerHr,
+          l_g_ratio: 8.5,
+          superficial_velocity: 2.0
         }),
       });
 
@@ -180,6 +197,46 @@ export function ExperimentalLab() {
             <p className="text-[10px] text-slate-500 leading-normal">Replaces calcium with magnesium to precipitate hydromagnesite binders, increasing block strength.</p>
           </div>
 
+          {/* L/G Ratio Slider */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                <RefreshCw className="w-3.5 h-3.5 text-blue-400" /> Liquid-to-Gas Ratio
+              </span>
+              <span className="text-blue-400 font-mono font-bold">{lGRatio.toFixed(1)} L/m³</span>
+            </div>
+            <input 
+              type="range" 
+              min="2.0" 
+              max="20.0" 
+              step="0.5"
+              value={lGRatio}
+              onChange={(e) => setLGRatio(parseFloat(e.target.value))}
+              className="w-full accent-blue-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer"
+            />
+            <p className="text-[10px] text-slate-500 leading-normal">Liquid flow rate per gas volume. High ratios improve scrub but increase pump power.</p>
+          </div>
+
+          {/* Superficial Velocity Slider */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-yellow-400" /> Gas Velocity limit
+              </span>
+              <span className="text-yellow-400 font-mono font-bold">{superficialVelocity.toFixed(1)} m/s</span>
+            </div>
+            <input 
+              type="range" 
+              min="0.5" 
+              max="5.0" 
+              step="0.1"
+              value={superficialVelocity}
+              onChange={(e) => setSuperficialVelocity(parseFloat(e.target.value))}
+              className="w-full accent-yellow-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer"
+            />
+            <p className="text-[10px] text-slate-500 leading-normal">Gas velocity limits reactor column cross-section. Low velocity requires wider columns.</p>
+          </div>
+
           {/* Flue Gas Inputs */}
           <div className="border-t border-slate-850 pt-4 space-y-4">
             <div className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Inlet Flue Gas Profile</div>
@@ -199,6 +256,16 @@ export function ExperimentalLab() {
                 value={noxInletPpm}
                 onChange={(e) => setNoxInletPpm(parseInt(e.target.value))}
                 className="w-full accent-amber-500 bg-slate-950 h-1.5 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] text-slate-400 block mb-1">Exhaust Flow rate (Nm³/hr)</label>
+              <input 
+                type="number" 
+                value={flowNm3PerHr}
+                onChange={(e) => setFlowNm3PerHr(parseFloat(e.target.value))}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs font-mono font-bold focus:border-emerald-500 focus:outline-none"
               />
             </div>
 
@@ -280,6 +347,55 @@ export function ExperimentalLab() {
               </span>
             </div>
           </div>
+
+          {/* Reactor Geometry & Maintenance Section */}
+          {experimentalResults?.sizing && (
+            <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-emerald-400" /> Industrial Sizing & Maintenance Predictor
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                
+                {/* Dimensions */}
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Reactor Dimensions</span>
+                  <div className="text-lg font-black text-white mt-1">
+                    Ø {experimentalResults.sizing.vessel_diameter_m.toFixed(2)}m × {experimentalResults.sizing.vessel_height_m.toFixed(1)}m
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">Sized for {flowNm3PerHr} Nm³/hr gas load.</p>
+                </div>
+
+                {/* Liquid Flow & Pump Power */}
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Circulation & Power</span>
+                  <div className="text-lg font-black text-white mt-1">
+                    {experimentalResults.sizing.circulating_liquid_flow_m3_hr.toFixed(0)} m³/hr
+                  </div>
+                  <p className="text-[10px] text-indigo-400 mt-1">⚡ Pump Power: {experimentalResults.sizing.pump_power_kw.toFixed(1)} kW</p>
+                </div>
+
+                {/* Maintenance Interval */}
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Descaling Maintenance</span>
+                  <div className="text-lg font-black text-amber-500 mt-1">
+                    Every {experimentalResults.sizing.descaling_interval_days.toFixed(1)} Days
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">Scale rate: {experimentalResults.sizing.total_scaling_rate_kg_hr.toFixed(2)} kg/hr</p>
+                </div>
+
+                {/* Operating Hours */}
+                <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Annual Availability</span>
+                  <div className="text-lg font-black text-emerald-400 mt-1">
+                    {experimentalResults.sizing.adjusted_operating_hours.toFixed(0)} hrs / yr
+                  </div>
+                  <p className="text-[10px] text-slate-500 mt-1">Downtime: {experimentalResults.sizing.annual_downtime_hours.toFixed(0)} hrs/yr.</p>
+                </div>
+
+              </div>
+            </div>
+          )}
 
           {/* Detailed Species Table */}
           <div className="bg-slate-900/30 border border-slate-800 rounded-2xl p-5">

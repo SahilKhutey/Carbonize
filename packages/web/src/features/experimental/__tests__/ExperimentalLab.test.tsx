@@ -24,6 +24,16 @@ const mockSimResponse = {
     MgCO3_s: 8.0,
     CaNO3_s: 4.5,
     Metal_chelated: 0.35
+  },
+  sizing: {
+    vessel_diameter_m: 2.34,
+    vessel_height_m: 54.0,
+    circulating_liquid_flow_m3_hr: 85.0,
+    pump_power_kw: 15.2,
+    descaling_interval_days: 12.5,
+    annual_downtime_hours: 108.0,
+    adjusted_operating_hours: 8652.0,
+    total_scaling_rate_kg_hr: 16.7
   }
 };
 
@@ -36,7 +46,7 @@ describe('ExperimentalLab Component', () => {
     });
   });
 
-  it('renders slider titles and simulation metrics', async () => {
+  it('renders slider titles, simulation metrics, and sizing results', async () => {
     render(
       <MemoryRouter>
         <ExperimentalLab />
@@ -47,12 +57,17 @@ describe('ExperimentalLab Component', () => {
     expect(screen.getByText(/Material Science Lab/i)).toBeInTheDocument();
     expect(screen.getByText(/Chitosan Crosslinking/i)).toBeInTheDocument();
     expect(screen.getByText(/Mg²⁺ Substitution Ratio/i)).toBeInTheDocument();
+    expect(screen.getByText(/Liquid-to-Gas Ratio/i)).toBeInTheDocument();
 
     // Verify results show up after fetch resolves
     await waitFor(() => {
       expect(screen.getByText("85.5%")).toBeInTheDocument();
       expect(screen.getByText("62.0%")).toBeInTheDocument();
       expect(screen.getByText("28.5 MPa")).toBeInTheDocument();
+      // Sizing asserts
+      expect(screen.getByText(/Ø 2.34m × 54.0m/i)).toBeInTheDocument();
+      expect(screen.getByText(/85 m³\/hr/i)).toBeInTheDocument();
+      expect(screen.getByText(/8652 hrs \/ yr/i)).toBeInTheDocument();
     });
   });
 });

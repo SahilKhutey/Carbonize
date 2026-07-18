@@ -11,7 +11,7 @@ import numpy as np
 from numba import njit
 from scipy.integrate import solve_ivp
 from typing import Dict
-from cbms_sim.core.config import CONFIG, R_GAS, STD_PRESSURE, MOLAR
+from .config import CONFIG, R_GAS, STD_PRESSURE, MOLAR
 
 
 @njit(cache=True, fastmath=True)
@@ -33,21 +33,6 @@ def reaction_rhs_experimental(
 ) -> np.ndarray:
     """
     RHS of the experimental 13-species kinetics ODE.
-
-    State vector y (length 13):
-        y[0] = [CO2_aq]      Dissolved CO2 [mol/m³]
-        y[1] = [HCO3-]       Bicarbonate ion [mol/m³]
-        y[2] = [Ca2+]        Free calcium ions [mol/m³]
-        y[3] = [CaCO3_s]     Precipitated calcite [mol/m³]
-        y[4] = [SO2_aq]      Dissolved SO2 [mol/m³]
-        y[5] = [CaSO4_s]     Precipitated gypsum [mol/m³]
-        y[6] = [CA_active]   Active enzyme [mg/L]
-        y[7] = [Metal_chel]  Chelated trace metals [mol/m³]
-        y[8] = [PM_trapped]  Particulate mass captured [kg/m³]
-        y[9] = [NOx_aq]      Dissolved NOx [mol/m³]
-        y[10] = [CaNO3_s]    Precipitated Calcium Nitrate [mol/m³]
-        y[11] = [Mg2+]       Free magnesium ions [mol/m³]
-        y[12] = [MgCO3_s]    Precipitated Magnesium Carbonate [mol/m³]
     """
     co2_aq = max(y[0], 0.0)
     hco3 = max(y[1], 0.0)
@@ -64,7 +49,6 @@ def reaction_rhs_experimental(
     mgco3_s = max(y[12], 0.0)
 
     # 1) Enzyme thermal deactivation stabilized by chitosan crosslinking
-    # High crosslinking density protects the enzyme from denaturation
     T_ref = 313.15
     k_inact_eff = k_inact * (1.0 - 0.5 * crosslinking_density)
     k_inact_T = k_inact_eff * np.exp(-E_a_inact / R_GAS * (1.0 / T_reactor - 1.0 / T_ref))
@@ -77,12 +61,10 @@ def reaction_rhs_experimental(
     dHCO3_dt = v_cat
 
     # 3) Calcium & Magnesium Carbonate Precipitation
-    # CaCO3
     K_sp_caco3 = 3.3e-9
     supersat_ca = (ca_free * hco3) / K_sp_caco3
     rate_caco3 = 1.5e-2 * ca_free * hco3 * (1.0 - 1.0 / supersat_ca) if supersat_ca > 1.0 else 0.0
 
-    # MgCO3
     K_sp_mgco3 = 1.0e-5
     supersat_mg = (mg_free * hco3) / K_sp_mgco3
     rate_mgco3 = 1.0e-2 * mg_free * hco3 * (1.0 - 1.0 / supersat_mg) if supersat_mg > 1.0 else 0.0
@@ -102,7 +84,7 @@ def reaction_rhs_experimental(
     dCa_dt -= rate_caso4
     dCaSO4_dt = rate_caso4
 
-    # 5) Heavy metal chelation (reduced by crosslinking density)
+    # 5) Heavy metal chelation
     metal_inlet = 0.5
     free_amine_density = 0.05 * (1.0 - 0.25 * crosslinking_density)
     dMetal_dt = k_chel * free_amine_density * metal_inlet
@@ -117,7 +99,6 @@ def reaction_rhs_experimental(
     H_nox = 1.0e-2
     dNOx_dt = k_nox * (H_nox * p_nox - nox_aq)
     
-    # 2 NOx_aq + Ca2+ -> Ca(NO3)2_s
     rate_canitrate = 4.0e-3 * ca_free * (nox_aq ** 2)
     dNOx_dt -= 2.0 * rate_canitrate
     dCa_dt -= rate_canitrate
@@ -151,6 +132,9 @@ class ExperimentalBiomineralizationSolver:
         calcium_source_g_per_l: float,
         crosslinking_density: float,     # 0.0 to 1.0
         mg_substitution_ratio: float,    # 0.0 to 1.0
+        flow_nm3_per_hr: float = 10000.0,
+        l_g_ratio: float = 8.5,
+        superficial_velocity: float = 2.0,
         reactor_temperature_c: float = 40.0,
         residence_time_s: float = 27.0,
     ):
@@ -161,6 +145,9 @@ class ExperimentalBiomineralizationSolver:
         self.ca_source_g_l = calcium_source_g_per_l
         self.crosslinking = crosslinking_density
         self.mg_ratio = mg_substitution_ratio
+        self.flow_nm3_hr = flow_nm3_per_hr
+        self.l_g = l_g_ratio
+        self.velocity = superficial_velocity
         self.T = reactor_temperature_c + 273.15
         self.tau = residence_time_s
 
@@ -256,6 +243,30 @@ class ExperimentalBiomineralizationSolver:
         else:
             grade = "Reject"
 
+        # Sizing & maintenance calculations
+        actual_flow_m3_s = (self.flow_nm3_hr / 3600.0) * (self.T / 273.15)
+        vessel_area = actual_flow_m3_s / self.velocity
+        vessel_diameter = float(np.sqrt(4.0 * vessel_area / np.pi))
+        vessel_height = float(self.velocity * self.tau)
+
+        liquid_flow_m3_hr = float((self.flow_nm3_hr * self.l_g) / 1000.0)
+        pump_flow_m3_s = liquid_flow_m3_hr / 3600.0
+        pump_power = float((pump_flow_m3_s * 1000.0 * 9.81 * vessel_height) / (0.75 * 1000.0))
+
+        reactor_vol = vessel_area * vessel_height
+        caco3_mass_hr = (max(y_final[3], 0.0) / self.tau) * reactor_vol * 100.09 * 3.6
+        caso4_mass_hr = (max(y_final[5], 0.0) / self.tau) * reactor_vol * 136.14 * 3.6
+        mgco3_mass_hr = (max(y_final[12], 0.0) / self.tau) * reactor_vol * 84.31 * 3.6
+        total_scaling_rate = float(caco3_mass_hr + caso4_mass_hr + mgco3_mass_hr)
+
+        if total_scaling_rate > 1e-4:
+            descaling_interval = float(5000.0 / (total_scaling_rate * 24.0))
+            annual_downtime = float((365.0 / descaling_interval) * 36.0)
+        else:
+            descaling_interval = 365.0
+            annual_downtime = 0.0
+        adjusted_operating_hours = float(max(0.0, 8760.0 - annual_downtime))
+
         return {
             "success": True,
             "message": sol.message,
@@ -271,5 +282,15 @@ class ExperimentalBiomineralizationSolver:
             "final_state": {
                 label: float(y_final[i])
                 for i, label in enumerate(self.STATE_LABELS)
+            },
+            "sizing": {
+                "vessel_diameter_m": vessel_diameter,
+                "vessel_height_m": vessel_height,
+                "circulating_liquid_flow_m3_hr": liquid_flow_m3_hr,
+                "pump_power_kw": pump_power,
+                "descaling_interval_days": descaling_interval,
+                "annual_downtime_hours": annual_downtime,
+                "adjusted_operating_hours": adjusted_operating_hours,
+                "total_scaling_rate_kg_hr": total_scaling_rate
             }
         }
