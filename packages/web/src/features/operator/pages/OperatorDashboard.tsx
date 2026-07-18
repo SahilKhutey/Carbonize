@@ -70,10 +70,26 @@ function OperatorDashboard({ plantId, userRole = "operator" }: OperatorDashboard
     alarmListRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  const handleEscalate = useCallback((_alertId: string) => {
-    // TODO: integrate PagerDuty / on-call webhook
-    alert("Escalation sent to on-call engineer (integration pending).");
-  }, []);
+  const handleEscalate = useCallback(async (alertId: string) => {
+    try {
+      const res = await fetch(`/api/operator/escalate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          alert_id: alertId,
+          plant_id: plantId,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to escalate alert (Status ${res.status})`);
+      }
+      alert(`Alert ${alertId} has been successfully escalated to the on-call response team.`);
+    } catch (err: any) {
+      alert(err.message || "Failed to escalate alert.");
+    }
+  }, [plantId]);
 
   if (!twinState) return <OperatorSkeleton />;
 

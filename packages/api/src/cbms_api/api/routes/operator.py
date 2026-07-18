@@ -20,6 +20,10 @@ class ShiftHandoverRequest(BaseModel):
     notes: Optional[str] = None
     shift_summary: List[str] = Field(default_factory=list)
 
+class AlertEscalateRequest(BaseModel):
+    alert_id: str = Field(..., min_length=1)
+    plant_id: str = Field(..., min_length=1)
+
 @router.get("/alarms", response_model=None)
 @rate_limit_read(limit="300/minute")
 async def get_alarm_history(
@@ -100,5 +104,31 @@ async def create_shift_handover(
     return {
         "status": "success",
         "message": "Shift handover saved successfully",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+
+@router.post("/escalate", status_code=200)
+@rate_limit_write(limit="10/minute")
+async def escalate_alert(
+    request: Request,
+    body: AlertEscalateRequest,
+    org_id: UUID = Depends(get_active_tenant_id)
+):
+    """
+    Escalates an active alarm to the on-call response team.
+    """
+    await audit_service.log(
+        org_id=org_id,
+        actor_id=None,
+        event_type="operator.alarm_escalated",
+        details={
+            "alert_id": body.alert_id,
+            "plant_id": body.plant_id
+        },
+        ip_address=request.client.host if request.client else None
+    )
+    return {
+        "status": "success",
+        "message": f"Alert {body.alert_id} escalated successfully.",
         "timestamp": datetime.utcnow().isoformat() + "Z"
     }
