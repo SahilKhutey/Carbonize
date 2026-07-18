@@ -8,8 +8,8 @@ from uuid import UUID
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, status, Header
-from database.connection import get_db_session
-from database.models import Organization
+from cbms_api.database.connection import get_db_session
+from cbms_api.database.models import Organization
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency to retrieve the async SQLAlchemy database session."""

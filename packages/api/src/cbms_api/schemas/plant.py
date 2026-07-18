@@ -3,7 +3,7 @@ Plant profile input schemas with strict validation.
 """
 
 from pydantic import BaseModel, Field, field_validator
-from core.validators import BoilerType, IndustryType, CalciumSource
+from cbms_sim.core.validators import BoilerType, IndustryType, CalciumSource
 
 
 class PlantProfileCreateRequest(BaseModel):

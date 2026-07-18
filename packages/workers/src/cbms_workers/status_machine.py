@@ -199,7 +199,7 @@ class ReportStatusMachine:
     @staticmethod
     async def find_stuck_reports(db: AsyncSession) -> list[dict]:
         """Find reports stuck in GENERATING for too long."""
-        from database.models import GeneratedReport
+        from cbms_api.database.models import GeneratedReport
         cutoff = datetime.utcnow() - ReportStatusMachine.STUCK_TIMEOUT
         
         result = await db.execute(

@@ -11,7 +11,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from numba import njit
 from typing import Tuple, Dict
-from core.config import CONFIG, R_GAS, STD_TEMP
+from cbms_sim.core.config import CONFIG, R_GAS, STD_TEMP
 
 
 # ============================================================
@@ -30,6 +30,7 @@ def _reaction_rhs_numba(
     ca_cl2: float,
     ph_initial: float,
     T_reactor: float,
+    p_so2: float,
 ) -> np.ndarray:
     """
     Right-hand side of the coupled ODE system for in-tower reactions.
@@ -69,7 +70,9 @@ def _reaction_rhs_numba(
     # 2) CO2 HYDRATION (Michaelis-Menten with carbonic anhydrase)
     # --------------------------------------------------
     # Rate limited by enzyme catalysis; product inhibition by HCO3-
-    v_cat = (k_cat * ca_active * co2_aq) / (K_M_co2 * (1.0 + hco3 / 26.0) + co2_aq)
+    # ca_active is in mg/L (g/m³). Convert to mol/m³ by dividing by 30000 g/mol.
+    # K_M_co2 is in mol/L (M). Convert to mol/m³ by multiplying by 1000.0.
+    v_cat = (k_cat * (ca_active / 30000.0) * co2_aq) / ((K_M_co2 * 1000.0) * (1.0 + hco3 / 26.0) + co2_aq)
     dCO2_dt = -v_cat
     dHCO3_dt = v_cat
 
@@ -94,7 +97,7 @@ def _reaction_rhs_numba(
     # --------------------------------------------------
     # Henry's law at reactor T; alkaline pH drives absorption
     H_so2 = 1.2  # mol/(m³·Pa), approximate
-    p_so2 = 50.0  # Partial pressure [Pa] of SO2 in flue gas
+    # Use actual partial pressure of SO2 (p_so2) passed from the solver
     dSO2_dt = k_so2 * (H_so2 * p_so2 - so2_aq)
 
     # Gypsum precipitation
@@ -208,7 +211,7 @@ class BiomineralizationSolver:
             0.0, self.y0,
             cfg.k_cat, cfg.K_M_co2, cfg.k_inact, cfg.E_a_inact,
             cfg.k_so2_absorption, cfg.k_chelation,
-            self.ca_mol_m3, 7.0, self.T
+            self.ca_mol_m3, 7.0, self.T, self.p_so2
         )
 
         sol = solve_ivp(
@@ -216,7 +219,7 @@ class BiomineralizationSolver:
                 t, y,
                 cfg.k_cat, cfg.K_M_co2, cfg.k_inact, cfg.E_a_inact,
                 cfg.k_so2_absorption, cfg.k_chelation,
-                self.ca_mol_m3, 7.0, self.T
+                self.ca_mol_m3, 7.0, self.T, self.p_so2
             ),
             t_span=(0.0, self.tau),
             y0=self.y0,
@@ -294,7 +297,7 @@ def solve_reactor_kinetics(
     Returns:
         Capture efficiency metrics dict
     """
-    from core.config import MOLAR, STD_PRESSURE
+    from cbms_sim.core.config import MOLAR, STD_PRESSURE
 
     # Convert to SI partial pressures
     p_co2 = (co2_vol_pct / 100.0) * STD_PRESSURE

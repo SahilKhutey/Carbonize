@@ -8,9 +8,9 @@ from datetime import datetime
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import SimulationRun, SimulationResult
+from cbms_api.database.models import SimulationRun, SimulationResult
 from cbms_shared.exceptions import NotFoundError
-from workers.tasks import publish_progress
+from cbms_workers.workers.tasks import publish_progress
 
 class SimulationService:
     """Dispatches background Celery solvers and registers immutable runs."""

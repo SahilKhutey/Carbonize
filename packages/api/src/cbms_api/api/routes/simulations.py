@@ -8,8 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, WebSocke
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.dependencies import get_db, get_active_tenant_id
-from database.models import PlantProfile, SimulationRun, SimulationResult
+from cbms_api.api.dependencies import get_db, get_active_tenant_id
+from cbms_api.database.models import PlantProfile, SimulationRun, SimulationResult
 from cbms_api.schemas.simulation import SimulationCreateRequest
 from cbms_api.middleware.rate_limiting import rate_limit_expensive, rate_limit_read, rate_limit_write
 
@@ -116,7 +116,7 @@ async def trigger_simulation(
 
         # Publish completion event
         try:
-            from workers.tasks import publish_progress
+            from cbms_workers.workers.tasks import publish_progress
             publish_progress(str(run.id), "COMPLETED", 100, 100, "Simulation completed instantly via cache lookup.")
         except Exception:
             pass
@@ -140,7 +140,7 @@ async def trigger_simulation(
     # Dispatch to background Celery worker
     task_id = None
     try:
-        from workers.tasks import run_simulation_task
+        from cbms_workers.workers.tasks import run_simulation_task
         async_res = run_simulation_task.delay(
             str(run.id),
             schema.reactor_temperature_c,
@@ -212,7 +212,7 @@ async def cancel_simulation(
     # Revoke Celery task
     if run.celery_task_id:
         try:
-            from workers.celery_app import celery_app
+            from cbms_workers.workers.celery_app import celery_app
             celery_app.control.revoke(run.celery_task_id, terminate=True)
         except Exception:
             pass
@@ -222,7 +222,7 @@ async def cancel_simulation(
 
     # Publish cancellation status
     try:
-        from workers.tasks import publish_progress
+        from cbms_workers.workers.tasks import publish_progress
         publish_progress(str(run.id), "CANCELLED", 100, 100, "Simulation manually cancelled by user")
     except Exception:
         pass

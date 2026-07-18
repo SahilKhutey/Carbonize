@@ -4,6 +4,9 @@ Database connection configuration and session management for async SQLAlchemy.
 """
 
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 

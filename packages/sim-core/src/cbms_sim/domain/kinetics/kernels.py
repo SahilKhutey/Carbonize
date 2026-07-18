@@ -19,6 +19,7 @@ def reaction_rhs_numba(
     ca_cl2: float,
     pH_initial: float,
     T_reactor: float,
+    p_so2: float = 50.0,
 ) -> np.ndarray:
     """
     Right-hand side of the 9-species kinetics ODE.
@@ -47,9 +48,9 @@ def reaction_rhs_numba(
     dCA_dt = -k_inact_T * ca_active
     
     # 2) CO2 hydration (Michaelis-Menten with product inhibition)
-    K_M_eff = K_M_co2 * (1.0 + hco3 / 26.0)
+    K_M_eff = K_M_co2 * 1000.0 * (1.0 + hco3 / 26.0)
     denom = K_M_eff + co2_aq
-    v_cat = (k_cat * ca_active * co2_aq) / denom if denom > 1e-15 else 0.0
+    v_cat = (k_cat * (ca_active / 30000.0) * co2_aq) / denom if denom > 1e-15 else 0.0
     dCO2_dt = -v_cat
     dHCO3_dt = v_cat
     
@@ -66,7 +67,6 @@ def reaction_rhs_numba(
     
     # 4) SO2 absorption and gypsum precipitation
     H_so2 = 1.2
-    p_so2 = 50.0
     dSO2_dt = k_so2 * (H_so2 * p_so2 - so2_aq)
     
     K_sp_caso4 = 4.93e-5

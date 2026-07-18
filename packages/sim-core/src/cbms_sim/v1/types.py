@@ -224,7 +224,7 @@ class SimulationOptions(BaseModel):
     model_config = {"frozen": True, "extra": "forbid"}
     
     simulation_type: SimulationType = SimulationType.MONTE_CARLO
-    n_mc_samples: int = Field(default=10000, ge=100, le=100000)
+    n_mc_samples: int = Field(default=500, ge=100, le=100000)
     include_sensitivity: bool = Field(default=False)
     random_seed: Optional[int] = Field(default=42, description="None for non-deterministic")
     timeout_seconds: int = Field(default=1800, ge=10, le=7200)

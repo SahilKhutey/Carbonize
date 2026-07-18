@@ -8,10 +8,10 @@ Periodic cleanup tasks.
 
 from datetime import datetime, timezone, timedelta
 
-from workers.celery_app import celery_app
+from cbms_workers.workers.celery_app import celery_app
 from cbms_workers.storage import storage
 from cbms_workers.status_machine import ReportStatusMachine
-from database.connection import async_session_maker
+from cbms_api.database.connection import async_session_maker
 from cbms_shared.logging import get_logger
 from cbms_workers.idempotency import run_async_task
 

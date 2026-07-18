@@ -89,7 +89,7 @@ def extended_rhs_numba(
     
     # Michaelis-Menten with product inhibition
     denom = K_M_co2 * (1.0 + HCO3 / K_i_hco3) + CO2_aq
-    v_cat = (k_cat * CA_active * CO2_aq) / denom * pH_factor if denom > 1e-15 else 0.0
+    v_cat = (k_cat * (CA_active / 30000.0) * CO2_aq) / denom * pH_factor if denom > 1e-15 else 0.0
     
     # SO₂ absorption
     H_SO2_inv = 1.2
@@ -231,6 +231,11 @@ class ExtendedKineticsEngine:
         # Initial conditions
         y0 = self._compute_initial_conditions(plant, reagent, conditions)
         
+        # Compute gas partial pressures
+        p_co2 = float(plant.co2_vol_pct) / 100.0 * 101325.0
+        p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
+        p_no2 = float(plant.nox_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["NO2"] * 1e6)
+
         # Solver parameters
         solver_params = (
             1.0e6,  # k_cat
@@ -254,6 +259,11 @@ class ExtendedKineticsEngine:
             5.0e-5,  # ca_inactivation
             85.0e3,  # E_a_inact
             float(conditions.reactor_temp_c) + 273.15,
+            8.314,   # R_gas
+            313.15,  # T_ref
+            p_co2,   # p_co2
+            p_so2,   # p_so2
+            p_no2,   # p_no2
         )
         
         sol = solve_ivp(

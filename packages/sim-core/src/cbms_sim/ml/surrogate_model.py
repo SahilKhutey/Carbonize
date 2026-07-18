@@ -7,7 +7,7 @@ Provides extremely fast approximations for flowsheet optimization.
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
-from core.kinetics import solve_reactor_kinetics
+from cbms_sim.core.kinetics import solve_reactor_kinetics
 
 class KineticsSurrogateModel:
     """

@@ -5,8 +5,8 @@ pozzolanic aggregate ratio and hydraulic press compaction force.
 """
 
 import numpy as np
-from core.config import CONFIG
-from core.mass_balance import MassBalanceResult
+from cbms_sim.core.config import CONFIG
+from cbms_sim.core.mass_balance import MassBalanceResult
 
 
 def predict_compressive_strength(

@@ -7,10 +7,10 @@ Initializes middleware, routers, and DB engine lifespan managers.
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database.connection import engine, init_database_rls
-from database.models import Base
-from api.routes import auth, plants, simulations, reports, reagents
-from middleware.tenant_isolation import TenantIsolationMiddleware
+from cbms_api.database.connection import engine, init_database_rls
+from cbms_api.database.models import Base
+from cbms_api.api.routes import auth, plants, simulations, reports, reagents
+from cbms_api.middleware.tenant_isolation import TenantIsolationMiddleware
 from fastapi.responses import JSONResponse
 from cbms_shared.exceptions import (
     AuthenticationError, AuthorizationError, NotFoundError,

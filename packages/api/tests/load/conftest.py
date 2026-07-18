@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 from datetime import datetime, timezone, timedelta
 
 # -----------------------------------------------------------------------------
-# MONKEYPATCH BCRYPT AND DATABASE FOR IN-MEMORY SQLITE TESTING
+# MONKEYPATCH BCRYPT FOR IN-MEMORY SQLITE TESTING
 # -----------------------------------------------------------------------------
 import bcrypt
 _original_hashpw = bcrypt.hashpw
@@ -22,31 +22,14 @@ def _safe_hashpw(password, salt):
 bcrypt.hashpw = _safe_hashpw
 
 import cbms_api.database.connection as conn_mod
-import database.connection as conn_mod_alt
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 
-sqlite_test_engine = create_async_engine("sqlite+aiosqlite:///:memory:")
-sqlite_sessionmaker = async_sessionmaker(
-    bind=sqlite_test_engine,
-    class_=AsyncSession,
-    expire_on_commit=False,
-)
-
-conn_mod.engine = sqlite_test_engine
-conn_mod.async_session_maker = sqlite_sessionmaker
-conn_mod_alt.engine = sqlite_test_engine
-conn_mod_alt.async_session_maker = sqlite_sessionmaker
-
-# Force Celery to run in eager mode (inline, no Redis broker needed)
+# Mock Celery delay calls to avoid connecting to Redis or running slow tasks in load tests
+from unittest.mock import MagicMock
 try:
-    from cbms_workers.workers.celery_app import celery_app
-    celery_app.conf.task_always_eager = True
-except Exception:
-    pass
-
-try:
-    from workers.celery_app import celery_app
-    celery_app.conf.task_always_eager = True
+    from cbms_workers.workers.tasks import run_simulation_task, generate_report
+    run_simulation_task.delay = MagicMock(return_value=MagicMock(id="mock-task-id"))
+    generate_report.delay = MagicMock(return_value=MagicMock(id="mock-report-task-id"))
 except Exception:
     pass
 # -----------------------------------------------------------------------------

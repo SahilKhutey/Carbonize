@@ -18,15 +18,15 @@ from uuid import UUID
 
 from celery.exceptions import SoftTimeLimitExceeded
 
-from workers.celery_app import celery_app
+from cbms_workers.workers.celery_app import celery_app
 from cbms_workers.storage import storage
 from cbms_workers.status_machine import ReportStatusMachine, ReportStatus
 from cbms_workers.retry import report_retry_policy, RETRYABLE_EXCEPTIONS
 from cbms_workers.idempotency import idempotent_task, run_async_task
 
-from database.connection import async_session_maker
-from database.models import SimulationRun, GeneratedReport
-from workers.report_generator import generate_pdf_report_file
+from cbms_api.database.connection import async_session_maker
+from cbms_api.database.models import SimulationRun, GeneratedReport
+from cbms_workers.workers.report_generator import generate_pdf_report_file
 from cbms_shared.logging import get_logger
 
 

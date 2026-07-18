@@ -59,7 +59,8 @@ class KineticsEngine:
         _ = reaction_rhs_numba(
             0.0, y_dummy,
             k_cat=1.0e6, K_M_co2=8.5e-3, k_inact=5.0e-5, E_a_inact=85.0e3,
-            k_so2=2.5e-2, k_chel=8.0e-3, ca_cl2=100.0, pH_initial=8.5, T_reactor=313.15
+            k_so2=2.5e-2, k_chel=8.0e-3, ca_cl2=100.0, pH_initial=8.5, T_reactor=313.15,
+            p_so2=50.0
         )
         self._warmed_up = True
         logger.info("kinetics_warmup_completed")
@@ -94,6 +95,9 @@ class KineticsEngine:
         # Compute initial conditions from gas/liquid equilibrium
         y0 = self._compute_initial_conditions(plant, reagent, conditions)
         
+        # Compute p_so2
+        p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
+
         # Configure solver
         solver_params = (
             1.0e6,  # k_cat
@@ -105,6 +109,7 @@ class KineticsEngine:
             float(y0[2]),  # ca_cl2
             float(conditions.pH_initial),
             float(conditions.reactor_temp_c) + 273.15,  # T_reactor in K
+            p_so2,  # p_so2 in Pa
         )
         
         # Solve ODE

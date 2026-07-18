@@ -22,5 +22,5 @@ celery_app.conf.update(
     accept_content=["json"],
     timezone="Asia/Kolkata",
     enable_utc=True,
-    imports=["workers.tasks"]  # Explicitly load task modules
+    imports=["cbms_workers.workers.tasks"]  # Explicitly load task modules
 )

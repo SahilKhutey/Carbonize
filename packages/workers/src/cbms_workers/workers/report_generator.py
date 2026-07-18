@@ -4,7 +4,7 @@ Compiles simulation result records into professional, printable PDF documents.
 Uses ReportLab to construct high-quality layouts.
 """
 
-from database.models import SimulationRun
+from cbms_api.database.models import SimulationRun
 
 def generate_pdf_report_file(run: SimulationRun, pdf_path: str):
     """

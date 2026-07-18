@@ -6,7 +6,7 @@ Sums outputs from kinetics solver with fly-ash aggregate and reagent inputs.
 
 from dataclasses import dataclass
 from typing import Dict, Optional
-from core.config import CONFIG, MOLAR, STD_TEMP, STD_PRESSURE
+from cbms_sim.core.config import CONFIG, MOLAR, STD_TEMP, STD_PRESSURE
 
 
 @dataclass
@@ -78,7 +78,7 @@ def compute_mass_balance(
 
     # 2) APPLY CAPTURE EFFICIENCIES (from solver or override)
     if capture_efficiency_overrides is None:
-        from core.kinetics import solve_reactor_kinetics
+        from cbms_sim.core.kinetics import solve_reactor_kinetics
         kinetics_result = solve_reactor_kinetics(
             co2_vol_pct=co2_vol_pct,
             so2_mg_per_nm3=so2_mg_per_nm3,

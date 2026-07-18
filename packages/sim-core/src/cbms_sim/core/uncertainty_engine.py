@@ -7,7 +7,7 @@ to calculate output uncertainty distributions for the biomineralization system.
 from typing import Dict, Any, TypedDict
 import numpy as np
 from scipy.stats import qmc
-from core.kinetics import solve_reactor_kinetics
+from cbms_sim.core.kinetics import solve_reactor_kinetics
 
 class UQSubmetrics(TypedDict):
     mean: float

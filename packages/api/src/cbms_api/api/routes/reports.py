@@ -10,9 +10,9 @@ from fastapi.responses import FileResponse
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.dependencies import get_db, get_active_tenant_id
-from database.models import SimulationRun, PlantProfile
-from workers.report_generator import generate_pdf_report_file
+from cbms_api.api.dependencies import get_db, get_active_tenant_id
+from cbms_api.database.models import SimulationRun, PlantProfile
+from cbms_workers.workers.report_generator import generate_pdf_report_file
 from cbms_api.middleware.rate_limiting import rate_limit_expensive
 
 router = APIRouter(prefix="/reports", tags=["Reports"])

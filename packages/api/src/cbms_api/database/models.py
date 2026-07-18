@@ -16,8 +16,8 @@ class SafeUUID(TypeDecorator):
     impl = CHAR(36)
     cache_ok = True
     
-    def __init__(self, as_uuid=True):
-        super().__init__()
+    def __init__(self, as_uuid=True, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         
     def load_dialect_impl(self, dialect):
         if dialect.name == "postgresql":

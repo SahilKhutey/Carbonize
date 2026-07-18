@@ -5,9 +5,9 @@ Finds the trade-off curve between block strength and reagent OPEX.
 """
 
 import optuna
-from core.mass_balance import compute_mass_balance
-from core.block_strength import predict_compressive_strength
-from core.economic_engine import run_financial_analysis
+from cbms_sim.core.mass_balance import compute_mass_balance
+from cbms_sim.core.block_strength import predict_compressive_strength
+from cbms_sim.core.economic_engine import run_financial_analysis
 
 def objective(trial):
     """

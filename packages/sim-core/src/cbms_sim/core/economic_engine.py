@@ -7,8 +7,8 @@ for the biomimetic capture system.
 import numpy as np
 from dataclasses import dataclass
 from typing import Dict
-from core.config import CONFIG
-from core.mass_balance import MassBalanceResult
+from cbms_sim.core.config import CONFIG
+from cbms_sim.core.mass_balance import MassBalanceResult
 
 
 @dataclass

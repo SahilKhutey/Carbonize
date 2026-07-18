@@ -6,7 +6,7 @@ Implements Latin Hypercube Sampling (LHS) and parallel forward uncertainty evalu
 from typing import Dict, Any, List
 import numpy as np
 from scipy.stats import qmc
-from cbms_sim.domain.kinetics.engine import solve_kinetics
+from cbms_sim.domain.kinetics.engine import KineticsEngine
 from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation
 from cbms_sim.domain.models.conditions import OperatingConditions
@@ -53,6 +53,9 @@ class MonteCarloEngine:
         co2_effs = []
         so2_effs = []
         
+        engine = KineticsEngine()
+        engine.warmup()
+        
         for sample in scaled_samples:
             e_val, t_val, f_val = sample
             
@@ -74,7 +77,7 @@ class MonteCarloEngine:
                 reactor_temp_c=type(conditions.reactor_temp_c)(t_val)
             )
             
-            res = solve_kinetics(p_sample, r_sample, c_sample)
+            res = engine.solve(p_sample, r_sample, c_sample)
             co2_effs.append(res.capture_efficiencies.get("co2_pct", 0.0))
             so2_effs.append(res.capture_efficiencies.get("so2_pct", 0.0))
             

@@ -78,13 +78,13 @@ class TestMichaelisMentenAnalytical:
         )
         
         # Evaluate initial rate directly
-        y0_low = np.array([0.0001, 0, 100, 0, 0, 0, 1.0, 0, 0])
+        y0_low = np.array([0.0001, 0, 100, 0, 0, 0, 30000.0, 0, 0])
         rates = reaction_rhs_numba(0.0, y0_low, **params)
         rate_low = -rates[0]
         
         # [S] << K_M => v ≈ (k_cat * [CA] * [S]) / K_M
         # At pH 8.5, CA has no inhibition/deactivation
-        rate_predicted_low = 1e6 * 1.0 * 0.0001 / 8.5e-3
+        rate_predicted_low = 1e6 * 1.0 * 0.0001 / 8.5
         
         rel_err = abs(rate_low - rate_predicted_low) / rate_predicted_low
         assert rel_err < 0.05
@@ -97,7 +97,7 @@ class TestMichaelisMentenAnalytical:
             pH_initial=8.5, T_reactor=313.15,
         )
         
-        y0_high = np.array([10.0, 0, 100, 0, 0, 0, 1.0, 0, 0])
+        y0_high = np.array([1000.0, 0, 100, 0, 0, 0, 30000.0, 0, 0])
         rates = reaction_rhs_numba(0.0, y0_high, **params)
         rate_high = -rates[0]
         

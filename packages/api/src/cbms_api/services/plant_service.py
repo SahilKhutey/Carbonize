@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import PlantProfile, LogisticsConfig
+from cbms_api.database.models import PlantProfile, LogisticsConfig
 from cbms_shared.exceptions import NotFoundError, ValidationFailedError
 
 class PlantService:

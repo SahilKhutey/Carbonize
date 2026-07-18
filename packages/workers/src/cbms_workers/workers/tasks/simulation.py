@@ -14,18 +14,18 @@ from celery import shared_task
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
-from workers.celery_app import celery_app
-from database.connection import async_session_maker
-from database.models import SimulationRun, SimulationResult, PlantProfile, LogisticsConfig
+from cbms_workers.workers.celery_app import celery_app
+from cbms_api.database.connection import async_session_maker
+from cbms_api.database.models import SimulationRun, SimulationResult, PlantProfile, LogisticsConfig
 from cbms_workers.idempotency import run_async_task
 
 # Import core solver functions
-from core.kinetics import solve_reactor_kinetics
-from core.mass_balance import compute_mass_balance
-from core.wiener_process import simulate_saturation_fpt
-from core.block_strength import predict_compressive_strength, classify_block_grade
-from core.economic_engine import run_financial_analysis
-from core.uncertainty_engine import run_uncertainty_analysis
+from cbms_sim.core.kinetics import solve_reactor_kinetics
+from cbms_sim.core.mass_balance import compute_mass_balance
+from cbms_sim.core.wiener_process import simulate_saturation_fpt
+from cbms_sim.core.block_strength import predict_compressive_strength, classify_block_grade
+from cbms_sim.core.economic_engine import run_financial_analysis
+from cbms_sim.core.uncertainty_engine import run_uncertainty_analysis
 
 
 # Establish a connection to Redis for progress publication
