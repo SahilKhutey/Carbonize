@@ -5,7 +5,7 @@ Unit tests for the Wiener process stochastic saturation model.
 
 import pytest
 import numpy as np
-from core.wiener_process import simulate_saturation_fpt, predict_saturation_window
+from cbms_sim.domain.uq.wiener_process import simulate_saturation_fpt, predict_saturation_window
 
 def test_wiener_simulation():
     """Verify that Monte Carlo Wiener simulation yields reasonable saturation steps."""

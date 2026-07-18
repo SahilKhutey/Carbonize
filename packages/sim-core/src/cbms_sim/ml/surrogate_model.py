@@ -7,7 +7,10 @@ Provides extremely fast approximations for flowsheet optimization.
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
-from cbms_sim.core.kinetics import solve_reactor_kinetics
+from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.models.plant import PlantProfile as DomainPlant
+from cbms_sim.domain.models.reagent import ReagentFormulation as DomainReagent, CalciumSourceType as DomainCalciumSource
+from cbms_sim.domain.models.conditions import OperatingConditions as DomainConditions
 
 class KineticsSurrogateModel:
     """
@@ -28,6 +31,8 @@ class KineticsSurrogateModel:
         y_co2 = []
         y_so2 = []
 
+        engine = KineticsEngine()
+
         for _ in range(samples):
             # Uniformly sample inputs within operational boundaries
             enzyme = np.random.uniform(1.0, 50.0)      # mg/L
@@ -37,16 +42,21 @@ class KineticsSurrogateModel:
             X.append([enzyme, temp, flow])
 
             # Run physical BDF ODE solver
-            res = solve_reactor_kinetics(
+            plant = DomainPlant(
+                exhaust_flow_nm3_hr=flow,
                 co2_vol_pct=14.0,
                 so2_mg_per_nm3=1200.0,
-                flow_nm3_per_hr=flow,
-                enzyme_mg_per_l=enzyme,
-                calcium_source_g_per_l=35.0,
-                reactor_temp_c=temp
             )
-            y_co2.append(res["co2_capture_efficiency_pct"])
-            y_so2.append(res["so2_capture_efficiency_pct"])
+            reagent = DomainReagent(
+                enzyme_mg_per_l=enzyme,
+                ca_source_type=DomainCalciumSource.LIME,
+            )
+            conditions = DomainConditions(
+                reactor_temp_c=temp,
+            )
+            res = engine.solve(plant, reagent, conditions)
+            y_co2.append(res.capture_efficiencies.get("co2_pct", 0.0))
+            y_so2.append(res.capture_efficiencies.get("so2_pct", 0.0))
 
         return np.array(X), np.array(y_co2), np.array(y_so2)
 

@@ -9,7 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from cbms_api.database.connection import engine, init_database_rls
 from cbms_api.database.models import Base
-from cbms_api.api.routes import auth, plants, simulations, reports, reagents, analytics, operator
+from cbms_api.api.routes import auth, plants, simulations, reports, reagents, analytics, operator, experimental
 from cbms_api.middleware.tenant_isolation import TenantIsolationMiddleware
 from fastapi.responses import JSONResponse
 from cbms_shared.exceptions import (
@@ -109,6 +109,7 @@ app.include_router(reports.router, prefix="/api")
 app.include_router(reagents.router, prefix="/api")
 app.include_router(analytics.router, prefix="/api")
 app.include_router(operator.router, prefix="/api")
+app.include_router(experimental.router, prefix="/api")
 
 @app.get("/health", tags=["System"])
 async def health_check():

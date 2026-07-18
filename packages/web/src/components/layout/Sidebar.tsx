@@ -9,7 +9,8 @@ import {
   TestTube, 
   FileText, 
   ShieldCheck, 
-  MonitorPlay 
+  MonitorPlay,
+  Beaker
 } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth";
 
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard", roles: ["admin", "manager", "engineer"] },
   { to: "/plants", icon: Factory, label: "Plants", roles: ["admin", "manager", "engineer"] },
   { to: "/simulations", icon: TestTube, label: "Simulations", roles: ["admin", "manager", "engineer", "operator"] },
+  { to: "/experimental", icon: Beaker, label: "Experimental Lab", roles: ["admin", "manager", "engineer"] },
   { to: "/reports", icon: FileText, label: "Reports", roles: ["admin", "manager"] },
   { to: "/compliance", icon: ShieldCheck, label: "Compliance", roles: ["admin", "manager"] },
   { to: "/twin/plant-alpha", icon: MonitorPlay, label: "Digital Twin", roles: ["admin", "manager", "engineer"] },

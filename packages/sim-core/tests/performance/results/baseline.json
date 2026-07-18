@@ -2,13 +2,13 @@
   "results": [
     {
       "name": "tolerance_rtol_0.0001",
-      "timestamp": "2026-07-11T03:15:17.288718+00:00",
+      "timestamp": "2026-07-18T15:43:52.332983+00:00",
       "metrics": {
         "rtol": 0.0001,
         "atol": 1e-06,
-        "mean_ms": 42.036379978526384,
-        "nfev": 958,
-        "njev": 11
+        "mean_ms": 37.03184000005422,
+        "nfev": 664,
+        "njev": 3
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -17,19 +17,19 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "tolerance_rtol_1e-06",
-      "timestamp": "2026-07-11T03:15:17.632486+00:00",
+      "timestamp": "2026-07-18T15:43:52.643532+00:00",
       "metrics": {
         "rtol": 1e-06,
         "atol": 1e-08,
-        "mean_ms": 57.14353999355808,
-        "nfev": 1372,
-        "njev": 6
+        "mean_ms": 51.156059999902936,
+        "nfev": 902,
+        "njev": 4
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -38,19 +38,19 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "tolerance_rtol_1e-08",
-      "timestamp": "2026-07-11T03:15:18.133762+00:00",
+      "timestamp": "2026-07-18T15:43:53.108652+00:00",
       "metrics": {
         "rtol": 1e-08,
         "atol": 1e-10,
-        "mean_ms": 83.28194000059739,
-        "nfev": 2144,
-        "njev": 12
+        "mean_ms": 76.10708000001978,
+        "nfev": 1442,
+        "njev": 4
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -59,19 +59,19 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "tolerance_rtol_1e-10",
-      "timestamp": "2026-07-11T03:15:19.092795+00:00",
+      "timestamp": "2026-07-18T15:43:53.969242+00:00",
       "metrics": {
         "rtol": 1e-10,
         "atol": 1e-12,
-        "mean_ms": 160.2280799881555,
-        "nfev": 3812,
-        "njev": 29
+        "mean_ms": 141.02509999993345,
+        "nfev": 3101,
+        "njev": 3
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -80,16 +80,16 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "engine_baseline_solve",
-      "timestamp": "2026-07-11T03:15:19.609667+00:00",
+      "timestamp": "2026-07-18T15:43:54.451961+00:00",
       "metrics": {
-        "mean_ms": 83.47553999628872,
-        "median_ms": 83.82609998807311,
+        "mean_ms": 78.96649999993315,
+        "median_ms": 76.79589999997916,
         "n_runs": 5
       },
       "system": {
@@ -99,18 +99,56 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
+      }
+    },
+    {
+      "name": "registry_loading_overhead",
+      "timestamp": "2026-07-18T15:43:54.476324+00:00",
+      "metrics": {
+        "n_loads": 50,
+        "total_ms": 22.029899999779445,
+        "average_load_ms": 0.4405979999955889
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
+      }
+    },
+    {
+      "name": "json_serialization_overhead",
+      "timestamp": "2026-07-18T15:43:54.552469+00:00",
+      "metrics": {
+        "n_iterations": 1000,
+        "serialize_per_call_us": 47.83369999995557,
+        "deserialize_per_call_us": 25.179400000070018
+      },
+      "system": {
+        "platform": "Windows-11-10.0.26200-SP0",
+        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
+        "cpu_count": 12,
+        "cpu_count_physical": 6,
+        "memory_total_gb": 16.38721536,
+        "python_version": "3.12.10",
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_samples_100",
-      "timestamp": "2026-07-11T03:15:21.491728+00:00",
+      "timestamp": "2026-07-18T15:43:56.779691+00:00",
       "metrics": {
         "n_samples": 100,
-        "total_ms": 1654.3965000309981,
-        "time_per_sample_ms": 16.54396500030998,
-        "throughput_samples_per_sec": 60.4450021491984
+        "total_ms": 2231.901999999991,
+        "time_per_sample_ms": 22.31901999999991,
+        "throughput_samples_per_sec": 44.80483462087511
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -119,18 +157,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_samples_500",
-      "timestamp": "2026-07-11T03:15:29.574645+00:00",
+      "timestamp": "2026-07-18T15:44:08.546496+00:00",
       "metrics": {
         "n_samples": 500,
-        "total_ms": 8080.700899998192,
-        "time_per_sample_ms": 16.161401799996383,
-        "throughput_samples_per_sec": 61.87582069769615
+        "total_ms": 11757.562599999801,
+        "time_per_sample_ms": 23.515125199999602,
+        "throughput_samples_per_sec": 42.52582078533934
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -139,18 +177,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_samples_1000",
-      "timestamp": "2026-07-11T03:15:45.727154+00:00",
+      "timestamp": "2026-07-18T15:44:32.562757+00:00",
       "metrics": {
         "n_samples": 1000,
-        "total_ms": 16150.315599981695,
-        "time_per_sample_ms": 16.150315599981695,
-        "throughput_samples_per_sec": 61.91829464937103
+        "total_ms": 24013.34999999972,
+        "time_per_sample_ms": 24.01334999999972,
+        "throughput_samples_per_sec": 41.6435024684191
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -159,17 +197,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_parallel_workers_1",
-      "timestamp": "2026-07-11T03:16:01.658494+00:00",
+      "timestamp": "2026-07-18T15:44:55.655097+00:00",
       "metrics": {
         "n_workers": 1,
-        "wall_time_s": 15.927707599999849,
-        "samples_per_sec": 62.78367390421014
+        "wall_time_s": 23.093823899999734,
+        "samples_per_sec": 43.3016205687795
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -178,17 +216,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_parallel_workers_2",
-      "timestamp": "2026-07-11T03:16:12.029979+00:00",
+      "timestamp": "2026-07-18T15:45:10.389935+00:00",
       "metrics": {
         "n_workers": 2,
-        "wall_time_s": 10.36779089999618,
-        "samples_per_sec": 96.45256252229859
+        "wall_time_s": 14.723807800000031,
+        "samples_per_sec": 67.91721364360637
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -197,17 +235,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "mc_parallel_workers_4",
-      "timestamp": "2026-07-11T03:16:19.847894+00:00",
+      "timestamp": "2026-07-18T15:45:22.343638+00:00",
       "metrics": {
         "n_workers": 4,
-        "wall_time_s": 7.813772199966479,
-        "samples_per_sec": 127.97915966942189
+        "wall_time_s": 11.952886199999739,
+        "samples_per_sec": 83.66180211771965
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -216,18 +254,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "full_mc_100",
-      "timestamp": "2026-07-11T03:16:28.613267+00:00",
+      "timestamp": "2026-07-18T15:45:30.396640+00:00",
       "metrics": {
         "problem_size_name": "standard",
         "n_samples": 100,
-        "wall_time_s": 8.762601999973413,
-        "throughput_samples_per_sec": 11.412135345220909,
+        "wall_time_s": 8.045511400000123,
+        "throughput_samples_per_sec": 12.429290697418994,
         "meets_target": false
       },
       "system": {
@@ -237,18 +275,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "full_mc_500",
-      "timestamp": "2026-07-11T03:17:11.634658+00:00",
+      "timestamp": "2026-07-18T15:46:12.977850+00:00",
       "metrics": {
         "problem_size_name": "standard",
         "n_samples": 500,
-        "wall_time_s": 43.01797470002202,
-        "throughput_samples_per_sec": 11.623048353314132,
+        "wall_time_s": 42.575703800000156,
+        "throughput_samples_per_sec": 11.743787075106393,
         "meets_target": false
       },
       "system": {
@@ -258,18 +296,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "full_mc_1000",
-      "timestamp": "2026-07-11T03:18:38.435851+00:00",
+      "timestamp": "2026-07-18T15:47:33.724834+00:00",
       "metrics": {
         "problem_size_name": "standard",
         "n_samples": 1000,
-        "wall_time_s": 86.79650799999945,
-        "throughput_samples_per_sec": 11.521200829876777,
+        "wall_time_s": 80.74072849999993,
+        "throughput_samples_per_sec": 12.38532297860058,
         "meets_target": false
       },
       "system": {
@@ -279,18 +317,18 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "full_mc_2000",
-      "timestamp": "2026-07-11T03:21:30.096286+00:00",
+      "timestamp": "2026-07-18T15:50:26.544222+00:00",
       "metrics": {
         "problem_size_name": "standard",
         "n_samples": 2000,
-        "wall_time_s": 171.6570077999495,
-        "throughput_samples_per_sec": 11.651140991172447,
+        "wall_time_s": 172.82001459999992,
+        "throughput_samples_per_sec": 11.572733659519091,
         "meets_target": true
       },
       "system": {
@@ -300,21 +338,21 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "single_solve_warm",
-      "timestamp": "2026-07-11T03:21:31.024811+00:00",
+      "timestamp": "2026-07-18T15:50:27.410131+00:00",
       "metrics": {
         "n_runs": 10,
-        "mean_ms": 84.79202000889927,
-        "median_ms": 85.32920002471656,
-        "p95_ms": 87.80485001625493,
-        "min_ms": 80.13620000565425,
-        "max_ms": 88.21660000830889,
-        "std_ms": 2.4763035123245
+        "mean_ms": 78.67095000005975,
+        "median_ms": 80.86375000016233,
+        "p95_ms": 87.78531500011012,
+        "min_ms": 64.72549999989496,
+        "max_ms": 90.13490000006641,
+        "std_ms": 7.306581516932422
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -323,15 +361,15 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "cold_start_includes_warmup",
-      "timestamp": "2026-07-11T03:21:31.111265+00:00",
+      "timestamp": "2026-07-18T15:50:27.520415+00:00",
       "metrics": {
-        "cold_start_ms": 84.12049995968118,
+        "cold_start_ms": 105.68779999994149,
         "includes_compilation": true,
         "note": "One-time cost; subsequent calls are < 200ms"
       },
@@ -342,17 +380,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "scaling_flow_1000",
-      "timestamp": "2026-07-11T03:21:31.615561+00:00",
+      "timestamp": "2026-07-18T15:50:28.023920+00:00",
       "metrics": {
         "flow_rate": 1000,
-        "mean_ms": 83.46985998796299,
-        "median_ms": 83.2067999872379
+        "mean_ms": 82.26714000002175,
+        "median_ms": 80.81589999983407
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -361,17 +399,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "scaling_flow_10000",
-      "timestamp": "2026-07-11T03:21:32.153678+00:00",
+      "timestamp": "2026-07-18T15:50:28.465356+00:00",
       "metrics": {
         "flow_rate": 10000,
-        "mean_ms": 85.23858000990003,
-        "median_ms": 86.06519998284057
+        "mean_ms": 73.43245999991268,
+        "median_ms": 71.24759999987873
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -380,17 +418,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "scaling_flow_100000",
-      "timestamp": "2026-07-11T03:21:32.666470+00:00",
+      "timestamp": "2026-07-18T15:50:28.925217+00:00",
       "metrics": {
         "flow_rate": 100000,
-        "mean_ms": 84.68963998602703,
-        "median_ms": 84.56719998503104
+        "mean_ms": 76.47793999994974,
+        "median_ms": 77.06800000005387
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -399,17 +437,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "scaling_flow_500000",
-      "timestamp": "2026-07-11T03:21:33.167870+00:00",
+      "timestamp": "2026-07-18T15:50:29.418084+00:00",
       "metrics": {
         "flow_rate": 500000,
-        "mean_ms": 82.29856002144516,
-        "median_ms": 82.63760001864284
+        "mean_ms": 79.2987600001652,
+        "median_ms": 81.6463000001022
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -418,20 +456,20 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "solver_time_breakdown",
-      "timestamp": "2026-07-11T03:21:34.088363+00:00",
+      "timestamp": "2026-07-18T15:50:30.338251+00:00",
       "metrics": {
-        "init_conditions_per_call_ms": 0.0013479997869580984,
-        "rhs_eval_per_call_us": 0.7362700009252876,
-        "full_solve_per_call_ms": 83.48635000293143,
+        "init_conditions_per_call_ms": 0.0065720000020519365,
+        "rhs_eval_per_call_us": 1.114480000023832,
+        "full_solve_per_call_ms": 82.4016500000198,
         "estimated_rhs_evals_per_solve": 300,
-        "estimated_rhs_time_per_solve_ms": 0.22088100027758628,
-        "estimated_solver_overhead_ms": 83.26546900265384
+        "estimated_rhs_time_per_solve_ms": 0.3343440000071496,
+        "estimated_solver_overhead_ms": 82.06730600001265
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -440,17 +478,17 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "numba_compilation_and_cache",
-      "timestamp": "2026-07-11T03:21:34.090470+00:00",
+      "timestamp": "2026-07-18T15:50:30.345385+00:00",
       "metrics": {
-        "single_numba_call_ms": 0.01279998105019331,
-        "thousand_numba_calls_ms": 0.8239999879151583,
-        "average_numba_call_us": 0.8239999879151583
+        "single_numba_call_ms": 0.013300000318849925,
+        "thousand_numba_calls_ms": 1.2175000001661829,
+        "average_numba_call_us": 1.2175000001661829
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -459,20 +497,20 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     },
     {
       "name": "concurrent_throughput",
-      "timestamp": "2026-07-11T03:21:36.636604+00:00",
+      "timestamp": "2026-07-18T15:50:32.472557+00:00",
       "metrics": {
         "batch_size": 10,
-        "serial_time_s": 0.8809308000491001,
-        "parallel_time_s": 1.6628268000204116,
-        "speedup": 0.52977904856855,
-        "throughput_per_sec_serial": 11.351629434959742,
-        "throughput_per_sec_parallel": 6.013855441755719
+        "serial_time_s": 0.7786769000003915,
+        "parallel_time_s": 1.3472847999996702,
+        "speedup": 0.5779601313698352,
+        "throughput_per_sec_serial": 12.842296978368015,
+        "throughput_per_sec_parallel": 7.422335648708015
       },
       "system": {
         "platform": "Windows-11-10.0.26200-SP0",
@@ -481,46 +519,8 @@
         "cpu_count_physical": 6,
         "memory_total_gb": 16.38721536,
         "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:15:16.811241+00:00"
-      }
-    },
-    {
-      "name": "registry_loading_overhead",
-      "timestamp": "2026-07-11T03:22:07.955776+00:00",
-      "metrics": {
-        "n_loads": 50,
-        "total_ms": 14.790199988055974,
-        "average_load_ms": 0.2958039997611195
-      },
-      "system": {
-        "platform": "Windows-11-10.0.26200-SP0",
-        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
-        "cpu_count": 12,
-        "cpu_count_physical": 6,
-        "memory_total_gb": 16.38721536,
-        "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:22:07.940511+00:00"
-      }
-    },
-    {
-      "name": "json_serialization_overhead",
-      "timestamp": "2026-07-11T03:22:07.975395+00:00",
-      "metrics": {
-        "n_iterations": 1000,
-        "serialize_per_call_us": 6.6726000513881445,
-        "deserialize_per_call_us": 11.248900031205267
-      },
-      "system": {
-        "platform": "Windows-11-10.0.26200-SP0",
-        "processor": "AMD64 Family 25 Model 124 Stepping 0, AuthenticAMD",
-        "cpu_count": 12,
-        "cpu_count_physical": 6,
-        "memory_total_gb": 16.38721536,
-        "python_version": "3.12.10",
-        "numpy_version": "1.26.4",
-        "timestamp": "2026-07-11T03:22:07.940511+00:00"
+        "numpy_version": "2.4.6",
+        "timestamp": "2026-07-18T15:43:52.106810+00:00"
       }
     }
   ]

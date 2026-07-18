@@ -11,6 +11,7 @@ import { ExecutiveDashboard }     from './features/executive/index.tsx';
 import { AlarmHistory }           from './features/operator/pages/AlarmHistory.tsx';
 import { ShiftHandover }          from './features/operator/pages/ShiftHandover.tsx';
 import { ResultsPage }            from './features/simulation-results/pages/ResultsPage.tsx';
+import { ExperimentalLab }        from './features/experimental/pages/ExperimentalLab.tsx';
 
 // Phase 5C Components
 import { SimulationList }         from './features/simulation/pages/SimulationList.tsx';
@@ -201,6 +202,7 @@ export const App: React.FC = () => (
         {/* Simulation Results (UQ) */}
         <Route path="simulations/:id/results" element={<ResultsPage />} />
         <Route path="simulations/demo"        element={<ResultsPage />} />
+        <Route path="experimental"            element={<ExperimentalLab />} />
 
         {/* Executive / Report routes */}
         <Route path="executive/*" element={

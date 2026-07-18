@@ -300,6 +300,7 @@ class DistributionStats(BaseModel):
     p95: float
     cv: float = Field(..., ge=0, description="Coefficient of variation (std/mean)")
     n_samples: int = Field(..., gt=0)
+    samples: Optional[list[float]] = None
 
 
 class KineticsResult(BaseModel):
@@ -412,6 +413,8 @@ class Sensitivities(BaseModel):
         default_factory=dict,
         description="Total-order Sobol indices {param_name: S_T}"
     )
+    npv_first_order: Optional[dict[str, float]] = None
+    block_strength_first_order: Optional[dict[str, float]] = None
     critical_experiments: list[dict] = Field(
         default_factory=list,
         description="Top experiments ranked by impact"
@@ -469,6 +472,8 @@ class SimulationResult(BaseModel):
     capture_distribution: Optional[DistributionStats] = None
     npv_distribution: Optional[DistributionStats] = None
     payback_distribution: Optional[DistributionStats] = None
+    so2_distribution: Optional[DistributionStats] = None
+    strength_distribution: Optional[DistributionStats] = None
     
     # Metadata
     started_at: Optional[datetime] = None

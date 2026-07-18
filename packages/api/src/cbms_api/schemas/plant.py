@@ -3,7 +3,32 @@ Plant profile input schemas with strict validation.
 """
 
 from pydantic import BaseModel, Field, field_validator
-from cbms_sim.core.validators import BoilerType, IndustryType, CalciumSource
+from enum import Enum
+
+
+class IndustryType(str, Enum):
+    POWER = "power_generation"
+    CEMENT = "cement_manufacturing"
+    STEEL = "steel_industry"
+    TEXTILE = "textile"
+    PETROCHEMICAL = "petrochemical"
+    INCINERATOR = "waste_incinerator"
+
+
+class BoilerType(str, Enum):
+    PULVERIZED_COAL = "pulverized_coal"
+    CIRCULATING_FLUIDIZED = "cfb"
+    STOKER = "stoker_grate"
+    DIESEL = "diesel_engine"
+    GAS_TURBINE = "gas_turbine"
+    KILN = "rotary_kiln"
+
+
+class CalciumSource(str, Enum):
+    LIME = "Ca(OH)2"
+    STEEL_SLAG = "steel_slag"
+    WASTE_LIME = "waste_lime_mud"
+    CEMENT_KILN_DUST = "ckd"
 
 
 class PlantProfileCreateRequest(BaseModel):

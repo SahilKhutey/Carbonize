@@ -5,9 +5,14 @@ Finds the trade-off curve between block strength and reagent OPEX.
 """
 
 import optuna
-from cbms_sim.core.mass_balance import compute_mass_balance
-from cbms_sim.core.block_strength import predict_compressive_strength
-from cbms_sim.core.economic_engine import run_financial_analysis
+from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.mass_balance.engine import MassBalanceEngine
+from cbms_sim.domain.block.strength import BlockStrengthPredictor
+from cbms_sim.domain.economic.engine import EconomicEngine
+
+from cbms_sim.domain.models.plant import PlantProfile as DomainPlant
+from cbms_sim.domain.models.reagent import ReagentFormulation as DomainReagent, CalciumSourceType as DomainCalciumSource
+from cbms_sim.domain.models.conditions import OperatingConditions as DomainConditions
 
 def objective(trial):
     """
@@ -18,33 +23,32 @@ def objective(trial):
     chitosan = trial.suggest_float("chitosan_wt_pct", 1.0, 5.0)
     press_force = trial.suggest_int("press_force_bar", 50, 500)
 
-    # 2. Run mass balance
-    mass_res = compute_mass_balance(
-        flow_nm3_per_hr=10000.0,
+    # 2. Build domain input records
+    plant = DomainPlant(
+        exhaust_flow_nm3_hr=10000.0,
         co2_vol_pct=14.0,
         so2_mg_per_nm3=1200.0,
         fly_ash_g_per_nm3=4.5,
+    )
+    reagent = DomainReagent(
+        enzyme_mg_per_l=enzyme,
         chitosan_wt_pct=chitosan,
-        enzyme_mg_per_l=enzyme
+        ca_source_type=DomainCalciumSource.LIME,
     )
-
-    # 3. Predict block compressive strength
-    strength = predict_compressive_strength(
-        mass_balance=mass_res,
+    conditions = DomainConditions(
         press_force_bar=press_force,
-        curing_hours=48.0,
-        temperature_c=40.0
+        curing_time_h=48.0,
+        reactor_temp_c=40.0,
     )
 
-    # 4. Predict financials
-    financial = run_financial_analysis(
-        mass_balance=mass_res,
-        flow_nm3_per_hr=10000.0
-    )
+    # 3. Solve pipelines
+    k_res = KineticsEngine().solve(plant, reagent, conditions)
+    mb_res = MassBalanceEngine().compute(k_res, plant, reagent)
+    bp_res = BlockStrengthPredictor().predict(mb_res, conditions)
+    eco_res = EconomicEngine().compute(mb_res, bp_res["compressive_strength_mpa"], plant.operating_hours_per_year)
 
-    # We want to maximize strength and minimize payback horizon (or OPEX)
-    # Optuna supports multi-objective optimization out of the box
-    return strength, financial.annual_opex_inr
+    # We want to maximize strength and minimize annual OPEX
+    return bp_res["compressive_strength_mpa"], eco_res["annual_opex_inr"]
 
 def run_parameter_optimization(trials_count: int = 20):
     """
