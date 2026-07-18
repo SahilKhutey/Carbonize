@@ -3,7 +3,7 @@
  */
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, CheckCircle2, XCircle, Clock, Plus, Search, Filter } from "lucide-react";
+import { Play, CheckCircle2, XCircle, Clock, Plus, Search, Filter, Loader2, AlertTriangle } from "lucide-react";
 
 export type SimStatus = "PENDING" | "RUNNING" | "COMPLETE" | "FAILED";
 
@@ -17,42 +17,75 @@ export interface SimulationRun {
   progress?: number; // 0-100
 }
 
-// Mock data for initial rendering
-const MOCK_RUNS: SimulationRun[] = [
-  { id: "sim-001", name: "High-Temp Stress Test", plantId: "plant-alpha", status: "COMPLETE", createdAt: "2026-07-15T08:30:00Z", duration: "14m 20s" },
-  { id: "sim-002", name: "Winter Flow Rate Opt", plantId: "plant-beta", status: "FAILED", createdAt: "2026-07-15T09:15:00Z", duration: "2m 10s" },
-  { id: "sim-003", name: "Carbon Cost Sensitivity", plantId: "plant-alpha", status: "RUNNING", createdAt: "2026-07-16T11:40:00Z", progress: 45 },
-  { id: "sim-004", name: "Enzyme Concentration Map", plantId: "plant-gamma", status: "PENDING", createdAt: "2026-07-16T11:45:00Z" },
-];
-
 export function SimulationList() {
-  const [runs, setRuns] = useState<SimulationRun[]>(MOCK_RUNS);
-  const [filter, setFilter] = useState<SimStatus | "ALL">("ALL");
+  const [runs, setRuns]               = useState<SimulationRun[]>([]);
+  const [loading, setLoading]         = useState<boolean>(true);
+  const [error, setError]             = useState<string | null>(null);
+  const [filter, setFilter]           = useState<SimStatus | "ALL">("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const navigate = useNavigate();
 
-  // Mock live updates for RUNNING simulations
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRuns((currentRuns) =>
-        currentRuns.map((run) => {
-          if (run.status === "RUNNING" && run.progress !== undefined) {
-            const newProgress = Math.min(run.progress + Math.floor(Math.random() * 10), 100);
-            return {
-              ...run,
-              progress: newProgress,
-              status: newProgress === 100 ? "COMPLETE" : "RUNNING",
-              duration: newProgress === 100 ? "15m 00s" : undefined,
-            };
-          }
-          return run;
-        })
-      );
-    }, 2000); // Faster for demo purposes
+  const fetchRuns = async (showLoading = false) => {
+    try {
+      if (showLoading) setLoading(true);
+      setError(null);
+      const res = await fetch("/api/simulations");
+      if (!res.ok) {
+        throw new Error(`Failed to load simulations (Status ${res.status})`);
+      }
+      const data = await res.json();
+      
+      const mapped = data.map((dbRun: any): SimulationRun => {
+        const completedTime = dbRun.completed_at ? new Date(dbRun.completed_at) : null;
+        const createdTime = new Date(dbRun.created_at);
+        const duration = completedTime
+          ? Math.round((completedTime.getTime() - createdTime.getTime()) / 1000.0)
+          : undefined;
 
+        const durationStr = duration !== undefined
+          ? `${Math.floor(duration / 60)}m ${duration % 60}s`
+          : undefined;
+
+        let statusText = dbRun.status;
+        if (statusText === "COMPLETED") statusText = "COMPLETE";
+
+        return {
+          id: dbRun.id,
+          name: `Run #${dbRun.id.slice(0, 8)} (${dbRun.plant?.name || "Facility"})`,
+          plantId: dbRun.plant?.name || "Plant Profile",
+          status: statusText as SimStatus,
+          createdAt: dbRun.created_at,
+          duration: durationStr,
+          progress: dbRun.status === "RUNNING" ? 50 : undefined,
+        };
+      });
+      setRuns(mapped);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred while loading runs.");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRuns(true);
+    
+    // Poll updates every 5 seconds to catch completed background runs
+    const interval = setInterval(() => {
+      fetchRuns(false);
+    }, 5000);
+    
     return () => clearInterval(interval);
   }, []);
 
-  const filteredRuns = filter === "ALL" ? runs : runs.filter((r) => r.status === filter);
+  const filteredRuns = runs.filter((run) => {
+    const matchesStatus = filter === "ALL" || run.status === filter;
+    const matchesSearch =
+      run.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      run.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      run.plantId.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   const StatusBadge = ({ status, progress }: { status: SimStatus; progress?: number }) => {
     switch (status) {
@@ -75,6 +108,31 @@ export function SimulationList() {
         return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-500/10 text-slate-400 border border-slate-500/20"><Clock className="w-3.5 h-3.5" /> Pending</span>;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-[400px] flex flex-col items-center justify-center text-slate-200">
+        <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mb-4" />
+        <p className="text-sm text-slate-400">Loading simulations queue...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[400px] flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="w-10 h-10 text-red-500 mb-4" />
+        <h3 className="text-sm font-bold text-white mb-1">Failed to Load Simulations</h3>
+        <p className="text-xs text-slate-400 mb-4 max-w-sm">{error}</p>
+        <button
+          onClick={() => fetchRuns(true)}
+          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white rounded-lg transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -100,6 +158,8 @@ export function SimulationList() {
             <input
               type="text"
               placeholder="Search simulations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-950/50 border border-slate-700 rounded-lg py-2 pl-9 pr-4 text-sm text-white placeholder-slate-500 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 transition-shadow"
             />
           </div>

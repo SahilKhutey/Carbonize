@@ -3,7 +3,7 @@
  */
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { SimulationList } from "../pages/SimulationList";
 
@@ -16,7 +16,32 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
+const mockRunsData = [
+  {
+    id: "sim-001-mock",
+    status: "COMPLETED",
+    created_at: "2026-07-15T08:30:00Z",
+    completed_at: "2026-07-15T08:44:20Z",
+    plant: { name: "Alpha Plant" }
+  },
+  {
+    id: "sim-002-mock",
+    status: "FAILED",
+    created_at: "2026-07-15T09:15:00Z",
+    completed_at: "2026-07-15T09:17:10Z",
+    plant: { name: "Beta Plant" }
+  }
+];
+
 describe("SimulationList", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockRunsData,
+    });
+  });
+
   const renderList = () =>
     render(
       <BrowserRouter>
@@ -24,33 +49,32 @@ describe("SimulationList", () => {
       </BrowserRouter>
     );
 
-  it("renders the title and new simulation button", () => {
+  it("renders the title and new simulation button", async () => {
     renderList();
-    expect(screen.getByText("Simulations")).toBeInTheDocument();
-    expect(screen.getByText("New Simulation")).toBeInTheDocument();
+    expect(await screen.findByText("Simulations")).toBeInTheDocument();
+    expect(await screen.findByText("New Simulation")).toBeInTheDocument();
   });
 
-  it("renders the mock simulation rows", () => {
+  it("renders the mock simulation rows", async () => {
     renderList();
-    // We expect some of the mock names
-    expect(screen.getByText("High-Temp Stress Test")).toBeInTheDocument();
-    expect(screen.getByText("Winter Flow Rate Opt")).toBeInTheDocument();
+    expect(await screen.findByText("Run #sim-001- (Alpha Plant)")).toBeInTheDocument();
+    expect(await screen.findByText("Run #sim-002- (Beta Plant)")).toBeInTheDocument();
   });
 
-  it("navigates to new simulation when CTA clicked", () => {
+  it("navigates to new simulation when CTA clicked", async () => {
     renderList();
-    fireEvent.click(screen.getByText("New Simulation"));
+    const btn = await screen.findByText("New Simulation");
+    fireEvent.click(btn);
     expect(mockNavigate).toHaveBeenCalledWith("/simulations/new");
   });
 
-  it("filters correctly", () => {
+  it("filters correctly", async () => {
     renderList();
     
-    const select = screen.getByRole("combobox");
+    const select = await screen.findByRole("combobox");
     fireEvent.change(select, { target: { value: "FAILED" } });
     
-    // Only the failed one should be visible
-    expect(screen.getByText("Winter Flow Rate Opt")).toBeInTheDocument();
-    expect(screen.queryByText("High-Temp Stress Test")).toBeNull();
+    expect(await screen.findByText("Run #sim-002- (Beta Plant)")).toBeInTheDocument();
+    expect(screen.queryByText("Run #sim-001- (Alpha Plant)")).toBeNull();
   });
 });

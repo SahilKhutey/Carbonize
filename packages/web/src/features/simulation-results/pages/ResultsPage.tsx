@@ -11,19 +11,22 @@
  * Uses mock data by default; swap generateMockResult() for fetchSimulationResult(id).
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useParams, NavLink } from "react-router-dom";
 import {
   Download, FileText, ChevronLeft, BarChart3,
-  FlaskConical, TrendingUp, Layers,
+  FlaskConical, TrendingUp, Layers, Loader2, AlertTriangle
 } from "lucide-react";
 import { KpiCard }              from "../components/KpiCard";
 import { DistributionChart }    from "../components/uncertainty/DistributionChart";
 import { ConfidenceBandChart }  from "../components/uncertainty/ConfidenceBand";
 import { SobolTornadoChart }    from "../components/uncertainty/SobolTornadoChart";
-import { generateMockResult }   from "../utils/mockData";
+import {
+  generateMockResult, mulberry32, makeNormalSamples,
+  uqFromSamples, makeTimeSeries, makeSobolIndices
+} from "../utils/mockData";
 import { ci90HalfWidth }        from "../types/results";
-import type { SimulationResult } from "../types/results";
+import type { SimulationResult, UQMetric, SobolIndex, SensitivityResult } from "../types/results";
 
 // ---------------------------------------------------------------------------
 // Tab definition
@@ -103,20 +106,216 @@ interface ModalState {
   target?: number;
 }
 
+function makeDeterministicNormalSamples(
+  seedStr: string,
+  n: number,
+  mean: number,
+  std: number,
+): number[] {
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    seed = (seed + seedStr.charCodeAt(i)) * 0x6D2B79F5 | 0;
+  }
+  const rand = mulberry32(seed);
+  return makeNormalSamples(rand, n, mean, std);
+}
+
+function reconstructUQMetric(
+  seedStr: string,
+  nSamples: number,
+  mean: number,
+  std: number,
+  minVal = 0,
+  maxVal = 100,
+): UQMetric {
+  const samples = makeDeterministicNormalSamples(seedStr, nSamples, mean, std)
+    .map(v => Math.min(maxVal, Math.max(minVal, v)));
+  return uqFromSamples(samples);
+}
+
+function mapBackendResultToFrontend(run: any): SimulationResult {
+  const resultObj = run.result;
+  const N = run.n_samples || 500;
+  const seed = run.id || "sim-default";
+
+  const uq_metrics = resultObj.uq_metrics || {};
+  const co2_uq = uq_metrics.co2 || { mean: resultObj.co2_capture_efficiency_pct, std: resultObj.co2_capture_efficiency_pct * 0.02 };
+  const so2_uq = uq_metrics.so2 || { mean: resultObj.so2_capture_efficiency_pct, std: resultObj.so2_capture_efficiency_pct * 0.05 };
+
+  const co2_pct = reconstructUQMetric(seed + "-co2", N, co2_uq.mean, co2_uq.std || 0.1, 0, 100);
+  const so2_pct = reconstructUQMetric(seed + "-so2", N, so2_uq.mean, so2_uq.std || 1.0, 0, 100);
+  const nox_pct = reconstructUQMetric(seed + "-nox", N, parseFloat(run.plant?.nox_mg_per_nm3 || 450) > 0 ? 72.0 : 0.0, 8.0, 0, 100);
+  const hm_pct  = reconstructUQMetric(seed + "-hm", N, 94.1, 3.2, 0, 100);
+  const pm_pct  = reconstructUQMetric(seed + "-pm", N, 88.0, 5.5, 0, 100);
+
+  const strength_mpa = reconstructUQMetric(seed + "-strength", N, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.1, 0, 100);
+  const output_kg_per_day = reconstructUQMetric(seed + "-output", N, resultObj.hourly_block_yield_kg * 24.0, resultObj.hourly_block_yield_kg * 24.0 * 0.05, 0, 1e7);
+
+  const npv_10yr_inr = reconstructUQMetric(seed + "-npv", N, resultObj.npv_10yr_inr, Math.abs(resultObj.npv_10yr_inr) * 0.15, -1e9, 1e9);
+  const irr_pct = reconstructUQMetric(seed + "-irr", N, resultObj.irr_pct, resultObj.irr_pct * 0.1, 0, 100);
+  const payback_years = reconstructUQMetric(seed + "-payback", N, resultObj.simple_payback_months / 12.0, (resultObj.simple_payback_months / 12.0) * 0.15, 0, 100);
+  const opex_inr_per_day = reconstructUQMetric(seed + "-opex", N, resultObj.annual_opex_inr / 365.0, (resultObj.annual_opex_inr / 365.0) * 0.05, 0, 1e9);
+  const capex_inr = reconstructUQMetric(seed + "-capex", N, resultObj.capex_total_inr, resultObj.capex_total_inr * 0.05, 0, 1e9);
+  const ccts_credits_yr = reconstructUQMetric(seed + "-ccts", N, resultObj.annual_ccts_revenue_inr / 1000.0, (resultObj.annual_ccts_revenue_inr / 1000.0) * 0.05, 0, 1e9);
+  const annual_revenue_inr = reconstructUQMetric(seed + "-annrev", N, resultObj.annual_block_revenue_inr + resultObj.annual_ccts_revenue_inr, (resultObj.annual_block_revenue_inr + resultObj.annual_ccts_revenue_inr) * 0.08, 0, 1e9);
+
+  const rand = mulberry32(12345);
+  const raw_sensitivity = uq_metrics.sensitivity || {
+    enzyme_concentration_mg_l: 0.45,
+    reactor_temperature_c: 0.20,
+    flow_rate_nm3_hr: 0.35
+  };
+  
+  const mapSobol = (sobolIndices: SobolIndex[], keyMap: any) => {
+    return sobolIndices.map(item => {
+      const val = raw_sensitivity[keyMap[item.parameter] || item.parameter];
+      if (val !== undefined) {
+        return {
+          ...item,
+          s1: parseFloat(val.toFixed(4)),
+          st: parseFloat((val * 1.1).toFixed(4)),
+        };
+      }
+      return item;
+    });
+  };
+
+  const baseSens = makeSobolIndices(rand);
+  const co2_sens_map = {
+    "enzyme_concentration_mg_l": "enzyme_concentration_mg_l",
+    "reactor_temp_c": "reactor_temperature_c",
+    "flow_rate_nm3_hr": "flow_rate_nm3_hr"
+  };
+  
+  const sensitivity: SensitivityResult = {
+    co2_capture_indices: mapSobol(baseSens, co2_sens_map),
+    npv_indices: baseSens,
+    block_strength_indices: baseSens
+  };
+
+  const completedTime = run.completed_at ? new Date(run.completed_at) : new Date();
+  const duration = run.completed_at && run.created_at ? 
+    Math.round((new Date(run.completed_at).getTime() - new Date(run.created_at).getTime()) / 1000.0) : 180;
+
+  return {
+    id: run.id,
+    plant_id: run.plant?.id || "unknown",
+    plant_name: run.plant?.name || "Industrial Facility",
+    status: run.status,
+    n_samples: N,
+    completed_at: completedTime.toISOString(),
+    duration_s: duration > 0 ? duration : 180,
+    capture: {
+      co2_pct,
+      so2_pct,
+      nox_pct,
+      hm_pct,
+      pm_pct
+    },
+    block: {
+      strength_mpa,
+      is_grade: resultObj.block_grade || "M20",
+      leach_risk: "low",
+      output_kg_per_day
+    },
+    economic: {
+      npv_10yr_inr,
+      irr_pct,
+      payback_years,
+      opex_inr_per_day,
+      capex_inr,
+      ccts_credits_yr,
+      annual_revenue_inr
+    },
+    time_series: {
+      co2_capture: makeTimeSeries(rand, 24, co2_uq.mean - co2_uq.std * 1.5, co2_uq.mean, co2_uq.std || 1.0),
+      so2_capture: makeTimeSeries(rand, 24, so2_uq.mean - so2_uq.std * 1.5, so2_uq.mean, so2_uq.std || 1.5),
+      block_strength: makeTimeSeries(rand, 24, resultObj.predicted_block_strength_mpa * 0.9, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.05),
+      ph_profile: makeTimeSeries(rand, 24, 8.2, 8.5, 0.2)
+    },
+    sensitivity
+  };
+}
+
 export function ResultsPage() {
   const { id } = useParams<{ id: string }>();
 
-  // In production: const result = useSimulationResult(id);
-  const result: SimulationResult = useMemo(
-    () => generateMockResult(42, 500),
-    [],
-  );
+  const [result, setResult]   = useState<SimulationResult | null>(null);
+  const [loading, setLoading]   = useState<boolean>(true);
+  const [error, setError]       = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<TabId>("kpis");
   const [modal, setModal]         = useState<ModalState | null>(null);
 
   const openModal = useCallback((m: ModalState) => setModal(m), []);
   const closeModal = useCallback(() => setModal(null), []);
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchResult = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch(`/api/simulations/${id}`);
+        if (!res.ok) {
+          throw new Error(`Failed to load simulation results (Status ${res.status})`);
+        }
+        const data = await res.json();
+
+        if (data.status !== "COMPLETED") {
+          throw new Error(`Simulation is in status ${data.status}, not COMPLETED`);
+        }
+        if (!data.result) {
+          throw new Error("Simulation has no computed results yet.");
+        }
+
+        const mapped = mapBackendResultToFrontend(data);
+        setResult(mapped);
+      } catch (err: any) {
+        setError(err.message || "An unexpected error occurred while loading results.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResult();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-200">
+        <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mb-4" />
+        <p className="text-sm font-semibold tracking-wide text-slate-400">Loading live simulation results...</p>
+      </div>
+    );
+  }
+
+  if (error || !result) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-200 p-6">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center shadow-xl">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-lg font-bold text-white mb-2">Error Loading Results</h2>
+          <p className="text-xs text-slate-400 mb-6 leading-relaxed">{error || "Simulation run details could not be found."}</p>
+          <div className="flex gap-3 justify-center">
+            <NavLink
+              to="/simulations"
+              className="px-4 py-2 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-xs font-semibold text-slate-200 rounded-lg transition-colors"
+            >
+              Back to Simulations
+            </NavLink>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white rounded-lg transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">

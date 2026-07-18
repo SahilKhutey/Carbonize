@@ -16,7 +16,7 @@ import type {
 // Seeded PRNG (Mulberry32 — deterministic, no external dep)
 // ---------------------------------------------------------------------------
 
-function mulberry32(seed: number) {
+export function mulberry32(seed: number) {
   return function (): number {
     seed |= 0; seed = seed + 0x6D2B79F5 | 0;
     let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
@@ -29,7 +29,7 @@ function mulberry32(seed: number) {
 // Normal distribution sample via Box-Muller
 // ---------------------------------------------------------------------------
 
-function makeNormalSamples(
+export function makeNormalSamples(
   rand: () => number,
   n: number,
   mean: number,
@@ -51,7 +51,7 @@ function makeNormalSamples(
 // Build a UQMetric from samples
 // ---------------------------------------------------------------------------
 
-function uqFromSamples(samples: number[]): UQMetric {
+export function uqFromSamples(samples: number[]): UQMetric {
   const s = [...samples].sort((a, b) => a - b);
   const n = s.length;
   const mean = s.reduce((a, b) => a + b, 0) / n;
@@ -70,7 +70,7 @@ function uqFromSamples(samples: number[]): UQMetric {
 // Time-series generator
 // ---------------------------------------------------------------------------
 
-function makeTimeSeries(
+export function makeTimeSeries(
   rand: () => number,
   steps: number,
   meanStart: number,
@@ -110,7 +110,7 @@ const SOBOL_PARAMS: Array<Omit<SobolIndex, "s1" | "st" | "s1_conf" | "st_conf">>
   { parameter: "liquid_gas_ratio",            label: "L/G ratio",             unit: "",       current_uncertainty: "±12% field"      },
 ];
 
-function makeSobolIndices(rand: () => number): SobolIndex[] {
+export function makeSobolIndices(rand: () => number): SobolIndex[] {
   // Generate plausible S1 and ST values (ST ≥ S1 always)
   const rawST = SOBOL_PARAMS.map(() => rand() * 0.4 + 0.01);
   const totalST = rawST.reduce((a, b) => a + b, 0);

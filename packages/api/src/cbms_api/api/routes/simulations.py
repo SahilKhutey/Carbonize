@@ -158,6 +158,25 @@ async def trigger_simulation(
 
     return run
 
+@router.get("", response_model=None)
+@rate_limit_read(limit="300/minute")
+async def list_simulations(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    org_id: UUID = Depends(get_active_tenant_id)
+):
+    """
+    Lists all simulation runs for the active tenant organization.
+    """
+    result = await db.execute(
+        select(SimulationRun)
+        .options(selectinload(SimulationRun.plant))
+        .filter(SimulationRun.organization_id == org_id)
+        .order_by(SimulationRun.created_at.desc())
+    )
+    runs = result.scalars().all()
+    return runs
+
 @router.get("/{run_id}", response_model=None)
 @rate_limit_read(limit="300/minute")
 async def get_simulation_status(
@@ -171,7 +190,10 @@ async def get_simulation_status(
     """
     result = await db.execute(
         select(SimulationRun)
-        .options(selectinload(SimulationRun.result))
+        .options(
+            selectinload(SimulationRun.result),
+            selectinload(SimulationRun.plant)
+        )
         .filter(SimulationRun.id == run_id)
         .filter(SimulationRun.organization_id == org_id)
     )

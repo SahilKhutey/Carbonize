@@ -7,49 +7,12 @@
  * Uses mock data — replace fetchAlarmHistory() with real API call.
  */
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, ChevronLeft, ChevronRight, Loader2, AlertTriangle } from "lucide-react";
 import type { AlarmHistoryEntry } from "../types/operator";
 
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
 
-function generateMockAlarms(): AlarmHistoryEntry[] {
-  const entries: AlarmHistoryEntry[] = [];
-  const severities: AlarmHistoryEntry["severity"][] = ["CRITICAL", "HIGH", "MEDIUM", "LOW"];
-  const methods: AlarmHistoryEntry["resolution_method"][] = ["acknowledged", "auto_cleared", "escalated"];
-  const msgs = [
-    ["SO₂ outlet exceeded CPCB limit", "SO₂ outlet 215 mg/Nm³"],
-    ["Mesh ΔP approaching threshold", "Mesh ΔP 238 mmH₂O"],
-    ["Reactor temperature deviation", "T reactor 47.3 °C (SP: 40.0)"],
-    ["Maintenance due in 48 hours", "Reagent pump A — scheduled service"],
-    ["pH below normal range", "pH 7.6 (normal: 8.0–9.0)"],
-  ];
-  const now = Date.now();
-  for (let i = 0; i < 40; i++) {
-    const [title, message] = msgs[i % msgs.length];
-    const triggered = new Date(now - i * 25 * 60 * 1000).toISOString();
-    const resolved  = i < 35
-      ? new Date(now - i * 25 * 60 * 1000 + 8 * 60 * 1000).toISOString()
-      : undefined;
-    entries.push({
-      id: `alarm-${i}`,
-      alert_id: `a-${i}`,
-      severity: severities[i % 4],
-      title,
-      message,
-      triggered_at: triggered,
-      resolved_at:  resolved,
-      resolved_by:  resolved ? (i % 2 === 0 ? "Operator A" : "Auto") : undefined,
-      resolution_method: methods[i % 3],
-    });
-  }
-  return entries;
-}
-
-const ALL_ALARMS = generateMockAlarms();
 
 // ---------------------------------------------------------------------------
 // CSV export
@@ -88,21 +51,53 @@ const PAGE_SIZE = 10;
 // ---------------------------------------------------------------------------
 
 export function AlarmHistory() {
+  const [alarms, setAlarms]   = useState<AlarmHistoryEntry[]>([]);
+  const [total, setTotal]     = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError]     = useState<string | null>(null);
+
   const [severity, setSeverity] = useState<string>("all");
-  const [page, setPage] = useState(0);
+  const [page, setPage]         = useState(0);
 
-  const filtered = useMemo(() =>
-    ALL_ALARMS.filter((a) => severity === "all" || a.severity === severity),
-    [severity]
-  );
+  const fetchAlarms = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`/api/operator/alarms?severity=${severity}&page=${page}&page_size=${PAGE_SIZE}`);
+      if (!res.ok) {
+        throw new Error(`Failed to load alarms (Status ${res.status})`);
+      }
+      const data = await res.json();
+      setAlarms(data.alarms || []);
+      setTotal(data.total || 0);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred while loading alarms.");
+    } finally {
+      setLoading(false);
+    }
+  }, [severity, page]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const pageItems  = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  useEffect(() => {
+    fetchAlarms();
+  }, [fetchAlarms]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   const handleFilterChange = useCallback((v: string) => {
     setSeverity(v);
     setPage(0);
   }, []);
+
+  const handleExportCSV = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/operator/alarms?severity=${severity}&page=0&page_size=1000`);
+      if (!res.ok) throw new Error("Failed to fetch alarm list for export");
+      const data = await res.json();
+      exportCSV(data.alarms);
+    } catch (err: any) {
+      alert(err.message || "Failed to export CSV");
+    }
+  }, [severity]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -136,7 +131,7 @@ export function AlarmHistory() {
           </select>
 
           <button
-            onClick={() => exportCSV(filtered)}
+            onClick={handleExportCSV}
             className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-700 border border-slate-600 text-slate-300 text-sm hover:bg-slate-600 transition-colors"
             aria-label="Export alarm history as CSV"
           >
@@ -144,7 +139,7 @@ export function AlarmHistory() {
           </button>
 
           <span className="ml-auto text-xs text-slate-500">
-            {filtered.length} alarms
+            {total} alarms
           </span>
         </div>
 
@@ -161,12 +156,26 @@ export function AlarmHistory() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {pageItems.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                    <Loader2 className="w-5 h-5 text-emerald-400 animate-spin inline mr-2" />
+                    Loading alarm records...
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-8 text-center text-red-400">
+                    <AlertTriangle className="w-5 h-5 inline mr-2 text-red-500" />
+                    {error}
+                  </td>
+                </tr>
+              ) : alarms.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-slate-600">No alarms match the filter.</td>
                 </tr>
               ) : (
-                pageItems.map((alarm) => (
+                alarms.map((alarm) => (
                   <tr key={alarm.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-4 py-3 tabular-nums text-slate-400 text-xs whitespace-nowrap">
                       {new Date(alarm.triggered_at).toLocaleString()}

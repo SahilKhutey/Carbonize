@@ -36,32 +36,67 @@ export function LoginPage() {
     setError("");
     setLoading(true);
 
-    // Mock API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    // Mock auth logic:
-    // email ending with @operator.com -> operator
-    // email ending with @exec.com -> manager
-    // default -> engineer
-    let role: Role = "engineer";
-    if (email.includes("@operator")) role = "operator";
-    if (email.includes("@exec")) role = "manager";
-
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       setLoading(false);
       return;
     }
 
-    // Success!
-    setAuth(
-      { id: "mock-user-1", name: email.split("@")[0], email, role },
-      "mock-jwt-token",
-      "mock-refresh-token"
-    );
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    setLoading(false);
-    navigate(from || getDefaultRoute(role), { replace: true });
+      if (!response.ok) {
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = null;
+        }
+        const message = errorData?.detail || `Authentication failed (Status ${response.status})`;
+        throw new Error(message);
+      }
+
+      const data = await response.json();
+
+      if (data.status === "mfa_required") {
+        setError("MFA is enabled on this account. Complete sign-in using the MFA verification challenge.");
+        setLoading(false);
+        return;
+      }
+
+      if (!data.access_token || !data.user) {
+        throw new Error("Invalid response format received from auth server.");
+      }
+
+      const userRoles = data.user.roles || [];
+      let mappedRole: Role = "engineer";
+      if (userRoles.includes("admin")) mappedRole = "admin";
+      else if (userRoles.includes("manager")) mappedRole = "manager";
+      else if (userRoles.includes("operator")) mappedRole = "operator";
+
+      const mappedUser = {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.email.split("@")[0],
+        role: mappedRole,
+      };
+
+      setAuth(mappedUser, data.access_token, data.refresh_token);
+      setLoading(false);
+      navigate(from || getDefaultRoute(mappedRole), { replace: true });
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred during login.");
+      setLoading(false);
+    }
   };
 
   return (

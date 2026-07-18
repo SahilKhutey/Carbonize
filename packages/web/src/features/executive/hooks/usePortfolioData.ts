@@ -133,18 +133,28 @@ export function usePortfolioData(_filters?: GlobalFilters): PortfolioData {
     try {
       setLoading(true);
       setError(null);
-      // TODO: replace with real API calls:
-      // const res = await fetch(`/api/analytics/portfolio?...`);
-      await new Promise((r) => setTimeout(r, 300)); // simulate latency
-      setSummary(MOCK_KPIS);
-      setPlants(MOCK_PLANTS);
-      setInsights(MOCK_INSIGHTS);
+      
+      const params = new URLSearchParams();
+      if (_filters?.period) params.append("period", _filters.period);
+      if (_filters?.region) params.append("region", _filters.region);
+      if (_filters?.plantIds) params.append("plantIds", _filters.plantIds.join(","));
+      
+      const queryString = params.toString() ? `?${params.toString()}` : "";
+      const res = await fetch(`/api/analytics/portfolio${queryString}`);
+      if (!res.ok) {
+        throw new Error(`Failed to load portfolio analytics (Status ${res.status})`);
+      }
+      const data = await res.json();
+      
+      setSummary(data.summary);
+      setPlants(data.plants || []);
+      setInsights(data.insights || []);
     } catch (e: unknown) {
       setError((e as Error).message ?? "Failed to load portfolio data");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [_filters]);
 
   useEffect(() => {
     fetchData();

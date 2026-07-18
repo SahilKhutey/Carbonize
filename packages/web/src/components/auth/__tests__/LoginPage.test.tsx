@@ -1,9 +1,6 @@
-/**
- * packages/web/src/components/auth/__tests__/LoginPage.test.tsx
- */
 import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { BrowserRouter } from "react-router-dom";
 import { LoginPage } from "../LoginPage";
 import { useAuthStore } from "../../../store/authStore";
@@ -18,6 +15,10 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("LoginPage", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
   const renderLogin = () =>
     render(
       <BrowserRouter>
@@ -45,14 +46,29 @@ describe("LoginPage", () => {
     
     await act(async () => {
       fireEvent.click(submitBtn);
-      // Wait for mock API delay
-      await new Promise(r => setTimeout(r, 850));
     });
 
     expect(screen.getByText(/password must be at least 6 characters/i)).toBeInTheDocument();
   });
 
   it("logs in successfully and navigates", async () => {
+    vi.mocked(global.fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        status: "success",
+        access_token: "mock-jwt-token",
+        refresh_token: "mock-refresh-token",
+        user: {
+          id: "e43b12dc-4e55-46aa-bd1a-7b3b64c39f15",
+          email: "test@operator.com",
+          roles: ["operator"],
+          is_active: true,
+          mfa_enabled: false,
+          created_at: "2026-07-18T10:00:00Z"
+        }
+      }),
+    } as Response);
+
     renderLogin();
     
     fireEvent.change(screen.getByPlaceholderText(/name@company.com/i), {
@@ -66,8 +82,6 @@ describe("LoginPage", () => {
     
     await act(async () => {
       fireEvent.click(submitBtn);
-      // Wait for mock API delay
-      await new Promise(r => setTimeout(r, 850));
     });
 
     // Check authStore is updated
