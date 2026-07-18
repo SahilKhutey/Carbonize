@@ -5,7 +5,7 @@ FastAPI router for experimental CCUS chemistry features.
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
-from cbms_sim.core.experimental_chemistry import ExperimentalBiomineralizationSolver
+from cbms_sim.domain.experimental.experimental_chemistry import ExperimentalBiomineralizationSolver
 from cbms_api.middleware.rate_limiting import rate_limit_write
 from cbms_api.api.dependencies import get_active_tenant_id
 from uuid import UUID

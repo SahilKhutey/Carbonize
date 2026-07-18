@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from cbms_sim.core.experimental_chemistry import ExperimentalBiomineralizationSolver
+from cbms_sim.domain.experimental.experimental_chemistry import ExperimentalBiomineralizationSolver
 
 
 def test_experimental_solver_run_success():
