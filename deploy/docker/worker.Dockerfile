@@ -23,7 +23,8 @@ COPY pyproject.toml poetry.lock ./
 COPY packages/shared/ /app/packages/shared/
 COPY packages/workers/ /app/packages/workers/
 COPY packages/sim-core/ /app/packages/sim-core/
-COPY packages/api/ /app/packages/api/  # API for schemas
+# Copy packages/api (needed for schemas)
+COPY packages/api/ /app/packages/api/
 
 RUN poetry install --no-root
 
