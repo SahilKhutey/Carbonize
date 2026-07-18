@@ -42,8 +42,22 @@ export function ShiftHandover() {
 
     setStatus("submitting");
     try {
-      // TODO: replace with real API
-      await new Promise((r) => setTimeout(r, 800));
+      const res = await fetch("/api/operator/handover", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          outgoing_operator: outgoing,
+          incoming_operator: incoming,
+          notes,
+          shift_summary: AUTO_SUMMARY,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to save handover (Status ${res.status})`);
+      }
       setStatus("success");
     } catch {
       setStatus("error");

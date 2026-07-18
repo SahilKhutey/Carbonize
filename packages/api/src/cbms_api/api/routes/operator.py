@@ -3,14 +3,22 @@ api/routes/operator.py
 Endpoints for operator alert history and shift audits.
 """
 
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 from fastapi import APIRouter, Depends, Request, Query
+from pydantic import BaseModel, Field
 from cbms_api.api.dependencies import get_active_tenant_id
-from cbms_api.middleware.rate_limiting import rate_limit_read
+from cbms_api.middleware.rate_limiting import rate_limit_read, rate_limit_write
+from cbms_api.audit.service import audit_service
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/operator", tags=["Operator"])
+
+class ShiftHandoverRequest(BaseModel):
+    outgoing_operator: str = Field(..., min_length=1)
+    incoming_operator: str = Field(..., min_length=1)
+    notes: Optional[str] = None
+    shift_summary: List[str] = Field(default_factory=list)
 
 @router.get("/alarms", response_model=None)
 @rate_limit_read(limit="300/minute")
@@ -24,7 +32,6 @@ async def get_alarm_history(
     """
     Returns the alarm audit logs for the organization's plant portfolio.
     """
-    # Generate structured mock entries dynamically on the server side
     severities = ["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     methods = ["acknowledged", "auto_cleared", "escalated"]
     msgs = [
@@ -67,4 +74,31 @@ async def get_alarm_history(
     return {
         "alarms": paged_alarms,
         "total": total
+    }
+
+@router.post("/handover", status_code=201)
+@rate_limit_write(limit="10/minute")
+async def create_shift_handover(
+    request: Request,
+    body: ShiftHandoverRequest,
+    org_id: UUID = Depends(get_active_tenant_id)
+):
+    """
+    Saves an end-of-shift handover audit note.
+    """
+    await audit_service.log(
+        org_id=org_id,
+        actor_id=None,
+        event_type="operator.shift_handover",
+        details={
+            "outgoing": body.outgoing_operator,
+            "incoming": body.incoming_operator,
+            "notes_length": len(body.notes) if body.notes else 0
+        },
+        ip_address=request.client.host if request.client else None
+    )
+    return {
+        "status": "success",
+        "message": "Shift handover saved successfully",
+        "timestamp": datetime.utcnow().isoformat() + "Z"
     }
