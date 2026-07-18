@@ -102,6 +102,7 @@ class EconomicUQEngine:
         payback_samples = np.zeros(n_samples)
         revenue_samples = np.zeros(n_samples)
         opex_samples = np.zeros(n_samples)
+        ccts_prices = np.zeros(n_samples)
         
         for i in range(n_samples):
             # 1. Sample cost parameters (from distribution)
@@ -109,6 +110,7 @@ class EconomicUQEngine:
                 self.cost_params['ccts_price_mean'],
                 self.cost_params['ccts_price_std']
             ))
+            ccts_prices[i] = ccts_price
             block_price = max(0, rng.normal(
                 self.cost_params['block_price_mean'],
                 self.cost_params['block_price_std']
@@ -209,15 +211,30 @@ class EconomicUQEngine:
             payback_probability_lt_5y=float(np.mean(payback_valid < 60)),
             
             # Sensitivity: ∂NPV/∂input (numerical)
-            npv_sensitivity_to_co2_capture=self._sensitivity(kinetics_samples, 'co2_pct'),
-            npv_sensitivity_to_block_strength=self._sensitivity(kinetics_samples, 'block_strength'),
-            npv_sensitivity_to_opex=0,  # negative correlation
-            npv_sensitivity_to_ccts_price=0,
+            npv_sensitivity_to_co2_capture=self._sensitivity(kinetics_samples, 'co2_pct', npv_samples),
+            npv_sensitivity_to_block_strength=self._sensitivity(kinetics_samples, 'block_strength', npv_samples),
+            npv_sensitivity_to_opex=self._sensitivity(None, 'opex', npv_samples, opex_samples=opex_samples),
+            npv_sensitivity_to_ccts_price=self._sensitivity(None, 'ccts_price', npv_samples, ccts_prices=ccts_prices),
         )
         
         return result
     
-    def _sensitivity(self, samples, param_name, perturbation=0.01):
-        """Numerical sensitivity of NPV to parameter."""
-        # TODO: implement finite-difference sensitivity
-        return 0.0
+    def _sensitivity(self, samples, param_name, npv_samples, opex_samples=None, ccts_prices=None):
+        """Numerical sensitivity of NPV to parameter via covariance analysis."""
+        if param_name == 'co2_pct' and samples:
+            x = np.array([k.capture.co2_pct for k in samples])
+        elif param_name == 'block_strength' and samples:
+            x = np.array([k.capture.block_strength for k in samples])
+        elif param_name == 'opex' and opex_samples is not None:
+            x = opex_samples
+        elif param_name == 'ccts_price' and ccts_prices is not None:
+            x = ccts_prices
+        else:
+            return 0.0
+
+        var_x = np.var(x)
+        if var_x < 1e-8:
+            return 0.0
+
+        cov_xy = np.cov(x, npv_samples)[0, 1]
+        return float(cov_xy / var_x)
