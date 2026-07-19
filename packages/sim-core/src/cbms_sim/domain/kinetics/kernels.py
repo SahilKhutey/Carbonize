@@ -1,9 +1,25 @@
-"""Numba JIT-compiled kernels for the kinetics ODE."""
+"""
+Numba JIT-compiled kernels for the kinetics ODE.
+
+State Vector Units and Index Mapping:
+- y[0]: CO2_aq (mol/m³) - Dissolved carbon dioxide concentration
+- y[1]: HCO3 (mol/m³) - Dissolved bicarbonate ion concentration
+- y[2]: Ca2 (mol/m³) - Dissolved free calcium ion concentration
+- y[3]: CaCO3_s (mol/m³) - Precipitated calcium carbonate solid concentration
+- y[4]: SO2_aq (mol/m³) - Dissolved sulfur dioxide concentration
+- y[5]: CaSO4_s (mol/m³) - Precipitated calcium sulfate solid concentration
+- y[6]: CA_active (mg/L) - Active Carbonic Anhydrase enzyme concentration
+- y[7]: Metal_chel (mol/m³) - Chelated heavy metal concentration
+- y[8]: PM_trapped (g/m³) - Trapped particulate matter concentration
+"""
 
 from __future__ import annotations
 
 import numpy as np
 from numba import njit
+
+
+from cbms_shared.constants import HENRY_SO2, KSP_CACO3, KSP_CASO4
 
 
 @njit(cache=True, fastmath=True, boundscheck=False)
@@ -20,6 +36,9 @@ def reaction_rhs_numba(
     pH_initial: float,
     T_reactor: float,
     p_so2: float = 50.0,
+    pm_inlet: float = 25.0,
+    metal_inlet: float = 0.5,
+    mesh_count: float = 6.0,
 ) -> np.ndarray:
     """
     Right-hand side of the 9-species kinetics ODE.
@@ -55,7 +74,7 @@ def reaction_rhs_numba(
     dHCO3_dt = v_cat
     
     # 3) CaCO3 precipitation
-    K_sp = 3.3e-9
+    K_sp = KSP_CACO3
     supersaturation = (ca_free * hco3) / K_sp
     k_precip = 1.5e-2
     if supersaturation > 1.0:
@@ -66,28 +85,27 @@ def reaction_rhs_numba(
     dCaCO3_dt = rate_caco3
     
     # 4) SO2 absorption and gypsum precipitation
-    H_so2 = 1.2
+    H_so2 = HENRY_SO2
     dSO2_dt = k_so2 * (H_so2 * p_so2 - so2_aq)
     
-    K_sp_caso4 = 4.93e-5
-    if (ca_free * so2_aq) > K_sp_caso4:
-        rate_caso4 = 5.0e-3 * ca_free * so2_aq
+    K_sp_caso4 = KSP_CASO4
+    supersat_caso4 = (ca_free * so2_aq) / K_sp_caso4
+    if supersat_caso4 > 1.0:
+        rate_caso4 = 5.0e-3 * ca_free * so2_aq * (1.0 - 1.0 / supersat_caso4)
     else:
         rate_caso4 = 0.0
     dSO2_dt -= rate_caso4
     dCa_dt -= rate_caso4
     dCaSO4_dt = rate_caso4
     
-    # 5) Heavy metal chelation
-    metal_inlet = 0.5
+    # 5) Heavy metal chelation (Langmuir/saturable site depletion form)
     free_amine_density = 0.05
-    dMetal_dt = k_chel * free_amine_density * metal_inlet
+    dMetal_dt = k_chel * max(0.0, free_amine_density - metal_chel) * metal_inlet
     metal_chel_new = dMetal_dt
     
-    # 6) Particulate matter capture
-    pm_inlet = 25.0
+    # 6) Particulate matter capture (Saturable mesh filtration form)
     k_pm_cap = 0.18
-    dPM_dt = k_pm_cap * pm_inlet * ca_active / 12.0
+    dPM_dt = k_pm_cap * max(0.0, pm_inlet - pm_cap) * (1.0 - np.exp(-mesh_count / 10.0)) * ca_active / 12.0
     
     return np.array([
         dCO2_dt, dHCO3_dt, dCa_dt, dCaCO3_dt,
@@ -100,12 +118,14 @@ def reaction_rhs_numba(
 def compute_capture_efficiencies(
     initial_state: np.ndarray,
     final_state: np.ndarray,
+    pm_inlet: float = 25.0,
+    metal_inlet: float = 0.5,
 ) -> np.ndarray:
     """Compute per-pollutant capture efficiency percentages."""
     co2_in = max(initial_state[0], 1e-12)
     so2_in = max(initial_state[4], 1e-12)
-    metal_in = 0.5
-    pm_in = 25.0
+    metal_in = max(metal_inlet, 1e-12)
+    pm_in = max(pm_inlet, 1e-12)
     
     co2_pct = max(0.0, min(100.0, (co2_in - max(final_state[0], 0.0)) / co2_in * 100.0))
     so2_pct = max(0.0, min(100.0, (so2_in - max(final_state[4], 0.0)) / so2_in * 100.0))
@@ -113,3 +133,4 @@ def compute_capture_efficiencies(
     metal_pct = max(0.0, min(100.0, max(final_state[7], 0.0) / metal_in * 100.0))
     
     return np.array([co2_pct, so2_pct, pm_pct, metal_pct])
+

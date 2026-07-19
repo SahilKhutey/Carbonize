@@ -7,6 +7,32 @@ capturing:
 - Ca²⁺ competition for precipitation
 - pH-driven CA activity loss
 - Chitosan site competition (metals vs. CO₂)
+
+State Vector Units and Index Mapping (17 Species):
+- y[0]: CO2_aq (mol/m³) - Dissolved carbon dioxide
+- y[1]: HCO3 (mol/m³) - Bicarbonate ions
+- y[2]: CO3 (mol/m³) - Carbonate ions
+- y[3]: Ca2 (mol/m³) - Free calcium ions
+- y[4]: CaCO3_s (mol/m³) - Calcium carbonate solid (calcite)
+- y[5]: SO2_aq (mol/m³) - Dissolved sulfur dioxide
+- y[6]: HSO3 (mol/m³) - Bisulfite ions
+- y[7]: SO3 (mol/m³) - Sulfite ions
+- y[8]: SO4 (mol/m³) - Sulfate ions
+- y[9]: CaSO3_s (mol/m³) - Calcium sulfite solid
+- y[10]: CaSO4_s (mol/m³) - Calcium sulfate solid (gypsum)
+- y[11]: NO2_aq (mol/m³) - Dissolved nitrogen dioxide (NOx surrogate)
+- y[12]: NO3 (mol/m³) - Nitrate ions
+- y[13]: H_plus (mol/m³) - Hydronium (H+) ions
+- y[14]: CA_active (mg/L) - Active Carbonic Anhydrase enzyme
+- y[15]: Metal_chel (mol/m³) - Chelated heavy metals
+- y[16]: PM_trapped (g/m³) - Trapped particulate matter
+
+[!] PHYSICAL SIMPLIFICATION NOTICE:
+NOx is modeled using NO2_aq as a surrogate with a simplified diprotic acid-like dissociation
+framework (analogous to SO2). In real flue-gas environments, NOx consists predominantly of NO
+(which has extremely low aqueous solubility) and NO2 disproportionates complexly into HNO3 and HNO2.
+This model assumes flue-gas pre-oxidation of NO to NO2 to enable capture. Validate absorption
+efficiencies against wet FGD literature for specific flue-gas compositions.
 """
 
 from __future__ import annotations
@@ -22,7 +48,7 @@ from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation
 from cbms_sim.domain.models.conditions import OperatingConditions
 from cbms_sim.domain.models.results import KineticsResult
-from cbms_shared.constants import MOLAR_MASSES
+from cbms_shared.constants import MOLAR_MASSES, HENRY_CO2, HENRY_SO2, HENRY_NO2, KSP_CACO3, KSP_CASO4, KSP_CASO3
 from cbms_shared.exceptions import NumericalDivergenceError
 from cbms_shared.logging import get_logger
 
@@ -42,6 +68,7 @@ def extended_rhs_numba(
     ca_inactivation, E_a_inact, T_reactor,
     R_gas=8.314, T_ref=313.15,
     p_co2=14000.0, p_so2=50.0, p_no2=20.0,  # Pa
+    metal_inlet=0.5, mesh_count=6.0,
 ):
     """
     Right-hand side for extended multi-species kinetics ODE.
@@ -52,8 +79,8 @@ def extended_rhs_numba(
     """
     
     # Ensure non-negative concentrations
-    y_safe = np.zeros(16)
-    for i in range(16):
+    y_safe = np.zeros(17)
+    for i in range(17):
         y_safe[i] = max(y[i], 0.0)
     
     # Unpack state
@@ -73,6 +100,7 @@ def extended_rhs_numba(
     H_plus = max(y_safe[13], 1e-10)  # Avoid log(0)
     CA_active = max(y_safe[14], 1e-9)
     Metal_chel = y_safe[15]
+    PM_trapped = y_safe[16]
     
     # Carbonate equilibrium (fast)
     CO3 = 10**-10.33 * HCO3 / H_plus
@@ -92,7 +120,7 @@ def extended_rhs_numba(
     v_cat = (k_cat * (CA_active / 30000.0) * CO2_aq) / denom * pH_factor if denom > 1e-15 else 0.0
     
     # SO₂ absorption
-    H_SO2_inv = 1.2
+    H_SO2_inv = HENRY_SO2
     SO2_eq = H_SO2_inv * p_so2
     k_so2_eff = k_so2_abs * (1.0 + 0.1 * HCO3 / H_plus)
     v_so2_abs = k_so2_eff * (SO2_eq - SO2_aq)
@@ -100,7 +128,7 @@ def extended_rhs_numba(
         v_so2_abs = 0.0
     
     # NO₂ absorption
-    H_NO2_inv = 1.0e-2
+    H_NO2_inv = HENRY_NO2
     NO2_eq = H_NO2_inv * p_no2
     v_no2_abs = k_no2_abs * (NO2_eq - NO2_aq)
     if v_no2_abs < 0.0:
@@ -133,10 +161,10 @@ def extended_rhs_numba(
     # Total Ca²⁺ consumption
     r_ca_total = r_caco3 + r_caso3 + r_caso4
     
-    # Heavy metal chelation
+    # Heavy metal chelation (saturable depleting form)
     pH_chel_factor = 1.0 / (1.0 + np.exp(-(pH - 5.5) * 3.0))
     co2_competition = 1.0 / (1.0 + 0.1 * CO2_aq)
-    v_chel = k_chel * free_amine_density * 0.5 * pH_chel_factor * co2_competition
+    v_chel = k_chel * max(0.0, free_amine_density - Metal_chel) * metal_inlet * pH_chel_factor * co2_competition
     
     # Enzyme deactivation
     k_inact_T = ca_inactivation * np.exp(
@@ -147,8 +175,11 @@ def extended_rhs_numba(
     else:
         pH_denat = 0.0
     
+    # PM capture (saturable mesh filtration form)
+    v_pm = k_pm_cap * max(0.0, pm_inlet - PM_trapped) * (1.0 - np.exp(-mesh_count / 10.0)) * CA_active / 12.0
+
     # ODE outputs
-    dydt = np.zeros(16)
+    dydt = np.zeros(17)
     dydt[0] = -v_cat
     dydt[1] = v_cat - 2.0 * r_caco3
     dydt[2] = 2.0 * r_caco3
@@ -174,6 +205,9 @@ def extended_rhs_numba(
     # Metal chelation
     dydt[15] = v_chel
     
+    # PM trapping
+    dydt[16] = v_pm
+    
     return dydt
 
 
@@ -196,7 +230,7 @@ class ExtendedKineticsEngine:
     def warmup(self) -> None:
         if self._warmed_up:
             return
-        y_dummy = np.zeros(16)
+        y_dummy = np.zeros(17)
         y_dummy[0] = 1.0
         y_dummy[1] = 1.0
         y_dummy[3] = 100.0
@@ -209,9 +243,9 @@ class ExtendedKineticsEngine:
             k_no2_abs=1.0e-2, K_no2_dissociation=10**-1.4,
             k_sulfite_oxidation=1.0e-4,
             k_precip_caco3=1.5e-2, k_precip_caso3=1.0e-2, k_precip_caso4=5.0e-3,
-            Ksp_caco3=3.3e-9, Ksp_caso4=4.93e-5, Ksp_caso3=6.0e-9,
-            k_chel=8.0e-3, free_amine_density=0.05,
-            pm_inlet=25.0, k_pm_cap=0.18,
+            Ksp_caco3=KSP_CACO3, Ksp_caso4=KSP_CASO4, Ksp_caso3=KSP_CASO3,
+            k_chel=8.0e-3, free_amine_density=0.05, metal_inlet=0.5,
+            pm_inlet=25.0, k_pm_cap=0.18, mesh_count=6.0,
             ca_inactivation=5.0e-5, E_a_inact=85.0e3, T_reactor=313.15
         )
         self._warmed_up = True
@@ -236,6 +270,14 @@ class ExtendedKineticsEngine:
         p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
         p_no2 = float(plant.nox_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["NO2"] * 1e6)
 
+        pm_inlet = float(plant.fly_ash_g_per_nm3)
+        metal_inlet = sum(float(m.get("conc_ug_per_nm3", 0.0)) for m in plant.heavy_metal_profile) / 1000.0
+        if metal_inlet <= 0.0:
+            metal_inlet = 0.5
+        if pm_inlet <= 0.0:
+            pm_inlet = 25.0
+        mesh_count = float(conditions.mesh_count)
+
         # Solver parameters
         solver_params = (
             1.0e6,  # k_cat
@@ -249,12 +291,12 @@ class ExtendedKineticsEngine:
             1.5e-2,  # k_precip_caco3
             1.0e-2,  # k_precip_caso3
             5.0e-3,  # k_precip_caso4
-            3.3e-9,  # Ksp_caco3
-            4.93e-5, # Ksp_caso4
-            6.0e-9,  # Ksp_caso3
+            KSP_CACO3,  # Ksp_caco3
+            KSP_CASO4,  # Ksp_caso4
+            KSP_CASO3,  # Ksp_caso3
             8.0e-3,  # k_chel
             0.05,    # free_amine_density
-            25.0,    # pm_inlet
+            pm_inlet,
             0.18,    # k_pm_cap
             5.0e-5,  # ca_inactivation
             85.0e3,  # E_a_inact
@@ -264,6 +306,8 @@ class ExtendedKineticsEngine:
             p_co2,   # p_co2
             p_so2,   # p_so2
             p_no2,   # p_no2
+            metal_inlet,
+            mesh_count,
         )
         
         sol = solve_ivp(
@@ -290,12 +334,14 @@ class ExtendedKineticsEngine:
         # Efficiencies calculation
         co2_in = max(y0[0], 1e-12)
         so2_in = max(y0[5], 1e-12)
-        metal_in = 0.5
-        pm_in = 25.0
+        nox_in = max(y0[11], 1e-12)
+        metal_in = max(metal_inlet, 1e-12)
+        pm_in = max(pm_inlet, 1e-12)
         
         co2_pct = max(0.0, min(100.0, (co2_in - max(y_uniform[0, -1], 0.0)) / co2_in * 100.0))
         so2_pct = max(0.0, min(100.0, (so2_in - max(y_uniform[5, -1], 0.0)) / so2_in * 100.0))
-        pm_pct = 95.0 # Trapping efficiency
+        nox_pct = max(0.0, min(100.0, (nox_in - max(y_uniform[11, -1], 0.0)) / nox_in * 100.0))
+        pm_pct = max(0.0, min(100.0, max(y_uniform[16, -1], 0.0) / pm_in * 100.0))
         metal_pct = max(0.0, min(100.0, max(y_uniform[15, -1], 0.0) / metal_in * 100.0))
         
         diagnostics = {
@@ -319,7 +365,7 @@ class ExtendedKineticsEngine:
                 "caso4_s": float(y_uniform[10, -1]),
                 "ca_active": float(y_uniform[14, -1]),
                 "metal_chelated": float(y_uniform[15, -1]),
-                "pm_trapped": 0.0,
+                "pm_trapped": float(y_uniform[16, -1]),
             },
             time_series={
                 "t": t_uniform,
@@ -330,12 +376,14 @@ class ExtendedKineticsEngine:
                 "so2_aq": y_uniform[5],
                 "caso4_s": y_uniform[10],
                 "ca_active": y_uniform[14],
+                "pm_trapped": y_uniform[16],
             },
             capture_efficiencies={
                 "co2_pct": float(co2_pct),
                 "so2_pct": float(so2_pct),
                 "pm_pct": float(pm_pct),
                 "metal_pct": float(metal_pct),
+                "nox_pct": float(nox_pct),
             },
             diagnostics=diagnostics,
             input_hash=input_hash,
@@ -350,25 +398,31 @@ class ExtendedKineticsEngine:
     ) -> np.ndarray:
         # Henry's law for CO2
         T_K = float(conditions.reactor_temp_c) + 273.15
-        H_co2 = 3.4e-2
+        H_co2 = HENRY_CO2
         p_co2 = float(plant.co2_vol_pct) / 100.0 * 101325.0
         co2_aq_0 = H_co2 * p_co2
         
         # Henry's law for SO2
-        H_so2 = 1.2
+        H_so2 = HENRY_SO2
         p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
         so2_aq_0 = H_so2 * p_so2
+        
+        # Henry's law for NO2
+        H_no2 = HENRY_NO2
+        p_no2 = float(plant.nox_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["NO2"] * 1e6)
+        nox_aq_0 = H_no2 * p_no2
         
         # Calcium concentration from reagent
         ca_wt = float(reagent.ca_wt_pct) / 100.0
         ca_density = 1010.0
         ca_free_0 = ca_wt * ca_density * 1000.0 / MOLAR_MASSES["CaOH2"]
         
-        y0 = np.zeros(16)
+        y0 = np.zeros(17)
         y0[0] = co2_aq_0
         y0[1] = 1.0
         y0[3] = ca_free_0
         y0[5] = so2_aq_0
+        y0[11] = nox_aq_0
         y0[13] = 10**-8.5  # pH 8.5
         y0[14] = float(reagent.enzyme_mg_per_l)
         

@@ -99,7 +99,7 @@ class TestExtendedRHS:
     """Test the extended multi-gas Right Hand Side function."""
 
     def test_extended_rhs_shape(self):
-        y = np.zeros(16)
+        y = np.zeros(17)
         y[0] = 1.0
         y[1] = 1.0
         y[3] = 100.0
@@ -118,4 +118,4 @@ class TestExtendedRHS:
             pm_inlet=25.0, k_pm_cap=0.18,
             ca_inactivation=5.0e-5, E_a_inact=85.0e3, T_reactor=313.15
         )
-        assert len(result) == 16
+        assert len(result) == 17

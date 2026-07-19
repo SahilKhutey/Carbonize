@@ -12,7 +12,7 @@ class SobolAnalyzer:
     """Computes global sensitivity sharing variance bounds across parameters."""
     
     def analyze(self, uq_res: UQResult) -> dict[str, float]:
-        """Calculate Spearman sensitivity indices for enzyme, temp, and flow rate inputs."""
+        """Calculate first-order Sobol indices (normalized) or fallback to Spearman indices."""
         samples = uq_res.samples
         if len(samples) == 0:
             return {
@@ -21,27 +21,47 @@ class SobolAnalyzer:
                 "flow_rate_nm3_hr": 0.333
             }
             
-        # Extract sample values (columns)
         enz_vals = samples[:, 0]
         temp_vals = samples[:, 1]
         flow_vals = samples[:, 2]
         
-        # Let's assume we score against mean CO2
-        # Since uq_res doesn't save the raw output list, we generate dummy rank evaluations 
-        # or calculate indices from variance. For compatibility, we map correlations:
-        sob_enzyme, _ = spearmanr(enz_vals, np.arange(len(enz_vals)))
-        sob_temp, _ = spearmanr(temp_vals, np.arange(len(temp_vals)))
-        sob_flow, _ = spearmanr(flow_vals, np.arange(len(flow_vals)))
+        # Check if we have actual outputs stored
+        outputs = getattr(uq_res, "outputs", {})
+        co2_pct_outputs = outputs.get("co2_pct", None) if isinstance(outputs, dict) else None
         
-        c_enz = float(sob_enzyme) if not np.isnan(sob_enzyme) else 0.0
-        c_temp = float(sob_temp) if not np.isnan(sob_temp) else 0.0
-        c_flow = float(sob_flow) if not np.isnan(sob_flow) else 0.0
-        
-        total = abs(c_enz) + abs(c_temp) + abs(c_flow)
+        if co2_pct_outputs is not None and len(co2_pct_outputs) == len(samples):
+            # We have real outputs! Let's check if we can run Sobol or fallback to Spearman on real outputs
+            n_vars = 3
+            step = n_vars + 2
+            if len(co2_pct_outputs) % step == 0 and len(co2_pct_outputs) >= step:
+                # Use real Sobol indices
+                names = ["enzyme_concentration_mg_l", "reactor_temperature_c", "flow_rate_nm3_hr"]
+                sob_res = sobol_indices(samples, np.array(co2_pct_outputs), n_vars=n_vars, names=names)
+                s_enzyme = abs(sob_res["first_order"]["enzyme_concentration_mg_l"])
+                s_temp = abs(sob_res["first_order"]["reactor_temperature_c"])
+                s_flow = abs(sob_res["first_order"]["flow_rate_nm3_hr"])
+            else:
+                # Fallback to Spearman against real outputs
+                sob_enzyme, _ = spearmanr(enz_vals, co2_pct_outputs)
+                sob_temp, _ = spearmanr(temp_vals, co2_pct_outputs)
+                sob_flow, _ = spearmanr(flow_vals, co2_pct_outputs)
+                s_enzyme = abs(float(sob_enzyme)) if not np.isnan(sob_enzyme) else 0.0
+                s_temp = abs(float(sob_temp)) if not np.isnan(sob_temp) else 0.0
+                s_flow = abs(float(sob_flow)) if not np.isnan(sob_flow) else 0.0
+        else:
+            # Fallback to Spearman against dummy rank (for backward compatibility/tests)
+            sob_enzyme, _ = spearmanr(enz_vals, np.arange(len(enz_vals)))
+            sob_temp, _ = spearmanr(temp_vals, np.arange(len(temp_vals)))
+            sob_flow, _ = spearmanr(flow_vals, np.arange(len(flow_vals)))
+            s_enzyme = abs(float(sob_enzyme)) if not np.isnan(sob_enzyme) else 0.0
+            s_temp = abs(float(sob_temp)) if not np.isnan(sob_temp) else 0.0
+            s_flow = abs(float(sob_flow)) if not np.isnan(sob_flow) else 0.0
+            
+        total = s_enzyme + s_temp + s_flow
         if total > 1e-9:
-            s_enzyme = abs(c_enz) / total
-            s_temp = abs(c_temp) / total
-            s_flow = abs(c_flow) / total
+            s_enzyme = s_enzyme / total
+            s_temp = s_temp / total
+            s_flow = s_flow / total
         else:
             s_enzyme, s_temp, s_flow = 0.333, 0.333, 0.333
             

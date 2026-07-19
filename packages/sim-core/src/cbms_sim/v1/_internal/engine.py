@@ -14,7 +14,7 @@ from cbms_sim.domain.models.reagent import ReagentFormulation as DomainReagent, 
 from cbms_sim.domain.models.conditions import OperatingConditions as DomainConditions
 
 # Import domain engines
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsEngine as KineticsEngine
 from cbms_sim.domain.mass_balance.engine import MassBalanceEngine
 from cbms_sim.domain.block.strength import BlockStrengthPredictor
 from cbms_sim.domain.economic.engine import EconomicEngine
@@ -138,12 +138,35 @@ class InternalSimulationEngine:
             ])
             
             from scipy.stats import qmc
-            sampler = qmc.LatinHypercube(d=3, seed=seed)
-            points = sampler.random(n=n_samples)
-            scaled_samples = qmc.scale(points, bounds_lower, bounds_upper)
+            if sim_type in ["sobol", "full"]:
+                D = 3
+                step = D + 2
+                N = max(10, n_samples // step)
+                sampler = qmc.LatinHypercube(d=D, seed=seed)
+                points = sampler.random(n=2 * N)
+                points_A = points[:N, :]
+                points_B = points[N:, :]
+                
+                scaled_A = qmc.scale(points_A, bounds_lower, bounds_upper)
+                scaled_B = qmc.scale(points_B, bounds_lower, bounds_upper)
+                
+                scaled_samples = []
+                for j in range(N):
+                    scaled_samples.append(scaled_A[j])
+                    for i in range(D):
+                        ab_row = np.copy(scaled_A[j])
+                        ab_row[i] = scaled_B[j][i]
+                        scaled_samples.append(ab_row)
+                    scaled_samples.append(scaled_B[j])
+                scaled_samples = np.array(scaled_samples)
+            else:
+                sampler = qmc.LatinHypercube(d=3, seed=seed)
+                points = sampler.random(n=n_samples)
+                scaled_samples = qmc.scale(points, bounds_lower, bounds_upper)
             
             co2_effs = []
             so2_effs = []
+            nox_effs = []
             npvs = []
             paybacks = []
             strengths = []
@@ -188,18 +211,31 @@ class InternalSimulationEngine:
                 
                 try:
                     k_s = self.kinetics_engine.solve(p_sample, r_sample, c_sample, float(c_sample.residence_time_s))
-                    co2_effs.append(k_s.capture_efficiencies.get("co2_pct", 0.0))
-                    so2_effs.append(k_s.capture_efficiencies.get("so2_pct", 0.0))
+                    co2_eff = k_s.capture_efficiencies.get("co2_pct", 0.0)
+                    so2_eff = k_s.capture_efficiencies.get("so2_pct", 0.0)
+                    nox_eff = k_s.capture_efficiencies.get("nox_pct", 0.0)
                     
                     mb_s = self.mb_engine.compute(k_s, p_sample, r_sample)
                     bp_s = self.block_predictor.predict(mb_s, c_sample)
                     ec_s = self.eco_engine.compute(mb_s, bp_s["compressive_strength_mpa"], p_sample.operating_hours_per_year)
-                    npvs.append(ec_s["npv_10yr_inr"])
-                    paybacks.append(ec_s["payback_months"])
-                    strengths.append(bp_s["compressive_strength_mpa"])
-                except Exception:
-                    # Ignore failing UQ points to maintain stability
-                    continue
+                    npv_val = ec_s["npv_10yr_inr"]
+                    payback_val = ec_s["payback_months"]
+                    strength_val = bp_s["compressive_strength_mpa"]
+                except Exception as e:
+                    co2_eff = 0.0
+                    so2_eff = 0.0
+                    nox_eff = 0.0
+                    npv_val = 0.0
+                    payback_val = 999.0
+                    strength_val = 0.0
+                    logger.warning(f"UQ sample calculation failed: {e}")
+                
+                co2_effs.append(co2_eff)
+                so2_effs.append(so2_eff)
+                nox_effs.append(nox_eff)
+                npvs.append(npv_val)
+                paybacks.append(payback_val)
+                strengths.append(strength_val)
             
             if co2_effs:
                 out["capture_distribution"] = self._make_dist_stats(co2_effs, n_samples)
@@ -207,15 +243,33 @@ class InternalSimulationEngine:
                 out["payback_distribution"] = self._make_dist_stats(paybacks, n_samples)
                 out["so2_distribution"] = self._make_dist_stats(so2_effs, n_samples)
                 out["strength_distribution"] = self._make_dist_stats(strengths, n_samples)
-
+                out["nox_distribution"] = self._make_dist_stats(nox_effs, n_samples)
+                
             if sim_type in ["sobol", "full"] and len(co2_effs) > 0:
-                sobol_res = self._compute_spearman_sensitivity(scaled_samples, co2_effs)
-                sobol_npv = self._compute_spearman_sensitivity(scaled_samples, npvs)
-                sobol_strength = self._compute_spearman_sensitivity(scaled_samples, strengths)
+                from cbms_sim.domain.uq.sobol import sobol_indices
+                names = ["enzyme_concentration_mg_l", "reactor_temperature_c", "flow_rate_nm3_hr"]
+                
+                D = 3
+                step = D + 2
+                valid_len = (len(co2_effs) // step) * step
+                if valid_len >= step:
+                    so_co2 = sobol_indices(scaled_samples[:valid_len], np.array(co2_effs[:valid_len]), n_vars=D, names=names)
+                    so_npv = sobol_indices(scaled_samples[:valid_len], np.array(npvs[:valid_len]), n_vars=D, names=names)
+                    so_str = sobol_indices(scaled_samples[:valid_len], np.array(strengths[:valid_len]), n_vars=D, names=names)
+                    
+                    sobol_res = so_co2["first_order"]
+                    sobol_res_total = so_co2["total_order"]
+                    sobol_npv = so_npv["first_order"]
+                    sobol_strength = so_str["first_order"]
+                else:
+                    sobol_res = self._compute_spearman_sensitivity(scaled_samples, co2_effs)
+                    sobol_res_total = sobol_res
+                    sobol_npv = self._compute_spearman_sensitivity(scaled_samples, npvs)
+                    sobol_strength = self._compute_spearman_sensitivity(scaled_samples, strengths)
                 
                 out["sensitivity"] = {
                     "first_order": sobol_res,
-                    "total_order": sobol_res,
+                    "total_order": sobol_res_total,
                     "npv_first_order": sobol_npv,
                     "block_strength_first_order": sobol_strength,
                     "critical_experiments": [
@@ -224,7 +278,7 @@ class InternalSimulationEngine:
                         {"parameter": "flow_rate_nm3_hr", "rank": 3}
                     ],
                     "n_base_samples": n_samples,
-                    "method": "Spearman"
+                    "method": "Saltelli" if valid_len >= step else "Spearman"
                 }
 
         return out

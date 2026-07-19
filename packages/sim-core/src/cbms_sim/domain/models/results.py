@@ -42,6 +42,7 @@ class UQResult:
     statistics: dict[str, dict[str, float]] = field(default_factory=dict)
     diagnostics: dict[str, Any] = field(default_factory=dict)
     computation_time_s: float = 0.0
+    outputs: dict[str, np.ndarray] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)

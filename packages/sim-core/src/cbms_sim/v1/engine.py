@@ -183,6 +183,7 @@ class SimulationEngine:
                 so2_pct=k.capture_efficiencies.get("so2_pct", 0.0),
                 pm_pct=k.capture_efficiencies.get("pm_pct", 0.0),
                 metal_pct=k.capture_efficiencies.get("metal_pct", 0.0),
+                nox_pct=k.capture_efficiencies.get("nox_pct", None),
                 confidence="MEDIUM"
             ),
             time_s=list(k.time_series["t"]),
@@ -248,13 +249,17 @@ class SimulationEngine:
         )
         
         # Compliance Flags
+        pm_outlet = (mb.fly_ash_input_kg_hr * (1.0 - kinetics_out.capture.pm_pct / 100.0)) * 1e6 / float(request.plant.exhaust_flow_nm3_hr) if request.plant.exhaust_flow_nm3_hr > 0 else 0.0
+        from cbms_shared.constants import CPCB_PM_LIMIT_MG_PER_NM3
+        cpcb_pm_ok = pm_outlet <= CPCB_PM_LIMIT_MG_PER_NM3
+        
         compliance_out = ComplianceFlags(
             cpcb_so2_compliant=mb.cpcb_so2_compliant,
-            cpcb_pm_compliant=True,
+            cpcb_pm_compliant=cpcb_pm_ok,
             ccts_eligible=True,
             is_grade_acceptable=bp["is_grade"] != "SUBSTANDARD",
             so2_outlet_mg_per_nm3=mb.so2_outlet_mg_per_nm3,
-            pm_outlet_mg_per_nm3=0.0
+            pm_outlet_mg_per_nm3=pm_outlet
         )
         
         # Distributions if MC run
@@ -263,12 +268,15 @@ class SimulationEngine:
         mc_pay_dist = None
         mc_so2_dist = None
         mc_strength_dist = None
+        mc_nox_dist = None
         if "capture_distribution" in internal_res:
             mc_cap_dist = DistributionStats(**internal_res["capture_distribution"])
             mc_npv_dist = DistributionStats(**internal_res["npv_distribution"])
             mc_pay_dist = DistributionStats(**internal_res["payback_distribution"])
             mc_so2_dist = DistributionStats(**internal_res["so2_distribution"])
             mc_strength_dist = DistributionStats(**internal_res["strength_distribution"])
+            if "nox_distribution" in internal_res:
+                mc_nox_dist = DistributionStats(**internal_res["nox_distribution"])
             
         # Sobol sensitivity
         sens_out = None
@@ -299,6 +307,7 @@ class SimulationEngine:
             payback_distribution=mc_pay_dist,
             so2_distribution=mc_so2_dist,
             strength_distribution=mc_strength_dist,
+            nox_distribution=mc_nox_dist,
             started_at=started_at,
             completed_at=completed_at,
             total_wall_clock_s=wall_clock,

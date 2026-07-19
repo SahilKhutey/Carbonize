@@ -33,8 +33,11 @@ class BlockStrengthPredictor:
         press = float(conditions.press_force_bar)
         cure_h = float(conditions.curing_time_h)
         
-        # Empirical strength formula
-        strength = 15.0 * (1.0 + 1.2 * ash_frac) * np.log10(press / 10.0) * (chitosan_frac / 0.03) * (cure_h / 24.0)
+        # Grounded empirical strength formula with curing saturation & non-degenerate pressure scaling
+        curing_factor = 1.0 - np.exp(-cure_h / 24.0)
+        pressure_factor = np.log10(press / 10.0 + 1.0)
+        
+        strength = 20.0 * (1.0 + 1.2 * ash_frac) * pressure_factor * (chitosan_frac / 0.03) * curing_factor
         strength = max(1.0, min(strength, 60.0))
         
         # Assign Grade

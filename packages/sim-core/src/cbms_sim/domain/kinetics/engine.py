@@ -19,7 +19,7 @@ from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation
 from cbms_sim.domain.models.conditions import OperatingConditions
 from cbms_sim.domain.models.results import KineticsResult
-from cbms_shared.constants import MOLAR_MASSES, MOLAR_VOLUME_STP
+from cbms_shared.constants import MOLAR_MASSES, MOLAR_VOLUME_STP, HENRY_CO2, HENRY_SO2
 from cbms_shared.exceptions import NumericalDivergenceError
 from cbms_shared.logging import get_logger
 
@@ -98,6 +98,18 @@ class KineticsEngine:
         # Compute p_so2
         p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
 
+        # Extract inputs for PM and heavy metals
+        pm_inlet = float(plant.fly_ash_g_per_nm3)
+        metal_inlet = sum(float(m.get("conc_ug_per_nm3", 0.0)) for m in plant.heavy_metal_profile) / 1000.0  # ug/Nm3 to mg/Nm3
+        # If metal_inlet is 0 (profile is empty), default to 0.5 for backward compatibility
+        if metal_inlet <= 0.0:
+            metal_inlet = 0.5
+        # If pm_inlet is 0, default to 25.0 for backward compatibility
+        if pm_inlet <= 0.0:
+            pm_inlet = 25.0
+            
+        mesh_count = float(conditions.mesh_count)
+
         # Configure solver
         solver_params = (
             1.0e6,  # k_cat
@@ -110,6 +122,9 @@ class KineticsEngine:
             float(conditions.pH_initial),
             float(conditions.reactor_temp_c) + 273.15,  # T_reactor in K
             p_so2,  # p_so2 in Pa
+            pm_inlet,
+            metal_inlet,
+            mesh_count,
         )
         
         # Solve ODE
@@ -136,7 +151,7 @@ class KineticsEngine:
         y_uniform = sol.sol(t_uniform)
         
         # Compute capture efficiencies
-        efficiencies = compute_capture_efficiencies(y0, y_uniform[:, -1])
+        efficiencies = compute_capture_efficiencies(y0, y_uniform[:, -1], pm_inlet=pm_inlet, metal_inlet=metal_inlet)
         
         # Diagnostics
         diagnostics = {
@@ -208,12 +223,12 @@ class KineticsEngine:
         """Compute initial state vector from gas/liquid equilibrium."""
         # Henry's law for CO2
         T_K = float(conditions.reactor_temp_c) + 273.15
-        H_co2 = 3.4e-2  # mol/(m³·Pa) at 25°C
+        H_co2 = HENRY_CO2
         p_co2 = float(plant.co2_vol_pct) / 100.0 * 101325.0
         co2_aq_0 = H_co2 * p_co2
         
         # Henry's law for SO2
-        H_so2 = 1.2  # mol/(m³·Pa)
+        H_so2 = HENRY_SO2
         p_so2 = float(plant.so2_mg_per_nm3) * 101325.0 / (MOLAR_MASSES["SO2"] * 1e6)
         so2_aq_0 = H_so2 * p_so2
         
@@ -242,5 +257,6 @@ def solve_kinetics(
     residence_time_s: float = 27.0,
 ) -> KineticsResult:
     """Convenience function for one-shot kinetics solve."""
-    engine = KineticsEngine()
+    from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsEngine
+    engine = ExtendedKineticsEngine()
     return engine.solve(plant, reagent, conditions, residence_time_s)

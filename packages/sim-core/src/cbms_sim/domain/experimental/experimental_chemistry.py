@@ -5,6 +5,21 @@ Supports:
   - NOx absorption & Calcium Nitrate fertilizer conversion
   - Magnesium carbonate substitution
   - Crosslinked chitosan matrix thermal deactivation protection
+
+State Vector Units and Index Mapping (13 Species):
+- y[0]: CO2_aq (mol/m³) - Dissolved carbon dioxide
+- y[1]: HCO3 (mol/m³) - Bicarbonate ions
+- y[2]: Ca2 (mol/m³) - Free calcium ions
+- y[3]: CaCO3_s (mol/m³) - Calcium carbonate solid (calcite)
+- y[4]: SO2_aq (mol/m³) - Dissolved sulfur dioxide
+- y[5]: CaSO4_s (mol/m³) - Calcium sulfate solid (gypsum)
+- y[6]: CA_active (mg/L) - Active Carbonic Anhydrase enzyme
+- y[7]: Metal_chel (mol/m³) - Chelated heavy metals
+- y[8]: PM_trapped (g/m³) - Trapped particulate matter
+- y[9]: NOx_aq (mol/m³) - Dissolved NOx
+- y[10]: CaNO3_s (mol/m³) - Calcium nitrate solid (fertilizer)
+- y[11]: Mg2 (mol/m³) - Free magnesium ions
+- y[12]: MgCO3_s (mol/m³) - Magnesium carbonate solid
 """
 
 import numpy as np
@@ -12,6 +27,7 @@ from numba import njit
 from scipy.integrate import solve_ivp
 from typing import Dict
 from .config import CONFIG, R_GAS, STD_PRESSURE, MOLAR
+from cbms_shared.constants import HENRY_CO2, HENRY_SO2, HENRY_NO2, KSP_CACO3, KSP_CASO4
 
 
 @njit(cache=True, fastmath=True)
@@ -61,11 +77,11 @@ def reaction_rhs_experimental(
     dHCO3_dt = v_cat
 
     # 3) Calcium & Magnesium Carbonate Precipitation
-    K_sp_caco3 = 3.3e-9
+    K_sp_caco3 = KSP_CACO3
     supersat_ca = (ca_free * hco3) / K_sp_caco3
     rate_caco3 = 1.5e-2 * ca_free * hco3 * (1.0 - 1.0 / supersat_ca) if supersat_ca > 1.0 else 0.0
 
-    K_sp_mgco3 = 1.0e-5
+    K_sp_mgco3 = 10.0
     supersat_mg = (mg_free * hco3) / K_sp_mgco3
     rate_mgco3 = 1.0e-2 * mg_free * hco3 * (1.0 - 1.0 / supersat_mg) if supersat_mg > 1.0 else 0.0
 
@@ -74,12 +90,13 @@ def reaction_rhs_experimental(
     dMg_dt = -rate_mgco3
     dMgCO3_dt = rate_mgco3
 
-    # 4) SO2 absorption and gypsum precipitation
-    H_so2 = 1.2
+    # 4) SO2 absorption and gypsum precipitation (smoothed)
+    H_so2 = HENRY_SO2
     dSO2_dt = k_so2 * (H_so2 * p_so2 - so2_aq)
     
-    K_sp_caso4 = 4.93e-5
-    rate_caso4 = 5.0e-3 * ca_free * so2_aq if (ca_free * so2_aq) > K_sp_caso4 else 0.0
+    K_sp_caso4 = KSP_CASO4
+    supersat_caso4 = (ca_free * so2_aq) / K_sp_caso4
+    rate_caso4 = 5.0e-3 * ca_free * so2_aq * (1.0 - 1.0 / supersat_caso4) if supersat_caso4 > 1.0 else 0.0
     dSO2_dt -= rate_caso4
     dCa_dt -= rate_caso4
     dCaSO4_dt = rate_caso4
@@ -96,7 +113,7 @@ def reaction_rhs_experimental(
     dPM_dt = k_pm_cap * pm_inlet * ca_active / 12.0
 
     # 7) NOx Absorption & Calcium Nitrate Fertilizer Precipitation
-    H_nox = 1.0e-2
+    H_nox = HENRY_NO2
     dNOx_dt = k_nox * (H_nox * p_nox - nox_aq)
     
     rate_canitrate = 4.0e-3 * ca_free * (nox_aq ** 2)
@@ -161,9 +178,9 @@ class ExperimentalBiomineralizationSolver:
         self.ca_mol_m3 = total_cation_mol_m3 * (1.0 - mg_substitution_ratio)
         self.mg_mol_m3 = total_cation_mol_m3 * mg_substitution_ratio
 
-        H_co2 = 3.4e-2
-        H_so2 = 1.2
-        H_nox = 1.0e-2
+        H_co2 = HENRY_CO2
+        H_so2 = HENRY_SO2
+        H_nox = HENRY_NO2
 
         self.y0 = np.array([
             H_co2 * self.p_co2,

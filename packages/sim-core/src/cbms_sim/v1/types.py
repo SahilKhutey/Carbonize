@@ -274,6 +274,7 @@ class CaptureEfficiency(BaseModel):
     so2_pct: float = Field(..., ge=0, le=100, description="SO₂ capture (%)")
     pm_pct: float = Field(..., ge=0, le=100, description="PM capture (%)")
     metal_pct: float = Field(..., ge=0, le=100, description="Heavy metal capture (%)")
+    nox_pct: Optional[float] = Field(default=None, ge=0, le=100, description="NOₓ capture (%)")
     
     # Units
     units: str = Field(default="percent", frozen=True)
@@ -474,6 +475,7 @@ class SimulationResult(BaseModel):
     payback_distribution: Optional[DistributionStats] = None
     so2_distribution: Optional[DistributionStats] = None
     strength_distribution: Optional[DistributionStats] = None
+    nox_distribution: Optional[DistributionStats] = None
     
     # Metadata
     started_at: Optional[datetime] = None

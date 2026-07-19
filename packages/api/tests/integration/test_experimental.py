@@ -4,9 +4,12 @@ from uuid import uuid4
 from cbms_api.api.main import app
 from cbms_api.api.dependencies import get_active_tenant_id
 
-# Override tenant dependency to return a dummy UUID so we bypass auth database checks
-dummy_org_id = uuid4()
-app.dependency_overrides[get_active_tenant_id] = lambda: dummy_org_id
+@pytest.fixture(autouse=True)
+def override_tenant():
+    dummy_org_id = uuid4()
+    app.dependency_overrides[get_active_tenant_id] = lambda: dummy_org_id
+    yield
+    app.dependency_overrides.pop(get_active_tenant_id, None)
 
 
 @pytest.mark.anyio

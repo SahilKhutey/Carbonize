@@ -6,7 +6,7 @@ Implements Latin Hypercube Sampling (LHS) and parallel forward uncertainty evalu
 from typing import Dict, Any, List
 import numpy as np
 from scipy.stats import qmc
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsEngine as KineticsEngine
 from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation
 from cbms_sim.domain.models.conditions import OperatingConditions
@@ -100,7 +100,8 @@ class MonteCarloEngine:
         return UQResult(
             samples=scaled_samples,
             statistics=statistics,
-            diagnostics={"n_samples": self.n_samples}
+            diagnostics={"n_samples": self.n_samples},
+            outputs={"co2_pct": co2_arr, "so2_pct": so2_arr}
         )
 
     def generate_samples(self, specs: Dict[str, Dict[str, Any]]) -> List[Dict[str, float]]:
