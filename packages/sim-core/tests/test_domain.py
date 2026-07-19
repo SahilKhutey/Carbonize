@@ -29,8 +29,8 @@ def test_restructured_domain_solve():
     
     # 1. Kinetics
     kin_res = solve_kinetics(plant, reagent, conditions)
-    assert kin_res.capture_efficiencies["co2_pct"] > 0.0
-    assert kin_res.capture_efficiencies["so2_pct"] >= 0.0
+    assert 95.0 < kin_res.capture_efficiencies["co2_pct"] <= 100.0
+    assert 10.0 < kin_res.capture_efficiencies["so2_pct"] < 30.0
     
     # 2. Mass Balance
     mb_engine = MassBalanceEngine()

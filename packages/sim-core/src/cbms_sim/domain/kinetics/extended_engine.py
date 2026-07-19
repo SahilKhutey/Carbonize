@@ -69,6 +69,7 @@ def extended_rhs_numba(
     R_gas=8.314, T_ref=313.15,
     p_co2=14000.0, p_so2=50.0, p_no2=20.0,  # Pa
     metal_inlet=0.5, mesh_count=6.0,
+    liquid_to_gas_ratio=8.5,
 ):
     """
     Right-hand side for extended multi-species kinetics ODE.
@@ -102,12 +103,6 @@ def extended_rhs_numba(
     Metal_chel = y_safe[15]
     PM_trapped = y_safe[16]
     
-    # Carbonate equilibrium (fast)
-    CO3 = 10**-10.33 * HCO3 / H_plus
-    
-    # Sulfite equilibrium
-    SO3 = 10**-7.2 * HSO3 / H_plus
-    
     # pH effect on CA activity
     pH = -np.log10(H_plus)
     if pH < 7.0:
@@ -133,6 +128,21 @@ def extended_rhs_numba(
     v_no2_abs = k_no2_abs * (NO2_eq - NO2_aq)
     if v_no2_abs < 0.0:
         v_no2_abs = 0.0
+    
+    # Fast protonation/dissociation reactions (modeled kinetics-style)
+    k_fast = 100.0  # Fast rate constant
+    
+    # 1) Carbonate dissociation: HCO3- <-> CO3(2-) + H+ (pKa2 = 10.33)
+    v_carb_diss = k_fast * (HCO3 - H_plus * CO3 / 10**-10.33)
+    
+    # 2) Sulfite dissociation: HSO3- <-> SO3(2-) + H+ (pKa2 = 7.2)
+    v_sulf_diss = k_fast * (HSO3 - H_plus * SO3 / 10**-7.2)
+    
+    # 3) SO2 dissociation: SO2_aq <-> HSO3- + H+
+    v_so2_diss = k_fast * (SO2_aq - H_plus * HSO3 / K_so2_dissociation)
+    
+    # 4) NO2 dissociation: NO2_aq <-> NO3- + H+
+    v_no2_diss = k_fast * (NO2_aq - H_plus * NO3 / K_no2_dissociation)
     
     # Sulfite -> sulfate oxidation
     v_sulfite_ox = k_sulfite_oxidation * SO3 * 21.0
@@ -161,10 +171,17 @@ def extended_rhs_numba(
     # Total Ca²⁺ consumption
     r_ca_total = r_caco3 + r_caso3 + r_caso4
     
-    # Heavy metal chelation (saturable depleting form)
+    # Heavy metal chelation (unit-consistent)
+    # metal_inlet is in mg/Nm3 of gas
+    # liquid_to_gas_ratio is in L/Nm3
+    # Molar mass of heavy metal is ~200.0 g/mol
+    # Convert mg/Nm3 gas to mol/m3 liquid:
+    metal_liq_total = metal_inlet / (liquid_to_gas_ratio * 200.0)
+    Metal_free = max(0.0, metal_liq_total - Metal_chel)
+    
     pH_chel_factor = 1.0 / (1.0 + np.exp(-(pH - 5.5) * 3.0))
     co2_competition = 1.0 / (1.0 + 0.1 * CO2_aq)
-    v_chel = k_chel * max(0.0, free_amine_density - Metal_chel) * metal_inlet * pH_chel_factor * co2_competition
+    v_chel = k_chel * max(0.0, free_amine_density - Metal_chel) * Metal_free * pH_chel_factor * co2_competition
     
     # Enzyme deactivation
     k_inact_T = ca_inactivation * np.exp(
@@ -181,23 +198,27 @@ def extended_rhs_numba(
     # ODE outputs
     dydt = np.zeros(17)
     dydt[0] = -v_cat
-    dydt[1] = v_cat - 2.0 * r_caco3
-    dydt[2] = 2.0 * r_caco3
+    dydt[1] = v_cat - v_carb_diss
+    dydt[2] = v_carb_diss - r_caco3
     dydt[3] = -r_ca_total
     dydt[4] = r_caco3
-    dydt[5] = -v_so2_abs
-    dydt[6] = v_so2_abs
-    dydt[7] = -v_sulfite_ox
-    dydt[8] = v_sulfite_ox
+    dydt[5] = v_so2_abs - v_so2_diss
+    dydt[6] = v_so2_diss - v_sulf_diss
+    dydt[7] = v_sulf_diss - v_sulfite_ox - r_caso3
+    dydt[8] = v_sulfite_ox - r_caso4
     dydt[9] = r_caso3
     dydt[10] = r_caso4
-    dydt[11] = -v_no2_abs
-    dydt[12] = v_no2_abs
+    dydt[11] = v_no2_abs - v_no2_diss
+    dydt[12] = v_no2_diss
     
-    # pH tracking
-    H_production = v_cat + v_so2_abs + v_no2_abs
+    # Buffered pH tracking:
+    # d[H+]/dt = H_plus * ln(10) / beta * (H_production - H_consumption)
+    # where beta is the buffer capacity in mol/m³ (mM).
+    # Default buffer capacity: 50.0 mM (mol/m³)
+    beta = 50.0
+    H_production = v_cat + v_so2_diss + v_no2_diss
     H_consumption = 2.0 * r_caco3 + 2.0 * r_caso3
-    dydt[13] = (H_production - H_consumption) / 1000.0
+    dydt[13] = H_plus * np.log(10) / beta * (H_production - H_consumption)
     
     # CA inactivation
     dydt[14] = -k_inact_T * CA_active - pH_denat * CA_active
@@ -278,6 +299,20 @@ class ExtendedKineticsEngine:
             pm_inlet = 25.0
         mesh_count = float(conditions.mesh_count)
 
+        # Derive free amine density (mol/m3 of liquid) from chitosan wt% and density
+        # chitosan_wt is fractional weight of chitosan in slurry
+        chitosan_wt = float(reagent.chitosan_wt_pct) / 100.0
+        # Slurry density is assumed to be 1010 g/L (kg/m3)
+        chitosan_conc_g_l = chitosan_wt * 1010.0
+        # Glucosamine repeating unit (M = 161.16 g/mol) N-acetylglucosamine (M = 203.19 g/mol)
+        # Assuming Degree of Deacetylation (DDA) is 85% (0.85)
+        # Average molar mass of repeating unit: M_unit = 0.85 * 161.16 + 0.15 * 203.19 = 167.46 g/mol
+        # Amine site density: 0.85 / 167.46 = 5.08 mmol/g of chitosan.
+        # free_amine_density (mol/m3) = chitosan_conc_g_l * 5.08 mmol/g = chitosan_conc_g_l * (0.85 / 167.46) * 1000.0
+        free_amine_density = chitosan_conc_g_l * (0.85 / 167.46) * 1000.0
+
+        liquid_to_gas_ratio = float(conditions.liquid_to_gas_ratio)
+
         # Solver parameters
         solver_params = (
             1.0e6,  # k_cat
@@ -295,7 +330,7 @@ class ExtendedKineticsEngine:
             KSP_CASO4,  # Ksp_caso4
             KSP_CASO3,  # Ksp_caso3
             8.0e-3,  # k_chel
-            0.05,    # free_amine_density
+            free_amine_density,  # free_amine_density (mol/m3)
             pm_inlet,
             0.18,    # k_pm_cap
             5.0e-5,  # ca_inactivation
@@ -308,6 +343,7 @@ class ExtendedKineticsEngine:
             p_no2,   # p_no2
             metal_inlet,
             mesh_count,
+            liquid_to_gas_ratio,
         )
         
         sol = solve_ivp(
@@ -335,7 +371,9 @@ class ExtendedKineticsEngine:
         co2_in = max(y0[0], 1e-12)
         so2_in = max(y0[5], 1e-12)
         nox_in = max(y0[11], 1e-12)
-        metal_in = max(metal_inlet, 1e-12)
+        # Convert metal inlet (mg/Nm3) to liquid molar loading (mol/m3)
+        metal_liq_total = metal_inlet / (liquid_to_gas_ratio * 200.0)
+        metal_in = max(metal_liq_total, 1e-12)
         pm_in = max(pm_inlet, 1e-12)
         
         co2_pct = max(0.0, min(100.0, (co2_in - max(y_uniform[0, -1], 0.0)) / co2_in * 100.0))

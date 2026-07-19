@@ -46,9 +46,29 @@ class MonteCarloEngine:
             min(20000.0, flow * 1.2)
         ])
         
-        sampler = qmc.LatinHypercube(d=3, seed=self.seed)
-        points = sampler.random(n=self.n_samples)
-        scaled_samples = qmc.scale(points, bounds_lower, bounds_upper)
+        # Saltelli design for Sobol sensitivity analysis
+        n_vars = 3
+        step = n_vars + 2
+        N = max(1, self.n_samples // step)
+        
+        sampler = qmc.LatinHypercube(d=n_vars, seed=self.seed)
+        points_A = sampler.random(n=N)
+        sampler_B = qmc.LatinHypercube(d=n_vars, seed=self.seed + 1)
+        points_B = sampler_B.random(n=N)
+        
+        scaled_A = qmc.scale(points_A, bounds_lower, bounds_upper)
+        scaled_B = qmc.scale(points_B, bounds_lower, bounds_upper)
+        
+        scaled_samples = []
+        for j in range(N):
+            scaled_samples.append(scaled_A[j])
+            for i in range(n_vars):
+                row_ab = np.copy(scaled_A[j])
+                row_ab[i] = scaled_B[j][i]
+                scaled_samples.append(row_ab)
+            scaled_samples.append(scaled_B[j])
+            
+        scaled_samples = np.array(scaled_samples)
         
         co2_effs = []
         so2_effs = []
@@ -100,7 +120,7 @@ class MonteCarloEngine:
         return UQResult(
             samples=scaled_samples,
             statistics=statistics,
-            diagnostics={"n_samples": self.n_samples},
+            diagnostics={"n_samples": len(scaled_samples)},
             outputs={"co2_pct": co2_arr, "so2_pct": so2_arr}
         )
 

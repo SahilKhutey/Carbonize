@@ -86,12 +86,15 @@ def sobol_indices(
     step = 2 * n_vars + 2 if calc_second_order else n_vars + 2
     N = len(Y) // step
     
+    if names is None:
+        names = [f"x{i+1}" for i in range(n_vars)]
+        
     # Normalize the model output as SALib does
     Y_std = Y.std()
     if Y_std < 1e-12:
         # Avoid divide-by-zero for constant models
-        first_order = {f"x{i+1}": 0.0 for i in range(n_vars)}
-        total_order = {f"x{i+1}": 0.0 for i in range(n_vars)}
+        first_order = {names[i]: 0.0 for i in range(n_vars)}
+        total_order = {names[i]: 0.0 for i in range(n_vars)}
         return {"first_order": first_order, "total_order": total_order}
         
     Y_norm = (Y - Y.mean()) / Y_std
