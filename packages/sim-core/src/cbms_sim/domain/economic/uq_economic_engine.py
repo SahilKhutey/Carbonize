@@ -8,7 +8,7 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Optional
 
-from cbms_sim.domain.kinetics.engine import KineticsResult
+from cbms_sim.domain.kinetics import KineticsResult
 from cbms_sim.domain.mass_balance.engine import MassBalanceResult
 from cbms_sim.domain.economic.engine import EconomicEngine
 

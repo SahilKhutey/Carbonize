@@ -10,7 +10,7 @@ import time
 from scipy.integrate import solve_ivp
 
 from cbms_sim.domain.kinetics.kernels import reaction_rhs_numba
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import KineticsEngine
 from cbms_sim.v1.types import (
     PlantProfile, ReagentFormulation, OperatingConditions,
     BoilerType, CalciumSourceType

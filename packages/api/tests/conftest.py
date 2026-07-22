@@ -4,6 +4,16 @@ import database.connection as conn_mod_alt
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.pool import StaticPool
 
+import sqlite3
+import datetime
+
+# Register explicit sqlite3 adapters and converters for Python 3.12+ compatibility
+sqlite3.register_adapter(datetime.date, lambda val: val.isoformat())
+sqlite3.register_adapter(datetime.datetime, lambda val: val.isoformat())
+sqlite3.register_converter("date", lambda val: datetime.date.fromisoformat(val.decode()))
+sqlite3.register_converter("timestamp", lambda val: datetime.datetime.fromisoformat(val.decode()))
+sqlite3.register_converter("datetime", lambda val: datetime.datetime.fromisoformat(val.decode()))
+
 # Initialize a shared SQLite file-based engine to prevent ASGI transport deadlocks under concurrent load
 sqlite_test_engine = create_async_engine(
     "sqlite+aiosqlite:///test_test.db",

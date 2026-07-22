@@ -164,6 +164,7 @@ async def create_tenant_with_data(
     await session.commit()
     
     resource_ids = {
+        "org": org.id,
         "plant": plant.id,
         "simulation": sim_run.id,
         "result": sim_result.id,

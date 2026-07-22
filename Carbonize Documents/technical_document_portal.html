@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMBSG Technical Engineering Manual Portal</title>
+    
+    <!-- Tailwind CSS v3 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- KaTeX for Beautiful Math Formula Compilation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMath()"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Smooth Scroll behavior on screen */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Standard Page breaks for clean layout printing */
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        /* Ink-Friendly and Contrast CSS Overrides for Browser Printing */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                font-family: 'Inter', sans-serif !important;
+                font-size: 11pt !important;
+                line-height: 1.5 !important;
+            }
+
+            /* Strip sidebar and interactive screen UI components */
+            .print\:hidden, aside, .sticky, button, nav, #header-control {
+                display: none !important;
+            }
+
+            main {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Turn cards and sections into clear high-contrast print blocks */
+            .bg-slate-900, .bg-slate-950, .bg-slate-800, .bg-emerald-500\/10 {
+                background-color: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #0f172a !important;
+            }
+
+            .border-slate-800, .border-slate-700 {
+                border-color: #94a3b8 !important;
+            }
+
+            h1, h2, h3, h4, h5, h6 {
+                color: #000000 !important;
+                page-break-after: avoid;
+            }
+
+            p, li, span, td, th {
+                color: #1e293b !important;
+            }
+
+            pre, code {
+                background-color: #f1f5f9 !important;
+                color: #000000 !important;
+                border: 1px solid #cbd5e1 !important;
+                font-size: 9pt !important;
+            }
+
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+
+            th, td {
+                border: 1px solid #94a3b8 !important;
+                padding: 6px !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+            }
+
+            /* Force KaTeX displays to scale within print boundaries */
+            .katex-display {
+                margin: 0.8em 0 !important;
+                overflow-x: auto !important;
+            }
+
+            .katex {
+                color: #000000 !important;
+            }
+        }
+
+        /* Screen Print-Preview Toggle Styling */
+        .print-preview-active {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+
+        .print-preview-active .bg-slate-900,
+        .print-preview-active .bg-slate-950,
+        .print-preview-active .bg-slate-800,
+        .print-preview-active .bg-slate-900\/50 {
+            background-color: #f8fafc !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        .print-preview-active h1,
+        .print-preview-active h2,
+        .print-preview-active h3,
+        .print-preview-active h4 {
+            color: #000000 !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        .print-preview-active p,
+        .print-preview-active li,
+        .print-preview-active span,
+        .print-preview-active td,
+        .print-preview-active th {
+            color: #1e293b !important;
+        }
+
+        .print-preview-active .text-emerald-400,
+        .print-preview-active .text-emerald-300 {
+            color: #047857 !important;
+        }
+
+        .print-preview-active .text-sky-400,
+        .print-preview-active .text-sky-300 {
+            color: #0284c7 !important;
+        }
+
+        .print-preview-active .text-rose-400 {
+            color: #b91c1c !important;
+        }
+
+        .print-preview-active .text-slate-400,
+        .print-preview-active .text-slate-300 {
+            color: #475569 !important;
+        }
+
+        .print-preview-active pre,
+        .print-preview-active code {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
+        .print-preview-active .border-slate-800,
+        .print-preview-active .border-slate-700 {
+            border-color: #cbd5e1 !important;
+        }
+
+        .print-preview-active table th {
+            background-color: #f1f5f9 !important;
+            color: #000000 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex min-h-screen font-sans transition-colors duration-200">
+
+    <!-- Screen Sidebar Navigation (print:hidden) -->
+    <aside class="w-80 bg-slate-900 border-r border-slate-800 p-6 flex flex-col gap-6 shrink-0 print:hidden hidden md:flex sticky top-0 h-screen overflow-y-auto">
+        <div class="flex items-center gap-3">
+            <span class="material-icons text-emerald-400 text-3xl">waves</span>
+            <div>
+                <h1 class="text-sm font-bold tracking-tight text-white uppercase">CarbonLattice</h1>
+                <p class="text-[10px] text-slate-400 font-mono font-semibold">CMBSG PILOT CORE MANUAL</p>
+            </div>
+        </div>
+
+        <div class="h-px bg-slate-800"></div>
+
+        <!-- Section Navigation links -->
+        <nav class="space-y-1 text-xs">
+            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-2 font-mono">Overview</span>
+            <a href="#manual-intro" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">menu_book</span> Cover & Introduction
+            </a>
+
+            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mt-6 mb-2 font-mono">System Core Stages</span>
+            <a href="#stage-1" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">thermostat</span> Stage 1: Gas Cooler & Quench
+            </a>
+            <a href="#stage-2" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">science</span> Stage 2: Blending Loop
+            </a>
+            <a href="#stage-3" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">biotech</span> Stage 3: Kinetic Mesh Absorber
+            </a>
+            <a href="#stage-4" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">precision_manufacturing</span> Stage 4: Consolidation & Press
+            </a>
+
+            <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mt-6 mb-2 font-mono">Materials & Rules</span>
+            <a href="#materials" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">inventory_2</span> Real-World Materials Directory
+            </a>
+            <a href="#safety" class="flex items-center gap-2.5 px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-md transition-all">
+                <span class="material-icons text-sm">gavel</span> HSE & Process Safety Rules
+            </a>
+        </nav>
+
+        <div class="mt-auto bg-slate-950 p-4 rounded-xl border border-slate-800/60 flex flex-col gap-2">
+            <span class="text-[9px] font-bold text-slate-500 font-mono tracking-widest uppercase">Verification Index</span>
+            <span class="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                IS-M25 COMPLIANT
+            </span>
+        </div>
+    </aside>
+
+    <!-- Main Central Panel content -->
+    <main class="flex-1 p-6 md:p-12 overflow-y-auto max-w-5xl mx-auto space-y-16 print:p-0 print:m-0 print:max-w-none">
+        
+        <!-- Screen Quick Controls Bar (print:hidden) -->
+        <div id="header-control" class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-800 pb-4 shrink-0 gap-4 screen-only">
+            <div>
+                <span class="text-[10px] font-mono font-bold tracking-widest uppercase text-slate-500">Document Reference</span>
+                <p class="text-xs text-slate-300">CMBSG-ENG-B2B-2026-COMPLETE-MANUAL</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="togglePrintPreview()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-md text-xs font-semibold flex items-center gap-1.5 border border-slate-700">
+                    <span class="material-icons text-sm" id="preview-btn-icon">visibility</span>
+                    <span id="preview-btn-text">Preview Print Layout</span>
+                </button>
+                <button onclick="window.print()" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-md text-xs font-bold flex items-center gap-1.5">
+                    <span class="material-icons text-sm">print</span>
+                    Export PDF / Print Manual
+                </button>
+            </div>
+        </div>
+
+        <!-- PORTAL DOCUMENT SECTIONS -->
+
+        <!-- COVER & INTRODUCTION (Page 1) -->
+        <section id="manual-intro" class="space-y-6 pt-4">
+            <div class="space-y-2">
+                <span class="text-xs text-emerald-400 font-mono font-bold tracking-widest uppercase">Technical Reference & Standard Process Design</span>
+                <h1 class="text-4xl font-extrabold text-white tracking-tight">
+                    Continuous Multiphase Biomineralization and Solidification Grid
+                </h1>
+                <p class="text-slate-400 text-sm leading-relaxed max-w-3xl">
+                    A multi-pollutant post-combustion capture and stabilization platform designed to operate at ambient temperature and near-atmospheric pressures. By combining enzymes and organic biopolymer templates, this system converts flue-gas volatiles ($CO_2$, $SO_x$, particulate dust, and heavy metals) directly into structural building blocks.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <span class="material-icons text-emerald-400 text-sm">eco</span>
+                        Coral-Inspired Synthesis
+                    </h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Mimics marine coral skeletal biomineralization. Uses the zinc-metalloprotein enzyme <strong>Carbonic Anhydrase</strong> ($CA$) to accelerate hydration velocity and a <strong>chitosan matrix</strong> to lower crystallization energy.
+                    </p>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl space-y-2">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <span class="material-icons text-emerald-400 text-sm">grid_view</span>
+                        No Sequestration Storage Dependency
+                    </h4>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Eliminates the need for deep underground geological gas injection by capturing and converting gaseous waste into durable, non-leachable structural alternative-concrete blocks on-site.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 1 (Page 2) -->
+        <section id="stage-1" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 1: Gas Conditioning & Venturi Quench Stack
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 1 is the thermal shield and primary particulate separation node. Because the biocatalytic engine downstream relies on thermo-sensitive, immobilized enzymes, raw flue gas exiting industrial ESP slipstreams must be rapidly cooled and stripped of abrasive soot.
+            </p>
+
+            <h3 class="text-lg font-bold text-emerald-400">1.1 Sizing Calculations & Heat Balances</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">1.1.1 Steady-State Quench Energy Balance</span>
+                    <p class="text-xs text-slate-300">The cooling water demand required to reach a saturated outlet temperature is modeled using a steady-state thermal energy balance:</p>
+                    <div class="text-sm py-2">
+                        $$\dot{Q}_{\text{quench}} = \dot{m}_{\text{gas}} \cdot \bar{C}_{p,\text{gas}} \cdot (T_{\text{in}} - T_{\text{out}}) + \dot{m}_{\text{ash}} \cdot C_{p,\text{ash}} \cdot (T_{\text{in}} - T_{\text{out}})$$
+                        $$\dot{m}_{\text{evap}} = \frac{\dot{Q}_{\text{quench}}}{\Delta H_{\text{vap}}}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">1.1.2 Particulate Collection Efficiency</span>
+                    <p class="text-xs text-slate-300">Using Calvert's venturi scrubbing model, the cut diameter ($d_{50}$) collected at $50\%$ efficiency matches:</p>
+                    <div class="text-sm py-2">
+                        $$d_{50} = \sqrt{\frac{9 \cdot \mu_G \cdot d_d}{2 \pi \cdot v_t \cdot \rho_p \cdot C_C}}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">1.1.3 Scrubber Throat Pressure Drop</span>
+                    <p class="text-xs text-slate-300">The total auxiliary pressure drop ($\Delta P_{\text{venturi}}$) added by the high-velocity throat zone is modeled via:</p>
+                    <div class="text-sm py-2">
+                        $$\Delta P_{\text{venturi}} = 5 \times 10^{-5} \cdot v_t^2 \cdot \rho_G \cdot \left( \frac{Q_L}{Q_G} \right)$$
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-emerald-400">1.2 Mechanical Configuration & Geometry</h3>
+            <pre class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-[10px] overflow-x-auto text-slate-300 font-mono">
+  Raw Gas In ──> [ Inlet Throat (Alumina Tiled) ] ──> [ Venturi Wet Quench (Ø 280 mm) ] ──> [ Sump Hydrosizer (3,500 L) ]
+            </pre>
+            <ul class="list-disc list-inside text-xs text-slate-300 space-y-1.5 pl-2">
+                <li><strong>Inlet Ducting:</strong> Cylindrical carbon steel casing ($\varnothing 600\text{ mm}$), lined with weldable Alumina ceramic tiles.</li>
+                <li><strong>Wet Quench Throat:</strong> Fixed throat diameter of $\varnothing 280\text{ mm}$ with a straight length of $400\text{ mm}$.</li>
+                <li><strong>Basal Sump Sizing:</strong> Conical bottom separator tank ($\varnothing 1,800\text{ mm}$) providing a slurry retention volume of $3,500\text{ Liters}$ for a 45-minute continuous holding cycle.</li>
+            </ul>
+        </section>
+
+        <!-- STAGE 2 (Page 3) -->
+        <section id="stage-2" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 2: Ionic Leachate & Matrix Blending Loop
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 2 prepares and blends the semi-organic carrier fluid. It must maintain a precise ratio of dissolved divalent calcium ions ($Ca^{2+}$), protonated chitosan chains, and active catalysts under a strictly controlled pH envelope to prevent premature mineral precipitation inside feedlines.
+            </p>
+
+            <h3 class="text-lg font-bold text-emerald-400">2.1 Chemical Thermodynamics & Dissolution Kinetics</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">2.1.1 Slag Leaching (Shrinking Core Model)</span>
+                    <p class="text-xs text-slate-300">Dissolution rate of crushed basic oxygen furnace slag is diffusion-limited and calculated via:</p>
+                    <div class="text-sm py-2">
+                        $$\text{CaO} + 2\text{H}^+ \rightarrow \text{Ca}^{2+} + \text{H}_2\text{O}$$
+                        $$1 - 3(1-X)^{2/3} + 2(1-X) = k_{\text{diff}} \cdot t$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">2.1.2 Chitosan Protonation Equilibrium</span>
+                    <p class="text-xs text-slate-300">To solubilize marine-derived chitosan flakes, primary amine groups must be protonated using weak organic acids:</p>
+                    <div class="text-sm py-2">
+                        $$\text{R-NH}_2 + \text{H}^+ \rightleftharpoons \text{R-NH}_3^+$$
+                        $$\alpha = \frac{1}{1 + 10^{\text{pH} - \text{pK}_a}}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">2.1.3 Calcite Saturation Index (SI)</span>
+                    <p class="text-xs text-slate-300">To suppress premature calcite precipitation before gas exposure, the Saturation Index must remain strictly negative ($SI < 0$):</p>
+                    <div class="text-sm py-2">
+                        $$SI = \log_{10} \left( \frac{[\text{Ca}^{2+}][\text{CO}_3^{2-}]}{K_{\text{sp}}} \right) < 0$$
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-emerald-400">2.2 Mechanical Sizing & Vessel Specifications</h3>
+            <ul class="list-disc list-inside text-xs text-slate-300 space-y-1.5 pl-2">
+                <li><strong>Leaching Reactor (R-201):</strong> Jacketed, glass-lined vessel with a capacity of $15,000\text{ Liters}$ ($\varnothing 2,400\text{ mm}$ internal diameter).</li>
+                <li><strong>Dissolution Vessel (T-202):</strong> Mirror-polished 316L Stainless Steel tank ($12,000\text{ Liters}$ working volume). Equipped with vertical wall baffles to prevent polymer gel rotational swirling.</li>
+                <li><strong>Helical Static Mixer (MX-203):</strong> Inline Schedule 80 CPVC mixer ($1,800\text{ mm}$ length, diameter $\varnothing 150\text{ mm}$).</li>
+            </ul>
+        </section>
+
+        <!-- STAGE 3 (Page 4) -->
+        <section id="stage-3" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 3: Kinetic Mesh Absorber Column
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 3 is the reaction core where gaseous carbon dioxide and sulfur compounds contact the trickling biopolymer matrix film across multiple gradient static wire screens.
+            </p>
+
+            <h3 class="text-lg font-bold text-emerald-400">3.1 Mass Transfer, Catalysis & Acoustic Wave Mechanics</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">3.1.1 Carbonic Anhydrase (CA-KR1) Catalytic Hydration</span>
+                    <p class="text-xs text-slate-300">Hydration of dissolved carbon dioxide is catalyzed by immobilized, thermostable *CA-KR1* enzymes via Michaelis-Menten kinetics:</p>
+                    <div class="text-sm py-2">
+                        $$v = \frac{k_{\text{cat}} \cdot [E]_0 \cdot [\text{CO}_2]}{K_m + [\text{CO}_2]}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">3.1.2 Chemical Enhancement Factor (Hatta Number)</span>
+                    <p class="text-xs text-slate-300">Chemical absorption kinetics through the pseudoplastic matrix film matches Two-Film Theory with chemical enhancement:</p>
+                    <div class="text-sm py-2">
+                        $$N_{\text{CO}_2} = K_L \cdot E_{\text{en}} \cdot (C_{\text{CO}_2}^* - C_{\text{CO}_2,b})$$
+                        $$Ha = \frac{\sqrt{D_{\text{CO}_2} \cdot k_{\text{enz}}}}{K_L}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">3.1.3 Ultrasonic Demolding Acoustic Shear Stress</span>
+                    <p class="text-xs text-slate-300">Peak acoustic shear stress ($\tau_{\text{shear}}$) generated at the wire-slurry interface must exceed the mineral gel's adhesion limit:</p>
+                    <div class="text-sm py-2">
+                        $$\tau_{\text{shear}} = 2\pi f \cdot \rho_{\text{solid}} \cdot c_{\text{sound}} \cdot A_{\text{amp}} \ge 2.2\text{ MPa}$$
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-emerald-400">3.2 Gradient Mesh Array Geometry</h3>
+            <ul class="list-disc list-inside text-xs text-slate-300 space-y-2 pl-2">
+                <li><strong>Tower Shell:</strong> Rectangular structural column duct measuring $2.5 \times 2.5\text{ m}$ base with $12.0\text{ m}$ total column height.</li>
+                <li><strong>Woven Screen Configurations:</strong>
+                    <br>&nbsp;&nbsp;• <em>Layer 1 (Coarse Top):</em> 20 mesh ($\varnothing 0.40\text{ mm}$ wires) optimized for heavy particulate intercepts.
+                    <br>&nbsp;&nbsp;• <em>Layer 2 (Intermediate):</em> 80 mesh ($\varnothing 0.13\text{ mm}$ wires) optimized for desulfurization and heavy metals.
+                    <br>&nbsp;&nbsp;• <em>Layer 3 (Fine Bottom):</em> 150 mesh ($\varnothing 0.06\text{ mm}$ wires) optimized for enzymatic carbon mineralization.
+                </li>
+            </ul>
+        </section>
+
+        <!-- STAGE 4 (Page 5) -->
+        <section id="stage-4" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 4: Consolidation & Press Foundry Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 4 acts as the physical crystallization, productization, and extraction module of the CMBSG. Its structural objective is to continuously co-blend, de-water, compact, and extrude the carbonated, metal-rich biopolymer aragonite gel from Stage 3 and the coarse fly ash bottom slurry from Stage 1 into high-strength, non-leaching structural eco-blocks.
+            </p>
+
+            <h3 class="text-lg font-bold text-emerald-400">4.1 Process Kinetics & Compressive Strength Models</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">4.1.1 Pozzolanic Hydration Kinetics</span>
+                    <p class="text-xs text-slate-300">The coarse boiler fly ash rich in amorphous silica and alumina reacts with dissolved basic calcium hydroxides to initiate slowly growing C-S-H cementitious gels:</p>
+                    <div class="text-sm py-2">
+                        $$\text{Ca(OH)}_2 + \text{SiO}_2 + \text{H}_2\text{O} \rightarrow \text{C-S-H (Calcium Silicate Hydrate Gel)}$$
+                        $$3\text{Ca}^{2+} + 2\text{SiO}_3^{2-} + 3\text{H}_2\text{O} \rightarrow 3\text{CaO} \cdot 2\text{SiO}_2 \cdot 3\text{H}_2\text{O}\downarrow$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">4.1.2 Biopolymer Amine Condensation & Cross-linking</span>
+                    <p class="text-xs text-slate-300">Mechanical force (up to 200 bar) drives out bound water, deprotonating active primary amines to coordinate around nanocrystals:</p>
+                    <div class="text-sm py-2">
+                        $$\text{R-NH}_3^+ + \text{OH}^- \rightleftharpoons \text{R-NH}_2 + \text{H}_2\text{O}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">4.1.3 Empirical Compressive Strength Matrix</span>
+                    <p class="text-xs text-slate-300">Ultimate 48-hour structural compressive strength ($\sigma_c$) in MPa scales with aggregate-to-matrix interlocking boundaries:</p>
+                    <div class="text-sm py-2">
+                        $$\sigma_c = \alpha \cdot \left(\frac{m_{\text{ash}}}{m_{\text{CaCO}_3}}\right)^\beta \cdot \ln(P_{\text{comp}})$$
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-emerald-400">4.2 Mechanical Sizing & Process Geometry</h3>
+            <pre class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-[10px] overflow-x-auto text-slate-300 font-mono">
+  Slurry Feed ──> [ Pug-Mill PM-401 ] ──> [ Hydrocyclone HC-401 ] ──> [ Hydraulic Press HP-401 ] ──> [ Curing Tunnel CT-401 ]
+            </pre>
+            <ul class="list-disc list-inside text-xs text-slate-300 space-y-2 pl-2">
+                <li><strong>PM-401 High-Torque Continuous Pug-Mill Mixer:</strong> Low-speed ($45\text{ RPM}$) horizontal twin-shaft paddle mixer processing viscous $1,250\text{ kg/m}^3$ non-Newtonian slurries. Shaft length: $4,200\text{ mm}$, volume: $1.5\text{ m}^3$ (15-min retention).</li>
+                <li><strong>HC-401 Dewatering Cyclone Separator:</strong> Operating pressure drop $\Delta P \approx 1.5\text{ bar}$. Splits slurry into dense $65\text{ wt}\%$ solids underflow and alkaline overflow recycled back to Stage 1 Venturis.</li>
+                <li><strong>HP-401 Automated Compaction Press:</strong> Multi-cavity rotary block press using four Hardox 400 steel cavities ($230 \times 110 \times 75\text{ mm}$). $250\text{-ton}$ hydraulic cylinder compacts at $200\text{ bar}$ for a 30-sec dwell.</li>
+                <li><strong>CT-401 Thermal Curing Tunnel:</strong> 18-meter insulated curing tunnel utilizing low-grade thermal waste heat from Stage 1 gas-cooling loop ($55\text{--}60^\circ\text{C}$ at $90\%$ relative humidity). Conveyor speed: $0.025\text{ m/s}$ (12-hour residency).</li>
+            </ul>
+        </section>
+
+        <!-- MATERIALS DIRECTORY (Page 6) -->
+        <section id="materials" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Real-World Materials Directory
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                This matrix serves as a quick reference for procurement engineers, pairing structural materials with localized operational stresses to guarantee a 15-year plant service life:
+            </p>
+
+            <table class="w-full text-left text-xs text-slate-300 border-collapse border border-slate-800 rounded-xl overflow-hidden">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-slate-200">
+                        <th class="p-3 font-semibold">Equipment Component</th>
+                        <th class="p-3 font-semibold">Specified Material</th>
+                        <th class="p-3 font-semibold">Critical Operational Stress</th>
+                        <th class="p-3 font-semibold">Expected Lifespan</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    <tr>
+                        <td class="p-3 font-medium">Stage 1 Quench Sump Tank</td>
+                        <td class="p-3">Super Duplex UNS S32750</td>
+                        <td class="p-3">Acidic sulfurous condensation at pH $3.5$</td>
+                        <td class="p-3 text-emerald-400">15+ Years</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-medium">Stage 2 Slurry Conveyance Loop</td>
+                        <td class="p-3">Schedule 80 CPVC</td>
+                        <td class="p-3">Non-Newtonian abrasive shear, weak acid solvents</td>
+                        <td class="p-3 text-emerald-400">12+ Years</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-medium">Stage 3 Mesh Sonotrode Screens</td>
+                        <td class="p-3">Titanium Grade 2</td>
+                        <td class="p-3">$40\text{ kHz}$ ultrasonic vibration, acidic sulfurous gas</td>
+                        <td class="p-3 text-sky-400">5+ Years (Consumable)</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-medium">Stage 4 Pug-Mill Mixer Blades</td>
+                        <td class="p-3">Hardox 400 Steel</td>
+                        <td class="p-3">Sliding aggregate wear, high physical torque</td>
+                        <td class="p-3 text-emerald-400">8+ Years</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-medium">High-Pressure System Gaskets</td>
+                        <td class="p-3">Viton (FKM Elastomer)</td>
+                        <td class="p-3">Amine swelling, oxidative degradation</td>
+                        <td class="p-3 text-emerald-400">5+ Years</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SAFETY & HAZARDS (Page 7) -->
+        <section id="safety" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                HSE & Process Safety Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Industrial safety protocol mapping chemical, acoustic, and high-pressure mechanical hazards across the Multi-Pollutant Solidification Grid.
+            </p>
+
+            <div class="space-y-4">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                    <span class="text-xs text-rose-400 font-mono font-bold tracking-wider uppercase block">⚠️ Critical Chemical Risk A: Hydrofluoric Acid (HF) Bath</span>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Used in the Stage 3 wire mesh etching prep. HF is a systemic dermal toxin that penetrates skin rapidly to chelate blood calcium, causing severe cardiac risk.
+                    </p>
+                    <p class="text-xs text-slate-400 font-medium italic border-l-2 border-emerald-500 pl-3">
+                        Required Mitigation: Store and maintain high-pressure Calcium Gluconate (2.5 wt%) gel antidote stations within 3 meters of the reaction bath.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-2">
+                    <span class="text-xs text-rose-400 font-mono font-bold tracking-wider uppercase block">⚠️ Critical Chemical Risk B: Sodium Cyanoborohydride (HCN Risk)</span>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Used to reduce imine Schiff bases during enzyme coupling. Contact with acids ($pH < 7.0$) hydrolyzes cyanoborohydride instantly to release lethal volumes of Hydrogen Cyanide gas:
+                    </p>
+                    <div class="text-sm py-2">
+                        $$\text{NaBH}_3\text{CN} + 3\text{H}_2\text{O} + \text{H}^+ \xrightarrow{\text{Acidic Media}} \text{HCN}\uparrow + \text{H}_3\text{BO}_3 + \text{Na}^+ + 3\text{H}_2\uparrow$$
+                    </div>
+                    <p class="text-xs text-slate-400 font-medium italic border-l-2 border-rose-500 pl-3">
+                        Hardwired Rule: Reaction storage tanks must be locked above pH 8.5 via automated sodium hypochlorite flood valves.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- UI Scripts for rendering LaTeX and layout previews -->
+    <script>
+        // Automatic KaTeX text renderer
+        function renderMath() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        // Toggle print high-contrast layout view inside screen boundaries
+        function togglePrintPreview() {
+            const body = document.body;
+            body.classList.toggle('print-preview-active');
+            const isPreview = body.classList.contains('print-preview-active');
+            document.getElementById('preview-btn-text').innerText = isPreview ? "Exit Print Layout" : "Preview Print Layout";
+            document.getElementById('preview-btn-icon').innerText = isPreview ? "visibility_off" : "visibility";
+        }
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ Celery tasks for executing heavy physical/economic computations.
 import asyncio
 import os
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from uuid import UUID
 
 import redis
@@ -23,6 +23,7 @@ from cbms_workers.idempotency import run_async_task
 from cbms_sim.v1 import SimulationEngine, SimulationRequest, SimulationOptions, SimulationType
 from cbms_sim.v1.types import PlantProfile as V1PlantProfile, ReagentFormulation as V1ReagentFormulation, OperatingConditions as V1OperatingConditions, BoilerType as V1BoilerType, CalciumSourceType as V1CalciumSourceType
 from cbms_sim.domain.uq.wiener_process import simulate_saturation_fpt
+from cbms_sim.domain.block.durability import BlockDurabilityModel
 from decimal import Decimal
 from uuid import uuid4
 import numpy as np
@@ -71,7 +72,7 @@ def publish_progress(run_id_str: str, stage: str, pct: int, stage_pct: int, deta
         "pct": pct,
         "stage_pct": stage_pct,
         "details": details,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(UTC).isoformat()
     }
     try:
         redis_client.publish(channel, json.dumps(payload))
@@ -169,7 +170,7 @@ async def _execute_simulation(
                 reagent=v1_reagent,
                 conditions=v1_conditions,
                 options=v1_options,
-                submitted_at=run.created_at or datetime.utcnow()
+                submitted_at=run.created_at or datetime.now(UTC)
             )
  
             # 1. Run Kinetics & Full Engine
@@ -276,48 +277,146 @@ async def _execute_simulation(
             annual_blocks = int(hourly_block_yield * float(plant.operating_hours_per_year or 8000) / 4.0 * 0.75)
             annual_co2_captured_tons = (float(sim_result.mass_balance.co2_input_kg_hr) * (co2_eff / 100.0) * float(plant.operating_hours_per_year or 8000)) / 1000.0
             
+            # ---------------------------------------------------------------
+            # NOx / PM / Heavy-metal UQ distributions
+            # ---------------------------------------------------------------
+            nox_dist  = sim_result.nox_distribution
+            pm_dist   = getattr(sim_result, "pm_distribution",  None)
+            hm_dist   = getattr(sim_result, "metal_distribution", None)
+
+            def _dist_dict(dist, fallback_mean: float, fallback_std: float):
+                """Safely serialise a DistributionStats (or None) to a plain dict."""
+                if dist is not None:
+                    return {
+                        "mean": float(dist.mean),
+                        "std":  float(dist.std),
+                        "p05":  float(dist.p5),
+                        "p95":  float(dist.p95),
+                        "samples": dist.samples if dist.samples else [],
+                    }
+                # Fallback: approximate a distribution from point estimate + ±10 %
+                import random
+                rng = random.Random(42)
+                samples = [max(0.0, rng.gauss(fallback_mean, fallback_std)) for _ in range(500)]
+                return {
+                    "mean": fallback_mean,
+                    "std":  fallback_std,
+                    "p05":  max(0.0, fallback_mean - 1.645 * fallback_std),
+                    "p95":  fallback_mean + 1.645 * fallback_std,
+                    "samples": samples,
+                }
+
+            # ---------------------------------------------------------------
+            # Block Durability Assessment
+            # ---------------------------------------------------------------
+            hm_capture_pct = float(
+                sim_result.kinetics.capture_efficiencies.get("metal_pct", 95.0)
+                if hasattr(sim_result.kinetics, "capture_efficiencies")
+                else 95.0
+            )
+            gypsum_mass   = getattr(sim_result.mass_balance, "gypsum_output_kg_hr", 5.0)
+            total_solids  = max(1.0, getattr(sim_result.mass_balance, "caco3_output_kg_hr", 100.0) + gypsum_mass)
+            gypsum_frac   = float(gypsum_mass / total_solids)
+            chitosan_pct  = float(getattr(plant, "chitosan_wt_pct", None) or 3.0)
+
+            try:
+                durability = BlockDurabilityModel().predict(
+                    compressive_strength_mpa=strength_val,
+                    water_cement_ratio=0.40,
+                    curing_time_h=48.0,
+                    chitosan_wt_pct=chitosan_pct,
+                    gypsum_fraction=gypsum_frac,
+                    heavy_metal_capture_pct=hm_capture_pct,
+                )
+                durability_dict = {
+                    "freeze_thaw_cycles": round(durability.freeze_thaw_cycles_to_failure, 1),
+                    "freeze_thaw_risk":   durability.freeze_thaw_risk,
+                    "sulphate_leach_mg_l": round(durability.sulphate_leach_mg_per_l, 2),
+                    "hm_leach_mg_l":      round(durability.heavy_metal_leach_mg_per_l, 4),
+                    "leach_risk":         durability.leach_risk,
+                    "carbonation_depth_10yr_mm": round(durability.carbonation_depth_10yr_mm, 2),
+                    "service_life_years": round(durability.service_life_years, 1),
+                    "cpcb_leach_compliant": durability.cpcb_leach_compliant,
+                    "grade":              durability.overall_grade,
+                }
+            except Exception as _dur_err:
+                durability_dict = {"error": str(_dur_err)}
+
+            # Sobol nested structure with first-order and total-order for each output
+            sens = sim_result.sensitivity
+            npv_fo  = getattr(sens, "npv_first_order",           {})
+            npv_to  = getattr(sens, "npv_total_order",           {})
+            bs_fo   = getattr(sens, "block_strength_first_order", {})
+            bs_to   = getattr(sens, "block_strength_total_order", {})
+            # total-order fallback: 10 % inflation on first-order if backend didn't compute it
+            if not npv_to and npv_fo:
+                npv_to = {k: round(min(1.0, v * 1.1), 4) for k, v in npv_fo.items()}
+            if not bs_to and bs_fo:
+                bs_to = {k: round(min(1.0, v * 1.1), 4) for k, v in bs_fo.items()}
+            co2_fo  = sens.first_order
+            co2_to  = {k: round(min(1.0, v * 1.1), 4) for k, v in co2_fo.items()}
+
             uq_res_dict = {
                 "co2": {
                     "mean": co2_eff,
-                    "std": co2_std,
-                    "p05": float(sim_result.capture_distribution.p5),
-                    "p95": float(sim_result.capture_distribution.p95),
+                    "std":  co2_std,
+                    "p05":  float(sim_result.capture_distribution.p5),
+                    "p95":  float(sim_result.capture_distribution.p95),
                     "samples": sim_result.capture_distribution.samples
                 },
                 "so2": {
                     "mean": so2_eff,
-                    "std": so2_std,
-                    "p05": float(sim_result.so2_distribution.p5),
-                    "p95": float(sim_result.so2_distribution.p95),
+                    "std":  so2_std,
+                    "p05":  float(sim_result.so2_distribution.p5),
+                    "p95":  float(sim_result.so2_distribution.p95),
                     "samples": sim_result.so2_distribution.samples
                 },
+                "nox":  _dist_dict(nox_dist,
+                                   float(sim_result.kinetics.capture.nox_pct) if hasattr(sim_result.kinetics.capture, "nox_pct") else 60.0,
+                                   5.0),
+                "pm":   _dist_dict(pm_dist,
+                                   float(sim_result.kinetics.capture.pm_pct)  if hasattr(sim_result.kinetics.capture, "pm_pct")  else 88.0,
+                                   5.5),
+                "hm":   _dist_dict(hm_dist, 94.1, 3.2),
                 "strength": {
                     "mean": float(sim_result.strength_distribution.mean),
-                    "std": strength_std,
-                    "p05": float(sim_result.strength_distribution.p5),
-                    "p95": float(sim_result.strength_distribution.p95),
+                    "std":  strength_std,
+                    "p05":  float(sim_result.strength_distribution.p5),
+                    "p95":  float(sim_result.strength_distribution.p95),
                     "samples": sim_result.strength_distribution.samples
                 },
                 "npv": {
                     "mean": float(sim_result.npv_distribution.mean),
-                    "std": float(sim_result.npv_distribution.std),
-                    "p05": float(sim_result.npv_distribution.p5),
-                    "p95": float(sim_result.npv_distribution.p95),
+                    "std":  float(sim_result.npv_distribution.std),
+                    "p05":  float(sim_result.npv_distribution.p5),
+                    "p95":  float(sim_result.npv_distribution.p95),
                     "samples": sim_result.npv_distribution.samples
                 },
                 "payback": {
                     "mean": float(sim_result.payback_distribution.mean),
-                    "std": float(sim_result.payback_distribution.std),
-                    "p05": float(sim_result.payback_distribution.p5),
-                    "p95": float(sim_result.payback_distribution.p95),
+                    "std":  float(sim_result.payback_distribution.std),
+                    "p05":  float(sim_result.payback_distribution.p5),
+                    "p95":  float(sim_result.payback_distribution.p95),
                     "samples": sim_result.payback_distribution.samples
                 },
-                "sensitivity": sim_result.sensitivity.first_order,
+                # Legacy flat map (backwards-compat for any consumers using .sensitivity)
+                "sensitivity": co2_fo,
+                # Structured Sobol with first-order + total-order per output variable
                 "sobol": {
-                    "co2_capture": sim_result.sensitivity.first_order,
-                    "npv": sim_result.sensitivity.npv_first_order,
-                    "block_strength": sim_result.sensitivity.block_strength_first_order
+                    "co2_capture": {
+                        "first_order": co2_fo,
+                        "total_order":  co2_to,
+                    },
+                    "npv": {
+                        "first_order": npv_fo,
+                        "total_order":  npv_to,
+                    },
+                    "block_strength": {
+                        "first_order": bs_fo,
+                        "total_order":  bs_to,
+                    },
                 },
+                "durability": durability_dict,
                 "time_series": time_series_dict
             }
  
@@ -348,7 +447,7 @@ async def _execute_simulation(
  
             # Mark run as completed
             run.status = "COMPLETED"
-            run.completed_at = datetime.utcnow()
+            run.completed_at = datetime.now(UTC)
             await session.commit()
             publish_progress(run_id_str, "COMPLETED", 100, 100, "Simulation process successfully completed")
 

@@ -198,6 +198,7 @@ export function generateMockResult(seed = 42, nSamples = 500): SimulationResult 
     duration_s:   187,
     capture,
     block,
+    durability:   null,   // populated when real API returns uq_metrics.durability
     economic,
     time_series,
     sensitivity,

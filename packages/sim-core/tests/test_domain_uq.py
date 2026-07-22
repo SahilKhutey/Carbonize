@@ -7,7 +7,7 @@ from decimal import Decimal
 from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation
 from cbms_sim.domain.models.conditions import OperatingConditions
-from cbms_sim.domain.kinetics.engine import solve_kinetics
+from cbms_sim.domain.kinetics import solve_kinetics
 from cbms_sim.domain.mass_balance.engine import MassBalanceEngine
 from cbms_sim.domain.uq.monte_carlo import MonteCarloEngine
 from cbms_sim.domain.uq.sobol import SobolAnalyzer

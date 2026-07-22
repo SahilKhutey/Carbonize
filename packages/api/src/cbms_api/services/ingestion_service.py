@@ -4,7 +4,7 @@ stores them uniformly in the time-series database.
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Optional
 from uuid import UUID
 
@@ -60,7 +60,7 @@ class IngestionService:
         receipt = {
             "reading_id": str(reading.reading_id),
             "ingested_count": len(reading.measurements),
-            "ingested_at": datetime.utcnow().isoformat(),
+            "ingested_at": datetime.now(UTC).isoformat(),
         }
         
         logger.info(
@@ -75,7 +75,7 @@ class IngestionService:
     
     def _validate(self, reading: SensorReading) -> None:
         """Pre-ingestion validation."""
-        now = datetime.utcnow().replace(tzinfo=reading.timestamp.tzinfo)
+        now = datetime.now(UTC).replace(tzinfo=reading.timestamp.tzinfo)
         if reading.timestamp > now + timedelta(minutes=5):
             # Future timestamp within 5 min is OK (clock skew); more is suspect
             if reading.timestamp > now + timedelta(hours=1):

@@ -22,7 +22,7 @@ docker run --rm \
 echo ""
 echo "🧪 Smoke tests..."
 docker compose -f deploy/docker-compose.yml run --rm api python -c "
-from cbms_api.main import app
+from cbms_api.api.main import app
 print('API imports OK')
 "
 

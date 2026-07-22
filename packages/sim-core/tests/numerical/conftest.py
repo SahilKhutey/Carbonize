@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 from scipy.integrate import solve_ivp
 
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import KineticsEngine
 from cbms_sim.domain.kinetics.kernels import reaction_rhs_numba
 
 # Reference parameter set (from v2026.1.json)

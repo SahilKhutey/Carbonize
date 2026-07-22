@@ -1,6 +1,192 @@
 """
 Shared configuration and database setup for integration tests.
+Imports fixtures from security/conftest.py by declaring the conftest path via
+a pytest plugin import at the session level.
+
+Per pytest docs, pytest_plugins must live in a top-level conftest.
+Here we instead re-define thin fixture wrappers that delegate to the helpers
+defined in security/conftest.py so the integration tests have access to:
+  client, tenant_a, tenant_b, auth_a, auth_b, setup_test_data
 """
 
 import pytest
+import pytest_asyncio
+import secrets
+from uuid import uuid4
+
 import cbms_api.database.connection as conn_mod
+from httpx import AsyncClient, ASGITransport
+
+from cbms_api.api.main import app
+from cbms_api.database.models import (
+    Base, Organization, User, PlantProfile, LogisticsConfig,
+    SimulationRun, SimulationResult, AuditEvent
+)
+from cbms_api.database.connection import async_session_maker
+from cbms_api.auth.password_service import password_service
+from cbms_api.auth.jwt_service import jwt_service
+from sqlalchemy.ext.asyncio import AsyncSession
+
+import bcrypt
+_original_hashpw = bcrypt.hashpw
+def _safe_hashpw(password, salt):
+    if isinstance(password, bytes) and len(password) > 72:
+        password = password[:72]
+    elif isinstance(password, str) and len(password.encode("utf-8")) > 72:
+        password = password[:72]
+    return _original_hashpw(password, salt)
+bcrypt.hashpw = _safe_hashpw
+
+
+@pytest.fixture(scope="session")
+def anyio_backend():
+    return "asyncio"
+
+
+@pytest_asyncio.fixture
+async def client():
+    """Async HTTP client wired to the FastAPI app."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as c:
+        yield c
+
+
+async def _create_tenant(session: AsyncSession, org_name: str, email: str):
+    org = Organization(id=uuid4(), name=org_name, industry_type="Cement")
+    session.add(org)
+    await session.flush()
+
+    user = User(
+        id=uuid4(),
+        organization_id=org.id,
+        email=email,
+        hashed_password=password_service.hash_password("SuperSecret!123"),
+        roles=["engineer"],
+        is_active=True,
+    )
+    session.add(user)
+    await session.flush()
+
+    plant = PlantProfile(
+        id=uuid4(),
+        organization_id=org.id,
+        name=f"{org_name} Plant",
+        location="Maharashtra",
+        boiler_type="pulverized",
+        exhaust_flow_rate=10000.0,
+        baseline_temperature=150.0,
+        co2_concentration=14.0,
+        so2_concentration=1200.0,
+        fly_ash_load=45.0,
+        nox_concentration=500.0,
+    )
+    session.add(plant)
+    await session.flush()
+
+    logistics = LogisticsConfig(
+        id=uuid4(),
+        plant_profile_id=plant.id,
+        water_cost_per_kl=10.0,
+        electricity_cost_per_kwh=5.0,
+        chitosan_cost_per_kg=300.0,
+        calcium_source_type="Ca(OH)2",
+        calcium_cost_per_ton=80.0,
+        local_brick_market_value=15.0,
+        ccts_credit_price=20.0,
+    )
+    session.add(logistics)
+    await session.flush()
+
+    sim_run = SimulationRun(
+        id=uuid4(),
+        organization_id=org.id,
+        plant_profile_id=plant.id,
+        status="COMPLETED",
+        press_force_bar=200.0,
+        enzyme_concentration_mg_l=12.0,
+        chitosan_wt_pct=3.0,
+        input_hash=secrets.token_hex(16),
+    )
+    session.add(sim_run)
+    await session.flush()
+
+    sim_result = SimulationResult(
+        id=uuid4(),
+        simulation_run_id=sim_run.id,
+        co2_capture_efficiency_pct=87.2,
+        so2_capture_efficiency_pct=96.5,
+        predicted_block_strength_mpa=24.0,
+        block_grade="Grade A",
+        hourly_block_yield_kg=500.0,
+        annual_block_count=10000,
+        estimated_opex_per_ton_co2=50.0,
+        annual_ccts_revenue_inr=1_000_000.0,
+        annual_block_revenue_inr=500_000.0,
+        annual_opex_inr=800_000.0,
+        annual_net_revenue_inr=700_000.0,
+        capex_total_inr=5_000_000.0,
+        simple_payback_months=36.0,
+        npv_10yr_inr=80_000_000.0,
+        irr_pct=25.0,
+        mean_saturation_time_hours=4.0,
+        p95_saturation_time_hours=6.0,
+        cpcb_compliant=True,
+    )
+    session.add(sim_result)
+    await session.flush()
+
+    audit = AuditEvent(
+        id=uuid4(), organization_id=org.id,
+        actor_id=str(user.id), event_type="test.audit",
+    )
+    session.add(audit)
+    await session.commit()
+
+    ids = {"org": org.id, "plant": plant.id, "simulation": sim_run.id}
+    return org, user, ids
+
+
+@pytest_asyncio.fixture
+async def setup_test_data():
+    """Recreate schema and seed two independent tenants."""
+    async with conn_mod.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with async_session_maker() as session:
+        org_a, user_a, ids_a = await _create_tenant(session, "Tenant A", "alice@tenanta.com")
+        org_b, user_b, ids_b = await _create_tenant(session, "Tenant B", "bob@tenantb.com")
+        return {
+            "tenant_a": (org_a, user_a, ids_a),
+            "tenant_b": (org_b, user_b, ids_b),
+        }
+
+
+@pytest.fixture
+def tenant_a(setup_test_data):
+    return setup_test_data["tenant_a"]
+
+
+@pytest.fixture
+def tenant_b(setup_test_data):
+    return setup_test_data["tenant_b"]
+
+
+@pytest.fixture
+def auth_a(tenant_a):
+    org, user, _ = tenant_a
+    token = jwt_service.create_access_token(
+        user_id=user.id, org_id=org.id, roles=user.roles,
+        email=user.email, mfa_verified=True,
+    )
+    return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def auth_b(tenant_b):
+    org, user, _ = tenant_b
+    token = jwt_service.create_access_token(
+        user_id=user.id, org_id=org.id, roles=user.roles,
+        email=user.email, mfa_verified=True,
+    )
+    return {"Authorization": f"Bearer {token}"}

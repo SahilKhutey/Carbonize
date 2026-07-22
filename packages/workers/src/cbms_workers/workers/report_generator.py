@@ -125,7 +125,7 @@ def generate_pdf_report_file(run: SimulationRun, pdf_path: str):
     # Title & Metadata
     story.append(Paragraph("CarbonLattice Tech — CMBSG Validation Report", title_style))
     story.append(Paragraph(f"<b>Simulation Run:</b> {run.id}", body_style))
-    story.append(Paragraph(f"<b>Date:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}", body_style))
+    story.append(Paragraph(f"<b>Date:</b> {datetime.now(UTC).strftime('%Y-%m-%d %H:%M:%S UTC')}", body_style))
     story.append(Spacer(1, 15))
 
     # Section 1: Plant Specs

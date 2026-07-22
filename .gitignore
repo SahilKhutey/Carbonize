@@ -112,4 +112,11 @@ Thumbs.db
 # ===== Test data =====
 test_data/
 fixtures/private/
-\n# Secrets\n.env\n.env.local\n.env.*.local\n
+*.log
+*.db
+*.db-journal
+
+# Secrets
+.env
+.env.local
+.env.*.local

@@ -5,7 +5,7 @@ Finds the trade-off curve between block strength and reagent OPEX.
 """
 
 import optuna
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import ExtendedKineticsEngine as KineticsEngine
 from cbms_sim.domain.mass_balance.engine import MassBalanceEngine
 from cbms_sim.domain.block.strength import BlockStrengthPredictor
 from cbms_sim.domain.economic.engine import EconomicEngine

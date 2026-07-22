@@ -171,9 +171,10 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
 
   const co2_pct = getUQMetric(uq_metrics, "co2", seed, N, co2_uq.mean, co2_uq.std || 0.1, 0, 100);
   const so2_pct = getUQMetric(uq_metrics, "so2", seed, N, so2_uq.mean, so2_uq.std || 1.0, 0, 100);
-  const nox_pct = reconstructUQMetric(seed + "-nox", N, parseFloat(run.plant?.nox_mg_per_nm3 || 450) > 0 ? 72.0 : 0.0, 8.0, 0, 100);
-  const hm_pct  = reconstructUQMetric(seed + "-hm", N, 94.1, 3.2, 0, 100);
-  const pm_pct  = reconstructUQMetric(seed + "-pm", N, 88.0, 5.5, 0, 100);
+  const nox_pct = getUQMetric(uq_metrics, "nox", seed, N,
+    parseFloat(run.plant?.nox_mg_per_nm3 || "450") > 0 ? 60.0 : 0.0, 5.0, 0, 100);
+  const hm_pct  = getUQMetric(uq_metrics, "hm",  seed, N, 94.1, 3.2, 0, 100);
+  const pm_pct  = getUQMetric(uq_metrics, "pm",  seed, N, 88.0, 5.5, 0, 100);
 
   const strength_mpa = getUQMetric(uq_metrics, "strength", seed, N, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.1, 0, 100);
   const output_kg_per_day = reconstructUQMetric(seed + "-output", N, resultObj.hourly_block_yield_kg * 24.0, resultObj.hourly_block_yield_kg * 24.0 * 0.05, 0, 1e7);
@@ -188,15 +189,19 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
 
   const rand = mulberry32(12345);
   
-  const mapSobol = (sobolIndices: SobolIndex[], keyMap: any, sourceIndices?: any) => {
+  const mapSobol = (sobolIndices: SobolIndex[], keyMap: Record<string, string>, sobolGroup?: any) => {
+    const fo = sobolGroup?.first_order ?? sobolGroup ?? {};
+    const to = sobolGroup?.total_order ?? {};
     return sobolIndices.map(item => {
-      const mappedKey = keyMap[item.parameter] || item.parameter;
-      const val = sourceIndices ? sourceIndices[mappedKey] : (uq_metrics.sensitivity ? uq_metrics.sensitivity[mappedKey] : undefined);
-      if (val !== undefined) {
+      const mappedKey = keyMap[item.parameter] ?? item.parameter;
+      const s1 = fo[mappedKey];
+      const st = to[mappedKey];
+      if (s1 !== undefined) {
         return {
           ...item,
-          s1: parseFloat(val.toFixed(4)),
-          st: parseFloat((val * 1.1).toFixed(4)),
+          s1: parseFloat(s1.toFixed(4)),
+          // Use real total-order if available; otherwise inflate s1 by 10 %
+          st: st !== undefined ? parseFloat(st.toFixed(4)) : parseFloat((Math.min(1.0, s1 * 1.1)).toFixed(4)),
         };
       }
       return item;
@@ -227,6 +232,9 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
     ph_profile: makeTimeSeries(rand, 24, 8.2, 8.5, 0.2)
   };
 
+  // ── Durability (from uq_metrics.durability) ──────────────────────────
+  const durability = uq_metrics.durability ?? null;
+
   return {
     id: run.id,
     plant_id: run.plant?.id || "unknown",
@@ -245,9 +253,10 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
     block: {
       strength_mpa,
       is_grade: resultObj.block_grade || "M20",
-      leach_risk: "low",
+      leach_risk: durability?.leach_risk ?? "low",
       output_kg_per_day
     },
+    durability,
     economic: {
       npv_10yr_inr,
       irr_pct,
@@ -480,6 +489,90 @@ export function ResultsPage() {
                 />
               </div>
             </section>
+
+            {/* Durability */}
+            {result.durability && (
+              <section aria-labelledby="durability-heading">
+                <h2 id="durability-heading" className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
+                  Block Durability Assessment
+                </h2>
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+                  {/* Grade badge */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className={`
+                        text-2xl font-black tracking-tight px-3 py-1 rounded-lg
+                        ${
+                          result.durability.grade === "A+" ? "bg-emerald-700/30 text-emerald-300 border border-emerald-700" :
+                          result.durability.grade === "A"  ? "bg-emerald-900/30 text-emerald-400 border border-emerald-800" :
+                          result.durability.grade === "B"  ? "bg-yellow-900/30  text-yellow-300  border border-yellow-800" :
+                          result.durability.grade === "C"  ? "bg-orange-900/30  text-orange-300  border border-orange-800" :
+                                                             "bg-red-900/30     text-red-300     border border-red-800"
+                        }
+                      `}>
+                        Grade {result.durability.grade}
+                      </span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                        result.durability.cpcb_leach_compliant
+                          ? "bg-emerald-900/40 text-emerald-400"
+                          : "bg-red-900/40 text-red-400"
+                      }`}>
+                        {result.durability.cpcb_leach_compliant ? "✓ CPCB Compliant" : "✗ CPCB Non-Compliant"}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-300">
+                      Est. service life: <span className="font-bold text-white">{result.durability.service_life_years} yr</span>
+                    </p>
+                  </div>
+
+                  {/* Metrics grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {/* Freeze-Thaw */}
+                    <div className="bg-slate-800/50 rounded-lg p-3">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Freeze-Thaw</p>
+                      <p className="text-lg font-bold text-white">{result.durability.freeze_thaw_cycles} cycles</p>
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded mt-1 inline-block ${
+                        result.durability.freeze_thaw_risk === "low"    ? "bg-emerald-900/40 text-emerald-400" :
+                        result.durability.freeze_thaw_risk === "medium" ? "bg-yellow-900/40  text-yellow-400"  :
+                                                                          "bg-red-900/40     text-red-400"
+                      }`}>{result.durability.freeze_thaw_risk} risk</span>
+                    </div>
+
+                    {/* Sulphate Leach */}
+                    <div className="bg-slate-800/50 rounded-lg p-3">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">SO₄ Leach</p>
+                      <p className="text-lg font-bold text-white">{result.durability.sulphate_leach_mg_l.toFixed(1)} mg/L</p>
+                      <p className="text-[10px] text-slate-500 mt-1">Limit 250 mg/L</p>
+                    </div>
+
+                    {/* HM Leach */}
+                    <div className="bg-slate-800/50 rounded-lg p-3">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">HM Leach</p>
+                      <p className="text-lg font-bold text-white">{result.durability.hm_leach_mg_l.toFixed(3)} mg/L</p>
+                      <p className="text-[10px] text-slate-500 mt-1">Limit 5 mg/L</p>
+                    </div>
+
+                    {/* Carbonation */}
+                    <div className="bg-slate-800/50 rounded-lg p-3">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Carbonation (10yr)</p>
+                      <p className="text-lg font-bold text-white">{result.durability.carbonation_depth_10yr_mm.toFixed(1)} mm</p>
+                      <p className="text-[10px] text-slate-500 mt-1">depth</p>
+                    </div>
+
+                    {/* Leach risk */}
+                    <div className="bg-slate-800/50 rounded-lg p-3">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">Leach Risk</p>
+                      <p className={`text-lg font-bold capitalize ${
+                        result.durability.leach_risk === "low"    ? "text-emerald-400" :
+                        result.durability.leach_risk === "medium" ? "text-yellow-400"  :
+                                                                    "text-red-400"
+                      }`}>{result.durability.leach_risk}</p>
+                      <p className="text-[10px] text-slate-500 mt-1">overall</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
 
             {/* Economics */}
             <section aria-labelledby="econ-heading">

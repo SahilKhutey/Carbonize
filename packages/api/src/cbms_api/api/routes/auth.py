@@ -150,7 +150,7 @@ async def login(
         refresh_token=refresh_token,
         token_type="bearer",
         expires_in=settings.access_token_ttl_minutes * 60,
-        user=UserResponse.from_orm(user),
+        user=UserResponse.model_validate(user),
     )
 
 

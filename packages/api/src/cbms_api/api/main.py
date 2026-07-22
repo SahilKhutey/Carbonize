@@ -7,11 +7,13 @@ Initializes middleware, routers, and DB engine lifespan managers.
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse, Response
+from prometheus_client import make_asgi_app, CONTENT_TYPE_LATEST, generate_latest, REGISTRY
 from cbms_api.database.connection import engine, init_database_rls
 from cbms_api.database.models import Base
 from cbms_api.api.routes import auth, plants, simulations, reports, reagents, analytics, operator, experimental
 from cbms_api.middleware.tenant_isolation import TenantIsolationMiddleware
-from fastapi.responses import JSONResponse
+from cbms_api.observability.middleware import ObservabilityMiddleware
 from cbms_shared.exceptions import (
     AuthenticationError, AuthorizationError, NotFoundError,
     ValidationFailedError, RateLimitError
@@ -65,6 +67,9 @@ app.add_middleware(SlowAPIMiddleware)
 # Enable Tenant Isolation (scopes DB session contexts, innermost)
 app.add_middleware(TenantIsolationMiddleware)
 
+# Enable Prometheus HTTP instrumentation (outermost — wraps everything)
+app.add_middleware(ObservabilityMiddleware)
+
 # Exception handlers for clean API responses
 @app.exception_handler(AuthenticationError)
 async def authentication_error_handler(request, exc):
@@ -115,3 +120,14 @@ app.include_router(experimental.router, prefix="/api")
 async def health_check():
     """Health check endpoint for container/orchestrator liveliness checks."""
     return {"status": "healthy", "service": "biomimetic-sim-api"}
+
+
+@app.get("/metrics", tags=["System"], include_in_schema=False)
+async def prometheus_metrics():
+    """
+    Prometheus metrics scrape endpoint.
+    Grafana datasource should point to this path on the API service.
+    Returns the full default registry in Prometheus text exposition format.
+    """
+    data = generate_latest(REGISTRY)
+    return Response(content=data, media_type=CONTENT_TYPE_LATEST)

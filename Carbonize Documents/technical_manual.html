@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMBSG Technical & Process Engineering Manual</title>
+    
+    <!-- Tailwind CSS v3 CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Material Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- KaTeX for Beautiful Scientific Formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMath()"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+
+        /* Flow Diagrams & ASCII Boxes */
+        pre {
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            color: #38bdf8;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Print Override Layout: Absolute ink safety & high contrast */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt !important;
+                line-height: 1.6 !important;
+            }
+
+            /* Hide all screen-only UI components */
+            .no-print, nav, sidebar, button, .ui-panel, #sidebar-nav {
+                display: none !important;
+            }
+
+            /* Expand container to occupy full page margins */
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                background: #ffffff !important;
+            }
+
+            /* Force color visibility on all text elements */
+            h1, h2, h3, h4, h5, p, span, li, td, th, div, strong {
+                color: #000000 !important;
+                text-shadow: none !important;
+            }
+
+            /* Convert dark flow/code containers to ink-saving light-gray boxes */
+            pre, code, .code-block {
+                background-color: #f8fafc !important;
+                color: #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                page-break-inside: auto !important;
+            }
+
+            tr {
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+            }
+
+            td, th {
+                border: 1px solid #94a3b8 !important;
+                color: #000000 !important;
+                background-color: transparent !important;
+                padding: 8px 12px !important;
+                font-size: 9.5pt !important;
+            }
+
+            th {
+                font-weight: bold !important;
+                background-color: #f1f5f9 !important;
+            }
+
+            /* Direct explicit page breaks before chapters */
+            .page-break {
+                page-break-before: always !important;
+                break-before: page !important;
+            }
+
+            /* Math visibility overrides */
+            .katex {
+                color: #000000 !important;
+            }
+
+            /* Headers and Footers for print pages */
+            h1 {
+                page-break-after: avoid !important;
+                border-bottom: 2px solid #0f172a !important;
+                padding-bottom: 8px !important;
+                margin-top: 30px !important;
+            }
+
+            h2, h3 {
+                page-break-after: avoid !important;
+                margin-top: 24px !important;
+            }
+
+            a {
+                color: #000000 !important;
+                text-decoration: underline !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex">
+
+    <!-- SIDEBAR NAVIGATION (no-print) -->
+    <aside id="sidebar-nav" class="no-print w-80 bg-slate-900 border-r border-slate-800 shrink-0 sticky top-0 h-screen flex flex-col justify-between">
+        <div>
+            <!-- Header -->
+            <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+                <span class="material-icons text-emerald-400 text-2xl animate-pulse">waves</span>
+                <div>
+                    <h1 class="text-sm font-bold tracking-widest text-slate-200 uppercase">CarbonLattice</h1>
+                    <p class="text-[10px] text-slate-500 font-mono font-bold tracking-wider">CMBSG PILOT CORE MANUAL</p>
+                </div>
+            </div>
+
+            <!-- Nav List -->
+            <nav class="p-4 space-y-1">
+                <a href="#manual-intro" class="flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-md text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/5 transition-all">
+                    <span class="material-icons text-sm">menu_book</span> Cover & Introduction
+                </a>
+                <div class="text-[10px] uppercase font-bold text-slate-600 tracking-widest px-3 pt-4 pb-1 font-mono">Process Modules</div>
+                <a href="#stage-1" class="flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all">
+                    <span class="material-icons text-sm">thermostat</span> Stage 1: Gas Conditioning & Quench
+                </a>
+                <a href="#stage-2" class="flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all">
+                    <span class="material-icons text-sm">science</span> Stage 2: Slurry & Blending Loop
+                </a>
+                <a href="#stage-3" class="flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all">
+                    <span class="material-icons text-sm">biotech</span> Stage 3: Kinetic Mesh Absorber
+                </a>
+                <div class="text-[10px] uppercase font-bold text-slate-600 tracking-widest px-3 pt-4 pb-1 font-mono">Materials & Compliance</div>
+                <a href="#materials" class="flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all">
+                    <span class="material-icons text-sm">inventory_2</span> Real-World Materials Directory
+                </a>
+                <a href="#safety" class="flex items-center gap-3 px-3 py-2 text-xs font-medium rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all">
+                    <span class="material-icons text-sm">gavel</span> HSE & Process Safety Protocol
+                </a>
+            </nav>
+        </div>
+
+        <!-- Sticky Footer Utility -->
+        <div class="p-4 border-t border-slate-800 space-y-2">
+            <button onclick="window.print()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold py-2 px-4 rounded-md transition-all flex items-center justify-center gap-2">
+                <span class="material-icons text-sm">picture_as_pdf</span> Print / Export to PDF
+            </button>
+            <p class="text-[9px] text-center text-slate-500 font-mono">Reference Spec v1.0.2</p>
+        </div>
+    </aside>
+
+    <!-- MAIN VIEWPORT CANVAS -->
+    <main class="main-content flex-1 max-w-4xl mx-auto px-12 py-16 overflow-y-auto space-y-20">
+
+        <!-- TITLE / COVER PAGE (Page 1) -->
+        <section id="manual-intro" class="flex flex-col justify-between min-h-[600px] border-b border-slate-800 pb-12">
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 no-print">
+                    <span class="px-2.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider font-mono">
+                        Verification Dossier Complete
+                    </span>
+                    <span class="text-xs text-slate-500 font-mono">ENG-SPEC-2026-MASTER</span>
+                </div>
+                <h1 class="text-5xl font-extrabold tracking-tight text-white leading-tight">
+                    Continuous Multiphase <br>
+                    Biomineralization & <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">Solidification Grid</span>
+                </h1>
+                <p class="text-slate-400 text-lg max-w-xl leading-relaxed">
+                    Integrated Chemical, Thermal, Biopolymer, and Process Safety Specifications for the Retrofitting of Industrial Combustion Slipstreams.
+                </p>
+            </div>
+
+            <!-- Document Details Box -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 grid grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <span class="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-wider block">Target Applications</span>
+                    <span class="text-xs text-slate-300 font-medium">High-Ash Utilities, Steel Mills, Cement Kilns</span>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-wider block">Core Biological Catalysis</span>
+                    <span class="text-xs text-slate-300 font-medium">Thermo-Alkaliphilic variant CA-KR1</span>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-wider block">Structural Matrix Sorbent</span>
+                    <span class="text-xs text-slate-300 font-medium">Protonated Chitosan & Steel Slag Ca²⁺</span>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] text-slate-500 font-mono font-bold uppercase tracking-wider block">Regulatory Scope</span>
+                    <span class="text-xs text-slate-300 font-medium">CPCB SO₂ Standards, BEE CCTS Ledger</span>
+                </div>
+            </div>
+
+            <p class="text-[11px] text-slate-500 italic mt-6">
+                Notice: The mathematical formulas in this manual are dynamically processed. Turn "Background Graphics" ON in your browser print setting to correctly capture visual grids, tables, and borders.
+            </p>
+        </section>
+
+
+        <!-- STAGE 1 (Page 2) -->
+        <section id="stage-1" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 1: Gas Conditioning & Venturi Quench Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 1 is the critical thermal shield and physical separator for the downstream components of the CMBSG. Because the biological engine in Stage 3 relies on immobilized, thermo-sensitive *CA-KR1* Carbonic Anhydrase enzymes, entering gases must be rapidly cooled and stripped of particulate contaminants.
+            </p>
+
+            <h3 class="text-lg font-bold text-emerald-400">1.1 Core Operational Targets</h3>
+            <ul class="list-disc list-inside text-xs text-slate-300 space-y-2 pl-2">
+                <li><strong>Thermal Shock Mitigation:</strong> Rapidly quench raw flue gas from $150\text{--}180^\circ\text{C}$ down to a saturated exit temperature of $40\text{--}45^\circ\text{C}$ in under $1.5\text{ seconds}$. This prevents heat from degrading the enzymes downstream.</li>
+                <li><strong>Particle Stripping:</strong> Isolate and capture $>99.5\%$ of coarse fly ash ($\text{PM}_{10}$ and heavy soot particles). This blocks solids from blinding the fine kinetic meshes in Stage 3.</li>
+                <li><strong>Agglomeration Bypass:</strong> Convert the trapped fly ash into a pumpable $40\text{ wt}\%$ solids bottom slurry. This slurry is routed around the enzyme tower directly to the Stage 4 pug-mill mixer to serve as a pozzolanic micro-aggregate.</li>
+            </ul>
+
+            <pre>
+       Raw Hot Gas In (180°C)
+                │
+                ▼
+   ┌─────────────────────────┐
+   │  Stage 1 Venturi Quench │ <─── Recycled Cooling Water (30°C)
+   └────────────┬────────────┘
+                │
+        ┌───────┴─────────────────┐
+        ▼                         ▼
+  Cooled Gas Out (45°C)    Coarse Ash Slurry Out (40% solids)
+  (To Stage 3 Mesh Tower)  (Bypasses Tower to Stage 4 Mixer)
+            </pre>
+
+            <h3 class="text-lg font-bold text-emerald-400">1.2 Thermodynamic & Aerosol Governing Formulas</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">1.2.1 Gas Quench Energy Balance</span>
+                    <p class="text-xs text-slate-300">The mass flow rate of cooling water required to achieve a saturated outlet temperature is modeled using a steady-state thermal energy balance:</p>
+                    <div class="text-sm py-2">
+                        $$\dot{Q}_{\text{quench}} = \dot{m}_{\text{gas}} \cdot \bar{C}_{p,\text{gas}} \cdot (T_{\text{in}} - T_{\text{out}}) + \dot{m}_{\text{ash}} \cdot C_{p,\text{ash}} \cdot (T_{\text{in}} - T_{\text{out}})$$
+                        $$\dot{m}_{\text{evap}} = \frac{\dot{Q}_{\text{quench}}}{\Delta H_{\text{vap}}}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">1.2.2 Particulate Collection Efficiency</span>
+                    <p class="text-xs text-slate-300">The collection efficiency of fly ash particles into the water droplets is modeled via Calvert's venturi scrubbing relationship:</p>
+                    <div class="text-sm py-2">
+                        $$d_{50} = \sqrt{\frac{9 \cdot \mu_G \cdot d_d}{2 \pi \cdot v_t \cdot \rho_p \cdot C_C}}$$
+                        $$C_C = 1 + \frac{2\lambda}{d_p} \left[ 1.257 + 0.400 \exp \left( -1.10 \frac{d_p}{2\lambda} \right) \right]$$
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STAGE 2 (Page 3) -->
+        <section id="stage-2" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 2: Ionic Leachate & Matrix Blending Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 2 is the chemical assembly block of the CMBSG. Its objective is to continuously prepare and deliver a homogenous, non-Newtonian, "Lattice-Ready" semi-organic carrier fluid to the Stage 3 absorption tower. This fluid must carry a precise ratio of dissolved divalent calcium ions ($\text{Ca}^{2+}$), protonated biopolymer backbones, and active biological catalysts, while preventing premature mineral precipitation before gas contact.
+            </p>
+
+            <pre>
+ [ Crushed Steel Slag ] ──> [ Slag Extractor (R-201) ] ──> [ Ca²⁺ Rich Leachate ] ──┐
+                                                                                  ▼
+ [ Raw Chitosan Flakes ] ──> [ Dissolution Tank (T-202) ] ──> [ Protonated Matrix ] ──> [ Static Mixer (MX-203) ] ──> To Stage 3
+                                                                                  ▲
+ [ Recombinant CA-KR1 ] ──────────────────────────────────────────────────────────┘
+            </pre>
+
+            <h3 class="text-lg font-bold text-emerald-400">2.1 Chemical Thermodynamics & Extraction Kinetics</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">2.1.1 Acid-Mediated Slag Dissolution Kinetics (Shrinking Core Model)</span>
+                    <div class="text-sm py-2">
+                        $$\text{CaO} + 2\text{H}^+ \rightarrow \text{Ca}^{2+} + \text{H}_2\text{O}$$
+                        $$1 - 3(1-X)^{2/3} + 2(1-X) = k_{\text{diff}} \cdot t$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">2.1.2 Chitosan Protonation & Solubilization Equilibrium</span>
+                    <p class="text-xs text-slate-300">Raw chitosan requires protonating its primary amine groups ($-NH_2$) to convert into a cationic polyelectrolyte:</p>
+                    <div class="text-sm py-2">
+                        $$\text{R-NH}_2 + \text{H}^+ \rightleftharpoons \text{R-NH}_3^+$$
+                        $$\alpha = \frac{1}{1 + 10^{\text{pH} - \text{pK}_a}}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">2.1.3 Non-Newtonian Flow Viscosity (Carreau-Yasuda Viscosity Model)</span>
+                    <p class="text-xs text-slate-300">The pseudoplastic rheology allows the fluid to cling stably onto meshes while flowing easily under pump pressures:</p>
+                    <div class="text-sm py-2">
+                        $$\mu_{\text{eff}}(\dot{\gamma}) = \mu_{\infty} + (\mu_0 - \mu_{\infty}) \left[ 1 + (\lambda \dot{\gamma})^a \right]^{\frac{n-1}{a}}$$
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STAGE 3 (Page 4) -->
+        <section id="stage-3" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Stage 3: Ultrasonic Static Mesh Tower Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Stage 3 is the catalytic core of the CMBSG. Its objective is to continuously absorb and mineralize gaseous pollutants from the conditioned Stage 1 flue gas ($40\text{--}45^\circ\text{C}$, ash-stripped) by reacting them with the flowing Stage 2 "Lattice-Ready" biopolymer-calcium slurry.
+            </p>
+
+            <pre>
+                    Matrix Fluid In (Stage 2)
+                             │
+                             ▼ (Trickle Flow)
+        ┌────────────────────────────────────────┐
+        │  [Coarse Barrier Screen: 20 Mesh]      │ <── Particulate Intercept
+        ├────────────────────────────────────────┤
+Gas In  │  [Intermediate Screen: 80 Mesh]       │ <── Metal Chelation & SO₂ Scrubbing
+(45°C)  ├────────────────────────────────────────┤ ──> Treated Gas Out (Stack)
+ ═════> │  [Fine Kinetic Screen: 150 Mesh]      │ <── Enzymatic CO₂ Mineralization
+        └────────────────────────────────────────┘
+                             │
+                             ▼ (Sol-Gel Slurry Egress)
+                      To Stage 4 Mixer
+            </pre>
+
+            <h3 class="text-lg font-bold text-emerald-400">3.1 Process Mass Transfer, Kinetics, & Catalysis Sizing</h3>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="space-y-1">
+                    <span class="text-xs text-slate-400 font-mono">3.1.1 Carbonic Anhydrase (CA-KR1) Kinetic Hydration</span>
+                    <p class="text-xs text-slate-300">The catalytic hydration velocity ($v$) is governed by Michaelis-Menten kinetics:</p>
+                    <div class="text-sm py-2">
+                        $$v = \frac{k_{\text{cat}} \cdot [E]_0 \cdot [\text{CO}_2]}{K_m + [\text{CO}_2]}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">3.1.2 Two-Film Mass Transfer & Chemical Enhancement</span>
+                    <div class="text-sm py-2">
+                        $$N_{\text{CO}_2} = K_L \cdot E_{\text{en}} \cdot (C_{\text{CO}_2}^* - C_{\text{CO}_2,b})$$
+                        $$Ha = \frac{\sqrt{D_{\text{CO}_2} \cdot k_{\text{enz}}}}{K_L}$$
+                        $$E_{\text{en}} = \frac{Ha}{\tanh(Ha)}$$
+                    </div>
+                </div>
+
+                <div class="space-y-1 pt-2 border-t border-slate-800">
+                    <span class="text-xs text-slate-400 font-mono">3.1.3 Ultrasonic Demolding Acoustic Shear Stress</span>
+                    <p class="text-xs text-slate-300">Peak acoustic shear stress ($\tau_{\text{shear}}$) generated at the wire-slurry interface must exceed the mineral gel's adhesion limit:</p>
+                    <div class="text-sm py-2">
+                        $$\tau_{\text{shear}} = 2\pi f \cdot \rho_{\text{solid}} \cdot c_{\text{sound}} \cdot A_{\text{amp}} \ge 2.2\text{ MPa}$$
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- MATERIALS DIRECTORY (Page 5) -->
+        <section id="materials" class="page-break space-y-6 pt-10">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                Real-World Materials Evaluation Directory
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                Deploying a coral-inspired biomineralization system within a heavy industrial environment requires highly specialized materials. This directory profiles the target materials selected to withstand these operational stresses, ensuring a minimum continuous system service life of <strong>15 years</strong>.
+            </p>
+
+            <table class="w-full text-xs text-slate-300 border-collapse">
+                <thead>
+                    <tr class="bg-slate-900 border-b border-slate-800 text-left font-bold uppercase text-slate-400">
+                        <th class="p-3">Equipment Component</th>
+                        <th class="p-3">Material Choice</th>
+                        <th class="p-3">Critical Operational Stress</th>
+                        <th class="p-3">Expected Lifespan</th>
+                        <th class="p-3">Primary Failure Mode</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/40">
+                    <tr>
+                        <td class="p-3 font-semibold text-white">Stage 1 Scraper Throat</td>
+                        <td class="p-3">Alumina Tiles (95% $Al_2O_3$)</td>
+                        <td class="p-3">High-velocity fly ash abrasion at 180°C</td>
+                        <td class="p-3 text-emerald-400">10+ Years</td>
+                        <td class="p-3 text-rose-400">Erosion & wall thinning</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-semibold text-white">Stage 1 Quench Sump</td>
+                        <td class="p-3">Super Duplex UNS S32750</td>
+                        <td class="p-3">Acidic condensation at pH 3.5</td>
+                        <td class="p-3 text-emerald-400">15+ Years</td>
+                        <td class="p-3 text-rose-400">Acid pitting & cracking</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-semibold text-white">Stage 2 Conveyance Loop</td>
+                        <td class="p-3">Schedule 80 CPVC</td>
+                        <td class="p-3">Non-Newtonian abrasive shear, weak acids</td>
+                        <td class="p-3 text-emerald-400">12+ Years</td>
+                        <td class="p-3 text-rose-400">Polymer degradation</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-semibold text-white">Stage 3 Mesh Screens</td>
+                        <td class="p-3">Titanium Grade 2</td>
+                        <td class="p-3">40 kHz acoustic fatigue, sulfurous gas</td>
+                        <td class="p-3 text-emerald-400">5+ Years</td>
+                        <td class="p-3 text-rose-400">Fatigue fracture</td>
+                    </tr>
+                    <tr>
+                        <td class="p-3 font-semibold text-white">Stage 4 Press Mold Cavities</td>
+                        <td class="p-3">Hardox 400 Steel</td>
+                        <td class="p-3">High compression force (200 bar)</td>
+                        <td class="p-3 text-emerald-400">8+ Years</td>
+                        <td class="p-3 text-rose-400">Surface gouging</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+        <!-- SAFETY & HSE PROTOCOL (Page 6) -->
+        <section id="safety" class="page-break space-y-6 pt-10 pb-12">
+            <h1 class="text-3xl font-bold text-white border-b border-slate-800 pb-2">
+                HSE & Process Safety Protocol
+            </h1>
+            <p class="text-slate-400 text-sm leading-relaxed">
+                The chemical loops inside the CMBSG utilize highly active reagents, strong organic acids, and concentrated heavy metal residues. Handling these reagents requires strict adherence to international safety parameters (OSHA / SPCB).
+            </p>
+
+            <h3 class="text-lg font-bold text-rose-400">5.1 Chemical Hazard Assessment & Safe Handling</h3>
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+                <div class="flex gap-4 items-start">
+                    <span class="flex-none p-1.5 rounded bg-rose-500/10 text-rose-400 font-bold font-mono">HF</span>
+                    <div>
+                        <h4 class="font-bold text-white">Hydrofluoric Acid (HF) Etching Baths</h4>
+                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Highly corrosive contact poison that causes systemic calcium decalcification. Primary mitigation includes a face velocity wet fume hood ($\ge 0.5\text{ m/s}$) and a pressurized 2.5 wt% Calcium Gluconate gel station within 3 meters.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-start border-t border-slate-800/80 pt-4">
+                    <span class="flex-none p-1.5 rounded bg-rose-500/10 text-rose-400 font-bold font-mono">HCN</span>
+                    <div>
+                        <h4 class="font-bold text-white">Sodium Cyanoborohydride (HCN Risk)</h4>
+                        <p class="text-xs text-slate-400 mt-1 leading-relaxed">
+                            Water-reactive reducing agent. If exposed to acidic conditions ($pH < 7.0$), it hydrolyzes to release lethal Hydrogen Cyanide ($HCN$) gas:
+                            $$\text{NaBH}_3\text{CN} + 3\text{H}_2\text{O} + \text{H}^+ \xrightarrow{\text{Acidic Media}} \text{HCN}\uparrow + \text{H}_3\text{BO}_3 + \text{Na}^+ + 3\text{H}_2\uparrow$$
+                            Interlock hardware must cut the feed lines and flood the vessel with a 5 wt% sodium hypochlorite (NaOCl) oxidation solution if pH drops below 8.5.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-rose-400">5.2 Safety Instrumented Systems (SIS) & ESD Triggers</h3>
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div class="p-4 bg-slate-900 rounded-lg border border-slate-800">
+                    <h4 class="font-bold text-white">Trigger A: High pressure at Stage 3 base</h4>
+                    <p class="text-slate-400 mt-1">If $PIT-102$ registers $P > 5,000\text{ Pa}$:</p>
+                    <ul class="list-disc list-inside text-[11px] text-slate-500 mt-2 space-y-1">
+                        <li>Executes in $\le 150\text{ ms}$</li>
+                        <li>Opens pneumatic 3-way bypass gate V-1</li>
+                        <li>De-energizes the ID fan instantly</li>
+                    </ul>
+                </div>
+                <div class="p-4 bg-slate-900 rounded-lg border border-slate-800">
+                    <h4 class="font-bold text-white">Trigger B: Acidic pH drift in Reduction Bath</h4>
+                    <p class="text-slate-400 mt-1">If $pH < 7.0$:</p>
+                    <ul class="list-disc list-inside text-[11px] text-slate-500 mt-2 space-y-1">
+                        <li>Executes in $\le 500\text{ ms}$</li>
+                        <li>Trips the reagent feed pumps</li>
+                        <li>Dumps NaOCl bleach to neutralize cyanides</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- INLINE ENGINE SCRIPTS -->
+    <script>
+        function renderMath() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError : false
+                });
+            }
+        }
+    </script>
+</body>
+</html>

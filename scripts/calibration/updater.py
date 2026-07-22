@@ -5,7 +5,7 @@ Update parameter set JSON file with calibrated values.
 from __future__ import annotations
 
 import copy
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Dict
 import numpy as np
 
@@ -45,7 +45,7 @@ class ParameterSetUpdater:
             new_version = old_version + ".calibrated"
             
         new_params["version"] = new_version
-        new_params["last_calibrated"] = datetime.utcnow().isoformat() + "Z"
+        new_params["last_calibrated"] = datetime.now(UTC).isoformat() + "Z"
         new_params["calibration_source"] = source_data
         
         if "parameters" not in new_params:
@@ -77,7 +77,7 @@ class ParameterSetUpdater:
             
         new_params["calibration_history"].append({
             "version": new_version,
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat() + "Z",
             "source_data": source_data,
             "parameters_updated": list(fit_result.parameters.keys()),
             "fit_quality": fit_result.fit_quality,

@@ -8,7 +8,7 @@ import numpy as np
 from cbms_sim.domain.models.plant import PlantProfile
 from cbms_sim.domain.models.reagent import ReagentFormulation, CalciumSourceType
 from cbms_sim.domain.models.conditions import OperatingConditions
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import KineticsEngine
 from cbms_sim.domain.parameters.registry import ParameterRegistry
 
 

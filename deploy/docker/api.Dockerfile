@@ -66,4 +66,4 @@ EXPOSE 8000
 USER app
 
 # Default command (overridden in docker-compose)
-CMD ["uvicorn", "cbms_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+CMD ["uvicorn", "cbms_api.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

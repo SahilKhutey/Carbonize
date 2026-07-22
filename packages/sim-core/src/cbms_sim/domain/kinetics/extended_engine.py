@@ -239,6 +239,7 @@ class ExtendedKineticsConfig:
     rtol: float = 1e-8
     atol: float = 1e-10
     max_step_s: float = 0.1
+    rate_overrides: dict[str, float] | None = None
 
 
 class ExtendedKineticsEngine:
@@ -313,28 +314,30 @@ class ExtendedKineticsEngine:
 
         liquid_to_gas_ratio = float(conditions.liquid_to_gas_ratio)
 
+        overrides = self.config.rate_overrides or {}
+
         # Solver parameters
         solver_params = (
-            1.0e6,  # k_cat
-            8.5,    # K_M_co2
-            26.0,   # K_i_hco3
-            2.5e-2,  # k_so2_abs
-            10**-1.85, # K_so2_dissociation
-            1.0e-2,  # k_no2_abs
-            10**-1.4,  # K_no2_dissociation
-            1.0e-4,  # k_sulfite_oxidation
-            1.5e-2,  # k_precip_caco3
-            1.0e-2,  # k_precip_caso3
-            5.0e-3,  # k_precip_caso4
+            overrides.get("k_cat", 1.0e6),
+            overrides.get("K_M_co2", 8.5),
+            overrides.get("K_i_hco3", 26.0),
+            overrides.get("k_so2_abs", 2.5e-2),
+            overrides.get("K_so2_dissociation", 10**-1.85),
+            overrides.get("k_no2_abs", 1.0e-2),
+            overrides.get("K_no2_dissociation", 10**-1.4),
+            overrides.get("k_sulfite_oxidation", 1.0e-4),
+            overrides.get("k_precip_caco3", 1.5e-2),
+            overrides.get("k_precip_caso3", 1.0e-2),
+            overrides.get("k_precip_caso4", 5.0e-3),
             KSP_CACO3,  # Ksp_caco3
             KSP_CASO4,  # Ksp_caso4
             KSP_CASO3,  # Ksp_caso3
-            8.0e-3,  # k_chel
+            overrides.get("k_chel", 8.0e-3),
             free_amine_density,  # free_amine_density (mol/m3)
             pm_inlet,
-            0.18,    # k_pm_cap
-            5.0e-5,  # ca_inactivation
-            85.0e3,  # E_a_inact
+            overrides.get("k_pm_cap", 0.18),
+            overrides.get("ca_inactivation", 5.0e-5),
+            overrides.get("E_a_inact", 85.0e3),
             float(conditions.reactor_temp_c) + 273.15,
             8.314,   # R_gas
             313.15,  # T_ref

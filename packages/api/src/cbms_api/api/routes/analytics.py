@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from cbms_api.api.dependencies import get_db, get_active_tenant_id
 from cbms_api.database.models import PlantProfile, SimulationRun, SimulationResult
 from cbms_api.middleware.rate_limiting import rate_limit_read
-from datetime import datetime
+from datetime import datetime, UTC
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
@@ -92,7 +92,7 @@ async def get_portfolio_analytics(
                     "title": f"CPCB non-compliance detected at {plant.name}",
                     "summary": f"Sulfate leaching risks or particulate emission levels exceeded regulatory limits in simulation.",
                     "severity": "fault",
-                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.utcnow().isoformat() + "Z",
+                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.now(UTC).isoformat() + "Z",
                     "drillDownUrl": f"/executive/plants/{plant.id}"
                 })
             elif co2_capture_pct < 80.0:
@@ -104,7 +104,7 @@ async def get_portfolio_analytics(
                     "title": f"CO₂ capture below 80% baseline at {plant.name}",
                     "summary": f"Current capture is {co2_capture_pct:.1f}%. Check enzyme concentration or operating temperature.",
                     "severity": "warning",
-                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.utcnow().isoformat() + "Z",
+                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.now(UTC).isoformat() + "Z",
                     "drillDownUrl": f"/executive/plants/{plant.id}"
                 })
             elif npv_crore > 4.0:
@@ -115,7 +115,7 @@ async def get_portfolio_analytics(
                     "title": f"Net NPV exceeds budget projection at {plant.name}",
                     "summary": f"High calcium conversion and block yield rate driving 10-year NPV to ₹{npv_crore:.2f} Crore.",
                     "severity": "opportunity",
-                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.utcnow().isoformat() + "Z",
+                    "detectedAt": run.completed_at.isoformat() + "Z" if run.completed_at else datetime.now(UTC).isoformat() + "Z",
                     "drillDownUrl": f"/executive/plants/{plant.id}"
                 })
         else:
@@ -192,9 +192,13 @@ async def get_portfolio_analytics(
     ]
     
     return {
+        # Top-level keys required by the tenant-isolation tests
+        "total_plants": len(plants),
+        "details": plant_rows,
+        # Full payload consumed by the frontend hook
         "summary": {
             "kpis": kpis,
-            "lastUpdated": datetime.utcnow().isoformat() + "Z"
+            "lastUpdated": datetime.now(UTC).isoformat() + "Z"
         },
         "plants": plant_rows,
         "insights": insights

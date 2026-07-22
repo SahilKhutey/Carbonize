@@ -1,34 +1,50 @@
-# Prometheus configuration
 global:
-  scrape_interval: 15s
+  scrape_interval:     15s
   evaluation_interval: 15s
+  external_labels:
+    environment: "production"
+    service:     "cbms"
 
 scrape_configs:
-  # API service
-  - job_name: 'cbms-api'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['api:8000']
+  # CBMS FastAPI — scrapes /metrics endpoint (added in main.py)
+  - job_name: "cbms-api"
+    metrics_path: "/metrics"
     scrape_interval: 10s
-
-  # Worker service
-  - job_name: 'cbms-worker'
-    metrics_path: '/metrics'
     static_configs:
-      - targets: ['worker:9090']
+      - targets: ["api:8000"]
+        labels:
+          service:   "api"
+          component: "fastapi"
+
+  # Celery workers — prometheus_client push via StatsD exporter on port 9102
+  - job_name: "cbms-worker"
+    metrics_path: "/metrics"
     scrape_interval: 30s
-
-  # Postgres exporter
-  - job_name: 'postgres'
     static_configs:
-      - targets: ['postgres-exporter:9187']
+      - targets: ["worker:9102"]
+        labels:
+          service:   "worker"
+          component: "celery"
+
+  # PostgreSQL exporter
+  - job_name: "cbms-postgres"
+    scrape_interval: 30s
+    static_configs:
+      - targets: ["postgres-exporter:9187"]
+        labels:
+          service:   "database"
+          component: "postgres"
 
   # Redis exporter
-  - job_name: 'redis'
+  - job_name: "cbms-redis"
+    scrape_interval: 30s
     static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ["redis-exporter:9121"]
+        labels:
+          service:   "cache"
+          component: "redis"
 
-  # Prometheus itself
-  - job_name: 'prometheus'
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]

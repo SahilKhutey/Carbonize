@@ -10,7 +10,7 @@ Transitions are atomic (UPDATE ... SET status = ... WHERE status = expected_from
 """
 
 import enum
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, UTC
 from typing import Any
 
 from sqlalchemy import text, select
@@ -200,7 +200,7 @@ class ReportStatusMachine:
     async def find_stuck_reports(db: AsyncSession) -> list[dict]:
         """Find reports stuck in GENERATING for too long."""
         from cbms_api.database.models import GeneratedReport
-        cutoff = datetime.utcnow() - ReportStatusMachine.STUCK_TIMEOUT
+        cutoff = datetime.now(UTC) - ReportStatusMachine.STUCK_TIMEOUT
         
         result = await db.execute(
             select(

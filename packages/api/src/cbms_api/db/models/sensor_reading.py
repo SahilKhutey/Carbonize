@@ -1,16 +1,20 @@
 """
 SQLAlchemy model for sensor readings.
 Single table for both real and simulated data.
+
+Inherits from the project-wide declarative Base so that:
+  - alembic autogenerate detects the table
+  - the model participates in the same metadata as all other ORM models
 """
 
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, Index, JSON, Enum as SQLEnum
+from sqlalchemy import Column, String, Float, DateTime, Index
 from sqlalchemy.dialects.postgresql import UUID as PgUUID, JSONB
 import enum
 from uuid import uuid4
 
-# Stub Base
-class Base:
-    pass
+# Import from the real declarative Base — do NOT redefine Base locally.
+from cbms_api.database.models import Base
+
 
 class MeasurementTypeEnum(str, enum.Enum):
     """Same enum as in shared schema."""
@@ -19,21 +23,23 @@ class MeasurementTypeEnum(str, enum.Enum):
     TEMPERATURE = "temperature"
     # Note: Full enum in cbms_shared.schemas.reading
 
+
 class DataSourceEnum(str, enum.Enum):
     SIMULATION = "simulation"
     PHYSICAL_SENSOR = "physical_sensor"
     LAB_MEASUREMENT = "lab_measurement"
     CALCULATED = "calculated"
 
+
 class SensorReadingORM(Base):
     """
     Time-series storage for all sensor readings.
-    
+
     Same schema for real and simulated data.
     For high-throughput, consider TimescaleDB hypertable.
     """
     __tablename__ = "sensor_readings"
-    
+
     id = Column(PgUUID(as_uuid=True), primary_key=True, default=uuid4)
     reading_id = Column(PgUUID(as_uuid=True), nullable=False, index=True)
     timestamp = Column(DateTime(timezone=True), nullable=False, index=True)
@@ -48,7 +54,7 @@ class SensorReadingORM(Base):
     plant_id = Column(PgUUID(as_uuid=True), nullable=False, index=True)
     simulation_id = Column(PgUUID(as_uuid=True), nullable=True, index=True)
     extra_metadata = Column(JSONB, default=dict)
-    
+
     __table_args__ = (
         Index("ix_readings_plant_time", "plant_id", "timestamp"),
         Index("ix_readings_type_time", "measurement_type", "timestamp"),

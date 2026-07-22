@@ -5,7 +5,7 @@ Pydantic schemas for authentication and user management.
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
 class LoginRequest(BaseModel):
@@ -17,15 +17,14 @@ class LoginRequest(BaseModel):
 
 class UserResponse(BaseModel):
     """User representation in responses."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     email: str
     roles: List[str]
     is_active: bool
     mfa_enabled: bool
     created_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 class LoginResponse(BaseModel):

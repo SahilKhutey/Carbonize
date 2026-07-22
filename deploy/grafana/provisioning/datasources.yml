@@ -1,5 +1,6 @@
 apiVersion: 1
 datasources:
+  # Primary Prometheus datasource — scrapes /metrics from the cbms-api service
   - name: Prometheus
     type: prometheus
     uid: cbms-prometheus
@@ -11,3 +12,21 @@ datasources:
       timeInterval: "15s"
       queryTimeout: "60s"
       httpMethod: "POST"
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: cbms-tempo
+
+  # Direct API scrape (for local dev without a Prometheus sidecar)
+  # Enable by setting GRAFANA_DIRECT_SCRAPE=true in your .env
+  - name: CBMS API Direct
+    type: prometheus
+    uid: cbms-api-direct
+    access: proxy
+    url: http://api:8000
+    editable: true
+    jsonData:
+      timeInterval: "30s"
+      queryTimeout: "60s"
+      httpMethod: "GET"
+      # Scrapes /metrics — the FastAPI endpoint added in main.py
+      prometheusType: "Prometheus"

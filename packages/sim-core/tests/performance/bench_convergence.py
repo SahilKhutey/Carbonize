@@ -4,7 +4,7 @@ Benchmarks for ODE solver convergence scaling (accuracy vs speed).
 
 import pytest
 import numpy as np
-from cbms_sim.domain.kinetics.engine import KineticsEngine, KineticsConfig
+from cbms_sim.domain.kinetics import KineticsEngine, KineticsConfig
 
 
 class TestConvergenceScaling:

@@ -5,7 +5,7 @@ Tests for worker death recovery via the sweep/cleanup jobs.
 import pytest
 import asyncio
 from uuid import uuid4, UUID
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, UTC
 from unittest.mock import MagicMock, patch
 
 import cbms_api.database.connection as conn_mod
@@ -50,7 +50,7 @@ async def stuck_report_data():
         await session.flush()
         
         # A report that was started 10 minutes ago
-        old_time = datetime.utcnow() - timedelta(minutes=10)
+        old_time = datetime.now(UTC) - timedelta(minutes=10)
         report = GeneratedReport(
             id=uuid4(),
             organization_id=org.id,

@@ -115,6 +115,35 @@ export interface SensitivityResult {
   block_strength_indices: SobolIndex[];
 }
 
+// ---------------------------------------------------------------------------
+// Block durability (from uq_metrics.durability in the API payload)
+// ---------------------------------------------------------------------------
+
+export interface DurabilityResult {
+  /** Freeze-thaw cycles to failure (Powers model) */
+  freeze_thaw_cycles:        number;
+  /** Index 0–1 */
+  freeze_thaw_index:         number;
+  /** low | medium | high */
+  freeze_thaw_risk:          "low" | "medium" | "high";
+  /** Sulphate leach concentration (mg/L) */
+  sulphate_leach_mg_l:       number;
+  /** Heavy metal leach concentration (mg/L) */
+  hm_leach_mg_l:             number;
+  /** Overall leach risk */
+  leach_risk:                "low" | "medium" | "high";
+  /** 10-year carbonation penetration depth (mm) */
+  carbonation_depth_10yr_mm: number;
+  /** Carbonation index 0–1 */
+  carbonation_index:         number;
+  /** Estimated service life (years) */
+  service_life_years:        number;
+  /** CPCB IS 16162 leach compliance */
+  cpcb_leach_compliant:      boolean;
+  /** Overall grade: A+ | A | B | C | FAIL */
+  grade:                     string;
+}
+
 export interface SimulationResult {
   id:            string;
   plant_id:      string;
@@ -125,6 +154,8 @@ export interface SimulationResult {
   duration_s:    number;
   capture:       CaptureResult;
   block:         BlockResult;
+  /** Null when backend hasn't computed durability yet */
+  durability:    DurabilityResult | null;
   economic:      EconomicResult;
   time_series:   TimeSeriesResult;
   sensitivity:   SensitivityResult;

@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime, timezone
 from pathlib import Path
 
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import KineticsEngine
 from cbms_sim.v1 import SimulationEngine, SimulationRequest
 from cbms_sim.v1.parameters import ParameterRegistry
 

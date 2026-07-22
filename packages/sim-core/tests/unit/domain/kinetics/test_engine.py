@@ -1,7 +1,7 @@
 """Tests for kinetics engines (standard and extended)."""
 
 import pytest
-from cbms_sim.domain.kinetics.engine import KineticsEngine
+from cbms_sim.domain.kinetics import KineticsEngine
 from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsEngine
 from cbms_shared.exceptions import NumericalDivergenceError
 

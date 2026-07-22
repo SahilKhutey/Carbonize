@@ -3,7 +3,7 @@
  */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, Settings2, Play, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, Settings2, Play, CheckCircle2, Loader2 } from "lucide-react";
 import { usePlantProfile } from "../../../hooks/usePlantProfile";
 
 export function SimulationWizard() {
@@ -12,7 +12,17 @@ export function SimulationWizard() {
   const [duration, setDuration] = useState(24);
   const [samples, setSamples] = useState(100);
   const [uqEnabled, setUqEnabled] = useState(true);
-  
+
+  // Configurable kinetics parameters (step 2 advanced)
+  const [enzymeMgL, setEnzymeMgL] = useState(12.0);
+  const [chitosanPct, setChitosanPct] = useState(3.0);
+  const [reactorTempC, setReactorTempC] = useState(40.0);
+  const [pressForcebar, setPressForcebar] = useState(200.0);
+
+  // Submission state
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const { plants } = usePlantProfile();
   const navigate = useNavigate();
 
@@ -20,11 +30,32 @@ export function SimulationWizard() {
   const handleBack = () => setStep((s) => s - 1);
 
   const handleSubmit = async () => {
-    // Mock simulation submission
-    const fakeId = `sim-run-${Math.floor(Math.random() * 1000)}`;
-    // Wait briefly to simulate API call
-    await new Promise((r) => setTimeout(r, 600));
-    navigate(`/simulations/${fakeId}`);
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const res = await fetch("/api/simulations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          plant_profile_id:         selectedPlant,
+          press_force_bar:          pressForcebar,
+          enzyme_concentration_mg_l: enzymeMgL,
+          chitosan_wt_pct:           chitosanPct,
+          reactor_temperature_c:     reactorTempC,
+        }),
+      });
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        throw new Error(detail?.detail || `Server error ${res.status}`);
+      }
+      const data = await res.json();
+      const runId = data?.run_id || data?.id;
+      navigate(`/simulations/${runId}`);
+    } catch (err: any) {
+      setSubmitError(err.message || "Failed to launch simulation.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -146,6 +177,51 @@ export function SimulationWizard() {
                     </select>
                   </div>
                 )}
+
+                <hr className="border-slate-800" />
+
+                {/* Advanced kinetics parameters */}
+                <div>
+                  <h3 className="text-sm font-medium text-slate-300 mb-3">Advanced Parameters</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">
+                        Enzyme Concentration — <span className="text-emerald-400 font-bold">{enzymeMgL} mg/L</span>
+                      </label>
+                      <input type="range" min="1" max="50" step="0.5"
+                        value={enzymeMgL} onChange={(e) => setEnzymeMgL(Number(e.target.value))}
+                        className="w-full accent-emerald-500" />
+                      <div className="flex justify-between text-[10px] text-slate-600 mt-0.5"><span>1</span><span>50 mg/L</span></div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">
+                        Chitosan — <span className="text-emerald-400 font-bold">{chitosanPct}%</span>
+                      </label>
+                      <input type="range" min="1" max="5" step="0.1"
+                        value={chitosanPct} onChange={(e) => setChitosanPct(Number(e.target.value))}
+                        className="w-full accent-emerald-500" />
+                      <div className="flex justify-between text-[10px] text-slate-600 mt-0.5"><span>1%</span><span>5%</span></div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">
+                        Reactor Temperature — <span className="text-emerald-400 font-bold">{reactorTempC}°C</span>
+                      </label>
+                      <input type="range" min="20" max="80" step="1"
+                        value={reactorTempC} onChange={(e) => setReactorTempC(Number(e.target.value))}
+                        className="w-full accent-emerald-500" />
+                      <div className="flex justify-between text-[10px] text-slate-600 mt-0.5"><span>20°C</span><span>80°C</span></div>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-400 mb-1">
+                        Press Force — <span className="text-emerald-400 font-bold">{pressForcebar} bar</span>
+                      </label>
+                      <input type="range" min="50" max="500" step="10"
+                        value={pressForcebar} onChange={(e) => setPressForcebar(Number(e.target.value))}
+                        className="w-full accent-emerald-500" />
+                      <div className="flex justify-between text-[10px] text-slate-600 mt-0.5"><span>50</span><span>500 bar</span></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -154,6 +230,13 @@ export function SimulationWizard() {
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <h2 className="text-lg font-semibold text-white mb-4">Review & Submit</h2>
+
+              {submitError && (
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-900/30 border border-red-800 text-sm text-red-400">
+                  <span className="shrink-0 mt-0.5">⚠</span>
+                  <span>{submitError}</span>
+                </div>
+              )}
               
               <div className="bg-slate-950 border border-slate-800 rounded-lg p-4 space-y-3">
                 <div className="flex justify-between">
@@ -169,6 +252,23 @@ export function SimulationWizard() {
                   <span className="text-sm font-semibold text-slate-200">
                     {uqEnabled ? `Stochastic (UQ, ${samples} samples)` : 'Deterministic (Single Run)'}
                   </span>
+                </div>
+                <hr className="border-slate-800" />
+                <div className="flex justify-between">
+                  <span className="text-sm text-slate-400">Enzyme:</span>
+                  <span className="text-sm font-semibold text-slate-200">{enzymeMgL} mg/L</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-slate-400">Chitosan:</span>
+                  <span className="text-sm font-semibold text-slate-200">{chitosanPct}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-slate-400">Reactor Temp:</span>
+                  <span className="text-sm font-semibold text-slate-200">{reactorTempC}°C</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-slate-400">Press Force:</span>
+                  <span className="text-sm font-semibold text-slate-200">{pressForcebar} bar</span>
                 </div>
               </div>
 
@@ -201,9 +301,14 @@ export function SimulationWizard() {
           ) : (
             <button
               onClick={handleSubmit}
-              className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-lg shadow-lg shadow-emerald-900/20 transition-colors"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-900 disabled:text-emerald-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-emerald-900/20 transition-colors"
             >
-              Launch Simulation <Play className="w-4 h-4" />
+              {submitting ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Launching…</>
+              ) : (
+                <>Launch Simulation <Play className="w-4 h-4" /></>
+              )}
             </button>
           )}
         </div>
