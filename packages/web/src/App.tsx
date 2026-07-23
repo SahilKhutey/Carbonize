@@ -12,6 +12,7 @@ import { AlarmHistory }           from './features/operator/pages/AlarmHistory.t
 import { ShiftHandover }          from './features/operator/pages/ShiftHandover.tsx';
 import { ResultsPage }            from './features/simulation-results/pages/ResultsPage.tsx';
 import { ExperimentalLab }        from './features/experimental/pages/ExperimentalLab.tsx';
+import { PollutantsDatabasePage } from './features/pollutants/pages/PollutantsDatabasePage.tsx';
 
 // Phase 5C Components
 import { SimulationList }         from './features/simulation/pages/SimulationList.tsx';
@@ -138,6 +139,10 @@ import { AppShell }               from './components/layout/AppShell.tsx';
 import { LoginPage }              from './components/auth/LoginPage.tsx';
 import { ProtectedRoute }         from './components/auth/ProtectedRoute.tsx';
 
+import { PlantListPage }            from './features/plants/pages/PlantListPage.tsx';
+import { ComplianceDashboardPage } from './features/compliance/pages/ComplianceDashboardPage.tsx';
+import { ExecutiveReportBuilder }    from './features/executive/pages/ExecutiveReportBuilder.tsx';
+
 // ---------------------------------------------------------------------------
 // App shell — full route tree with role-based views
 // ---------------------------------------------------------------------------
@@ -191,9 +196,9 @@ export const App: React.FC = () => (
         {/* General Dashboard */}
         <Route path="dashboard" element={<MainDashboard />} />
 
-        {/* 5C Placeholders */}
-        <Route path="plants" element={<div className="p-4 text-slate-400">Plant List (Task 5C)</div>} />
-        <Route path="plants/:id" element={<div className="p-4 text-slate-400">Plant Detail (Task 5C)</div>} />
+        {/* Industrial Plants Management */}
+        <Route path="plants" element={<PlantListPage />} />
+        <Route path="plants/:id" element={<PlantListPage />} />
         
         <Route path="simulations" element={<SimulationList />} />
         <Route path="simulations/new" element={<SimulationWizard />} />
@@ -209,18 +214,19 @@ export const App: React.FC = () => (
           <ProtectedRoute allowedRoles={['manager', 'admin']}>
             <Routes>
               <Route path="dashboard" element={<ExecutiveDashboard />} />
-              <Route path="plants" element={<div className="flex h-full items-center justify-center text-slate-600">Plant Table</div>} />
-              <Route path="plants/:plantId" element={<div className="flex h-full items-center justify-center text-slate-600">Plant Detail</div>} />
-              <Route path="reports" element={<div className="flex h-full items-center justify-center text-slate-600">Report Builder</div>} />
-              <Route path="analytics" element={<div className="flex h-full items-center justify-center text-slate-600">Analytics</div>} />
+              <Route path="plants" element={<PlantListPage />} />
+              <Route path="plants/:plantId" element={<PlantListPage />} />
+              <Route path="reports" element={<ExecutiveReportBuilder />} />
+              <Route path="analytics" element={<ComplianceDashboardPage />} />
               <Route path="*" element={<Navigate to="dashboard" replace />} />
             </Routes>
           </ProtectedRoute>
         } />
         
-        {/* Reports & Compliance (from sidebar) */}
-        <Route path="reports" element={<Navigate to="/executive/reports" replace />} />
-        <Route path="compliance" element={<div className="p-4 text-slate-400">Compliance Dashboard</div>} />
+        {/* Reports, Compliance & Pollutants Database */}
+        <Route path="reports" element={<ExecutiveReportBuilder />} />
+        <Route path="compliance" element={<ComplianceDashboardPage />} />
+        <Route path="pollutants" element={<PollutantsDatabasePage />} />
       </Route>
 
       {/* ── Fallback ── */}

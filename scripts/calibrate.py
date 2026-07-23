@@ -179,13 +179,25 @@ def main() -> int:
         source_data=str(args.data),
     )
     
+    # Generate diff artifact manifest
+    diff_manifest = updater.generate_diff_manifest(
+        baseline=baseline_params,
+        updated=new_params,
+        experiment=experiment,
+        source_data=str(args.data),
+    )
+    
     if args.dry_run:
-        logger.info("dry_run_no_files_written")
+        logger.info("dry_run_no_files_written", parameter_diffs_count=diff_manifest["changes_count"])
     else:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with open(args.output, "w") as f:
             json.dump(new_params, f, indent=2)
-        logger.info("parameter_set_written", path=str(args.output))
+            
+        diff_path = args.output.parent / f"diff_{baseline_params.get('version', 'v2026.1')}_to_{new_params.get('version', 'v2026.2')}.json"
+        with open(diff_path, "w") as f:
+            json.dump(diff_manifest, f, indent=2)
+        logger.info("parameter_set_written", path=str(args.output), diff_path=str(diff_path))
         
     # 6. Re-run UQ
     uq_results = None
@@ -194,10 +206,20 @@ def main() -> int:
         uq_results = uq_runner.run(parameters=new_params, n_samples=args.n_uncertainty_samples)
         
     # 7. Compare predictions
-    comparison = None
-    if uq_results is not None:
-        comparator = PredictionComparator()
-        comparison = comparator.compare(predictions=uq_results, observations=df, experiment=experiment)
+    comparator = PredictionComparator()
+    comparison = comparator.compare(fit_result=fit_result, observations=df, experiment=experiment)
+    
+    # Auto-update provenance documentation if not dry-run
+    if not args.dry_run:
+        from scripts.calibration.provenance_updater import ProvenanceDocUpdater
+        prov_updater = ProvenanceDocUpdater()
+        prov_updater.update_provenance(
+            experiment=experiment,
+            comparator_status=comparison.get("status", "UNTESTED"),
+            r_squared=fit_result.r_squared,
+            mape_pct=comparison.get("mape_pct", 0.0),
+            source_data=str(args.data),
+        )
         
     # 8. Report
     if args.report:

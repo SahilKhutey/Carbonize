@@ -37,7 +37,7 @@ This document defines the comprehensive testing strategy, directory maps, config
 ## 2. Test Configurations
 
 ### 2.1 Root Pytest Settings (`pyproject.toml`)
-Pytest settings are managed in the root [pyproject.toml](file:///c:/Users/ASUS/Documents/Carbonize/pyproject.toml) to handle test discovery, async triggers, custom markers, and coverage thresholds.
+Pytest settings are managed in the root [pyproject.toml](../pyproject.toml) to handle test discovery, async triggers, custom markers, and coverage thresholds.
 
 ### 2.2 Root Event Hook Configuration (`conftest.py`)
 Root test setup binds event loop contexts and tenant-scoped auth token mock fixtures:

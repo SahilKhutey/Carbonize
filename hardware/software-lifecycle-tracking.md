@@ -1,6 +1,6 @@
 # Software Specification: Materials & Reactor Lifecycle Tracking
 
-**Companion to:** [`hardware/materials-spec.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/materials-spec.md)  
+**Companion to:** [`materials-spec.md`](materials-spec.md)  
 **Owner:** Platform Engineering / Operator Experience  
 **Status:** 🟡 Specification Complete — Implementation Pending Pilot Hardware  
 **Last updated:** 2026-07-20

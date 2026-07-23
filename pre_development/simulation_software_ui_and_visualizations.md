@@ -24,7 +24,7 @@ App
 
 ## 2. Design System tokens
 
-Predefined CSS tokens are bound inside Tailwind and [tokens.ts](file:///c:/Users/ASUS/Documents/Carbonize/packages/web/src/styles/tokens.ts) to enforce visual consistency:
+Predefined CSS tokens are bound inside Tailwind and [tokens.ts](../packages/web/src/styles/tokens.ts) to enforce visual consistency:
 
 *   **Primary Brand:** Emerald Green (`#10b981`) represents biomimetic mineralization.
 *   **Neutral Gray:** Gray slate scales (`#111827` to `#f9fafb`) for Sleek Dark Mode compatibility.

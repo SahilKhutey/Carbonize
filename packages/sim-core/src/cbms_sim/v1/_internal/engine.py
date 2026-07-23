@@ -41,6 +41,25 @@ class InternalSimulationEngine:
         self.kinetics_engine.warmup()
 
     def run(self, request, params: dict, options, progress_callback, timeout: int) -> dict:
+        # Apply the resolved parameter set's kinetics values as rate overrides
+        # on the kinetics engine. Without this, `params` (and therefore any
+        # calibrated parameter set, or a caller-supplied custom
+        # ParameterRegistry) never actually reaches the physics engine --
+        # every simulation would silently run with ExtendedKineticsEngine's
+        # hardcoded __init__ defaults regardless of parameter_set_version.
+        # Reassigning .config (not mutating it -- ExtendedKineticsConfig is
+        # frozen) is cheap: Numba JIT-compiles on argument *types*, not
+        # values, so this does not invalidate the warmup done in __init__.
+        kinetics_params = (params or {}).get("kinetics", {})
+        rate_overrides = {
+            name: entry["value"]
+            for name, entry in kinetics_params.items()
+            if isinstance(entry, dict) and "value" in entry
+        }
+        if rate_overrides:
+            from cbms_sim.domain.kinetics.extended_engine import ExtendedKineticsConfig
+            self.kinetics_engine.config = ExtendedKineticsConfig(rate_overrides=rate_overrides)
+
         # Convert request models to domain models
         try:
             domain_plant = DomainPlant(
@@ -167,6 +186,7 @@ class InternalSimulationEngine:
             co2_effs = []
             so2_effs = []
             nox_effs = []
+            hm_effs = []
             npvs = []
             paybacks = []
             strengths = []
@@ -214,6 +234,7 @@ class InternalSimulationEngine:
                     co2_eff = k_s.capture_efficiencies.get("co2_pct", 0.0)
                     so2_eff = k_s.capture_efficiencies.get("so2_pct", 0.0)
                     nox_eff = k_s.capture_efficiencies.get("nox_pct", 0.0)
+                    hm_eff = k_s.capture_efficiencies.get("heavy_metals_pct", k_s.capture_efficiencies.get("hm_pct", 95.0))
                     
                     mb_s = self.mb_engine.compute(k_s, p_sample, r_sample)
                     bp_s = self.block_predictor.predict(mb_s, c_sample)
@@ -225,6 +246,7 @@ class InternalSimulationEngine:
                     co2_eff = 0.0
                     so2_eff = 0.0
                     nox_eff = 0.0
+                    hm_eff = 0.0
                     npv_val = 0.0
                     payback_val = 999.0
                     strength_val = 0.0
@@ -233,6 +255,7 @@ class InternalSimulationEngine:
                 co2_effs.append(co2_eff)
                 so2_effs.append(so2_eff)
                 nox_effs.append(nox_eff)
+                hm_effs.append(hm_eff)
                 npvs.append(npv_val)
                 paybacks.append(payback_val)
                 strengths.append(strength_val)
@@ -244,6 +267,8 @@ class InternalSimulationEngine:
                 out["so2_distribution"] = self._make_dist_stats(so2_effs, n_samples)
                 out["strength_distribution"] = self._make_dist_stats(strengths, n_samples)
                 out["nox_distribution"] = self._make_dist_stats(nox_effs, n_samples)
+                out["heavy_metal_distribution"] = self._make_dist_stats(hm_effs, n_samples)
+
                 
             if sim_type in ["sobol", "full"] and len(co2_effs) > 0:
                 from cbms_sim.domain.uq.sobol import sobol_indices

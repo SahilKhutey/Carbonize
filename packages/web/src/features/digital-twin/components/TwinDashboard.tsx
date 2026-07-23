@@ -17,6 +17,8 @@ import { AlertPanel }            from "./AlertPanel";
 import { ConnectionStateIndicator } from "../../../components/realtime/ConnectionStateIndicator";
 import { DataFreshnessOverlay }  from "../../../components/realtime/DataFreshnessOverlay";
 import { OperatingModeIndicator } from "./OperatingModeIndicator";
+import { ModbusRegisterMapInspector } from "./ModbusRegisterMapInspector";
+import { PredictiveDriftOverlay }     from "./PredictiveDriftOverlay";
 import { formatUptime }          from "../utils/formatters";
 
 interface TwinDashboardProps {
@@ -78,6 +80,11 @@ export const TwinDashboard = memo(function TwinDashboard({
       </div>
 
       {/* ---------------------------------------------------------------- */}
+      {/* Real-time Predictive Physics Drift Overlay                        */}
+      {/* ---------------------------------------------------------------- */}
+      <PredictiveDriftOverlay state={state} />
+
+      {/* ---------------------------------------------------------------- */}
       {/* KPI tiles                                                          */}
       {/* ---------------------------------------------------------------- */}
       <DataFreshnessOverlay
@@ -93,7 +100,7 @@ export const TwinDashboard = memo(function TwinDashboard({
       {/* ---------------------------------------------------------------- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Main: chart (2/3 on desktop) */}
-        <div className="lg:col-span-2 order-1">
+        <div className="lg:col-span-2 order-1 space-y-4">
           <DataFreshnessOverlay
             lastUpdateAt={lastMessageAt}
             staleThresholdSeconds={10}
@@ -107,6 +114,9 @@ export const TwinDashboard = memo(function TwinDashboard({
               />
             </div>
           </DataFreshnessOverlay>
+
+          {/* Siemens S7-1200 / NI cDAQ Modbus Register Map Inspector */}
+          <ModbusRegisterMapInspector state={state} />
         </div>
 
         {/* Side: actuators + alerts (1/3 on desktop) */}

@@ -5,10 +5,12 @@ Re-run UQ analysis using calibrated parameter distributions.
 from __future__ import annotations
 
 from cbms_sim.v1 import SimulationEngine, SimulationRequest, SimulationOptions, SimulationType
-from cbms_sim.v1.types import PlantProfile, ReagentFormulation, OperatingConditions, BoilerType, CalciumSourceType
+from cbms_sim.v1.types import PlantProfile, ReagentFormulation, OperatingConditions, BoilerType, CalciumSourceType, ParameterSet
+from cbms_sim.v1.parameters import ParameterRegistry
 from uuid import uuid4
 from datetime import datetime, timezone
 from decimal import Decimal
+import copy
 from cbms_shared.logging import get_logger
 
 logger = get_logger(__name__)
@@ -19,15 +21,49 @@ class UQRunner:
     
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
+
+    def _build_registry(self, parameters: dict) -> ParameterRegistry:
+        """
+        Merge freshly-fit calibration values into a copy of the default
+        parameter set's 'kinetics' section.
+
+        `parameters` is expected as a flat {rate_constant_name: value} dict,
+        e.g. what ParameterFitter/ParameterSetUpdater produces after fitting
+        real bench data (see fitters.py FitResult.parameters). Without this,
+        run() would silently ignore whatever was just calibrated -- the
+        previous implementation constructed a plain SimulationEngine() with
+        no registry override at all, so re-running UQ after calibration
+        produced byte-identical output to before calibration.
+        """
+        base_registry = ParameterRegistry.from_version("v2026.1")
+        merged = copy.deepcopy(base_registry.parameters)
+        for name, value in (parameters or {}).items():
+            if name in merged.get("kinetics", {}):
+                merged["kinetics"][name]["value"] = value
+            else:
+                self.logger.warning(
+                    "calibrated_parameter_not_in_registry",
+                    parameter=name,
+                    note="value will not affect the simulation until this "
+                         "parameter is added to the registry's kinetics section",
+                )
+        new_set = ParameterSet(
+            version="v2026.2",
+            description="v2026.1 with calibration overrides applied",
+            created_at=datetime.now(timezone.utc),
+            parameters=merged,
+        )
+        return ParameterRegistry(new_set)
         
     def run(
         self,
         parameters: dict,
         n_samples: int = 30,
     ) -> dict:
-        self.logger.info("running_uq_re_analysis", n_samples=n_samples)
-        
-        engine = SimulationEngine()
+        self.logger.info("running_uq_re_analysis", n_samples=n_samples, n_calibrated_params=len(parameters or {}))
+
+        registry = self._build_registry(parameters)
+        engine = SimulationEngine(parameter_registry=registry)
         
         request = SimulationRequest(
             request_id=uuid4(),

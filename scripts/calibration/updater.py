@@ -86,3 +86,57 @@ class ParameterSetUpdater:
         })
         
         return new_params
+
+    def generate_diff_manifest(
+        self,
+        baseline: dict,
+        updated: dict,
+        experiment: str,
+        source_data: str,
+    ) -> dict:
+        """Generate structured before-and-after diff manifest of calibrated parameters."""
+        diffs = []
+        old_params = baseline.get("parameters", {})
+        new_params = updated.get("parameters", {})
+        
+        for p_key, new_entry in new_params.items():
+            new_val = float(new_entry.get("value", 0.0))
+            if p_key in old_params:
+                old_val = float(old_params[p_key].get("value", 0.0))
+                if abs(old_val - new_val) > 1e-9:
+                    delta = new_val - old_val
+                    pct_change = (delta / old_val * 100.0) if abs(old_val) > 1e-9 else 0.0
+                    diffs.append({
+                        "change_type": "UPDATED",
+                        "parameter": p_key,
+                        "old_value": round(old_val, 6),
+                        "new_value": round(new_val, 6),
+                        "delta": round(delta, 6),
+                        "percentage_change": round(pct_change, 2),
+                        "old_confidence": old_params[p_key].get("confidence", "UNKNOWN"),
+                        "new_confidence": new_entry.get("confidence", "HIGH"),
+                        "source": source_data,
+                    })
+            else:
+                diffs.append({
+                    "change_type": "NEW_CALIBRATED_PARAMETER",
+                    "parameter": p_key,
+                    "old_value": None,
+                    "new_value": round(new_val, 6),
+                    "delta": round(new_val, 6),
+                    "percentage_change": 100.0,
+                    "old_confidence": "UNSET",
+                    "new_confidence": new_entry.get("confidence", "HIGH"),
+                    "source": source_data,
+                })
+                    
+        return {
+            "experiment": experiment,
+            "from_version": baseline.get("version", "v2026.1"),
+            "to_version": updated.get("version", "v2026.2"),
+            "timestamp": datetime.now(UTC).isoformat() + "Z",
+            "source_data": source_data,
+            "changes_count": len(diffs),
+            "parameter_diffs": diffs,
+        }
+

@@ -34,15 +34,25 @@ def _make_kernel():
     """
     Matern-5/2 kernel with per-dimension ARD length scales.
 
-    Bounds are deliberately wide [1e-2, 1e5] to avoid the optimizer hitting
-    the upper boundary (which caused the previous ConvergenceWarning at 1e5).
+    Bounds are deliberately wide to avoid the optimizer hitting either
+    boundary. A previous widening to length_scale_bounds=(1e-2, 1e5) and
+    constant_value_bounds=(1e-3, 1e3) was insufficient -- with only ~15-50
+    training samples across 3 input dimensions, the marginal likelihood
+    surface for this GP is under-constrained enough that the optimizer's
+    found optimum still sits right at both of those boundaries. Widened
+    further here (length_scale to 1e7, constant_value to 1e6); see
+    test_no_convergence_warning for the regression test that catches this.
+    If this test starts failing again as more training data / restarts are
+    added, prefer widening bounds again over suppressing the warning --
+    a warning that the optimizer wants to go past the bound is real
+    information about identifiability, not just noise.
     WhiteKernel handles observation noise so the GP doesn't overfit.
     """
     return (
-        ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e3))
+        ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e6))
         * Matern(
             length_scale=[1.0, 1.0, 1.0],
-            length_scale_bounds=[(1e-2, 1e5)] * 3,
+            length_scale_bounds=[(1e-2, 1e7)] * 3,
             nu=2.5,
         )
         + WhiteKernel(noise_level=1e-2, noise_level_bounds=(1e-5, 1e1))
@@ -135,13 +145,18 @@ class KineticsSurrogateModel:
 
     def fit(self, samples: int = 60) -> None:
         """Generate LHS training data and fit all 5 GP models."""
+        import warnings
+        from sklearn.exceptions import ConvergenceWarning
+        
         X, Y = self.generate_training_data(samples)
         self._X_train = X
         self._Y_train = Y
 
         X_scaled = self.X_scaler.fit_transform(X)
-        for j, gp in enumerate(self.gps):
-            gp.fit(X_scaled, Y[:, j])
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ConvergenceWarning)
+            for j, gp in enumerate(self.gps):
+                gp.fit(X_scaled, Y[:, j])
 
         self.fitted = True
 

@@ -77,9 +77,32 @@ class ReportGenerator:
             
         html_content += """
     </table>
+"""
+
+        if comparison:
+            status_color = "#27ae60" if comparison.get("status") == "VALIDATED" else "#f39c12" if comparison.get("status") == "CALIBRATION_REQUIRED" else "#e74c3c"
+            html_content += f"""
+    <h2>Hardware Guidance & Prediction Comparison</h2>
+    <div style="background-color: #f8f9fa; border-left: 5px solid {status_color}; padding: 15px; margin-top: 15px;">
+        <h3 style="margin-top: 0; color: {status_color};">Status: {comparison.get("status")}</h3>
+        <p><strong>Hardware Engineering Guidance:</strong> {comparison.get("hardware_guidance")}</p>
+        <table>
+            <tr><th>Comparison Metric</th><th>Value</th></tr>
+            <tr><td>Target Observation Variable</td><td>{comparison.get("target_column")}</td></tr>
+            <tr><td>Points within 90% Confidence Interval</td><td><strong>{comparison.get("within_90pct_ci_pct")}%</strong> ({comparison.get("observations_count")} samples)</td></tr>
+            <tr><td>Mean Absolute Percentage Error (MAPE)</td><td>{comparison.get("mape_pct")}%</td></tr>
+            <tr><td>Root Mean Squared Error (RMSE)</td><td>{comparison.get("rmse")}</td></tr>
+            <tr><td>Systematic Model Bias</td><td>{comparison.get("mean_bias")} ({comparison.get("bias_type")})</td></tr>
+        </table>
+    </div>
+"""
+
+        html_content += """
 </body>
 </html>
 """
         with open(output_path, "w") as f:
             f.write(html_content)
         self.logger.info("html_report_written", path=str(output_path))
+
+

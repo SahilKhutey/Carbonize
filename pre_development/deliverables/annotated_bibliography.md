@@ -7,7 +7,7 @@ This bibliography tracks 15 key scientific papers relevant to the development of
 ## 1. Enzymatic Carbon Capture Kinetics
 
 ### 1.1 Mirjafari, P., et al. "Investigating the Application of Enzyme Carbonic Anhydrase for CO₂ Sequestration." *Industrial & Engineering Chemistry Research*, 46(3), 921–926, 2007.
-*   **Relevance:** This study presents baseline Michaelis-Menten kinetic indices for bovine CA-catalyzed hydration, showing a $10^5$-fold increase in carbonate precipitation rates. Used to calibrate the initial $k_{\text{cat}}$ constants in the [kinetics.py](file:///c:/Users/ASUS/Documents/Carbonize/biomimetic_sim/core/kinetics.py) solver.
+*   **Relevance:** This study presents baseline Michaelis-Menten kinetic indices for bovine CA-catalyzed hydration, showing a $10^5$-fold increase in carbonate precipitation rates. Used to calibrate the initial $k_{\text{cat}}$ constants in the [kinetics.py](../../biomimetic_sim/core/kinetics.py) solver.
 
 ### 1.2 Boone, C. D., et al. "Carbonic Anhydrase: An Efficient Enzyme for CO₂ Sequestration." *Enzyme Research*, 2011, 1–11.
 *   **Relevance:** Detailed review of structural enzyme variations. Provides experimental benchmarks for immobilization protocols using silica templates, which guided our titanium mesh immobilization strategy.

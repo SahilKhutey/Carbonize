@@ -252,9 +252,9 @@ python scripts/generate_ws_schema.py > docs/architecture/ws-schema.json
 
 | File | Purpose |
 |---|---|
-| [`v1_models.py`](file:///c:/Users/ASUS/Documents/Carbonize/packages/api/src/cbms_api/websocket/v1_models.py) | Pydantic models (source of truth) |
-| [`twin.py`](file:///c:/Users/ASUS/Documents/Carbonize/packages/api/src/cbms_api/websocket/twin.py) | FastAPI WebSocket endpoint |
-| [`ws.ts`](file:///c:/Users/ASUS/Documents/Carbonize/packages/web/src/types/ws.ts) | TypeScript types |
-| [`wsClient.ts`](file:///c:/Users/ASUS/Documents/Carbonize/packages/web/src/lib/wsClient.ts) | Frontend WebSocket client |
-| [`generate_ws_schema.py`](file:///c:/Users/ASUS/Documents/Carbonize/scripts/generate_ws_schema.py) | JSON Schema codegen script |
-| [`test_ws_protocol.py`](file:///c:/Users/ASUS/Documents/Carbonize/packages/api/tests/contract/test_ws_protocol.py) | Contract tests |
+| [`v1_models.py`](../../packages/api/src/cbms_api/websocket/v1_models.py) | Pydantic models (source of truth) |
+| [`twin.py`](../../packages/api/src/cbms_api/websocket/twin.py) | FastAPI WebSocket endpoint |
+| [`ws.ts`](../../packages/web/src/types/ws.ts) | TypeScript types |
+| [`wsClient.ts`](../../packages/web/src/lib/wsClient.ts) | Frontend WebSocket client |
+| [`generate_ws_schema.py`](../../scripts/generate_ws_schema.py) | JSON Schema codegen script |
+| [`test_ws_protocol.py`](../../packages/api/tests/contract/test_ws_protocol.py) | Contract tests |

@@ -221,6 +221,14 @@ repos:
         pass_filenames: false
         description: Prevent hardcoded secrets
 
+      - id: check-no-absolute-file-links
+        name: Prevent absolute local file:/// links in markdown docs
+        entry: >-
+          bash -c 'hits=$(grep -rnE "file:///([a-zA-Z]:/|/Users/|/home/)" --include="*.md" . 2>/dev/null || true); if [ -n "$hits" ]; then echo "❌ Found absolute local file:/// links in markdown (use relative markdown links instead):"; echo "$hits"; exit 1; fi'
+        language: system
+        pass_filenames: false
+        description: Prevent committing absolute local file:/// links in documentation
+
       - id: check-pyproject-consistent
         name: Check pyproject.toml is consistent
         entry: poetry check

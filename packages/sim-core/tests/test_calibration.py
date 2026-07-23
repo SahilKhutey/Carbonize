@@ -35,7 +35,10 @@ def test_parameter_fitting():
             "kinetics.k_cat": {"value": 1.0e6},
             "kinetics.K_M_co2": {"value": 8.5},
             "kinetics.K_i_hco3": {"value": 26.0},
-            "kinetics.E_a_inact": {"value": 85.0e3}
+            # kJ/mol, matching data/parameters/v2026.1.json's declared
+            # "unit": "kJ/mol" for this parameter -- NOT J/mol. The fitter
+            # converts this to J/mol internally (see fitters.py).
+            "kinetics.E_a_inact": {"value": 85.0}
         }
     }
     

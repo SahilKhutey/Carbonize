@@ -16,6 +16,7 @@ from scipy.stats import t as t_dist
 
 from cbms_shared.exceptions import CBMSError
 from cbms_shared.logging import get_logger
+from .models import ca_rate_model as models_ca_rate_model
 
 logger = get_logger(__name__)
 
@@ -82,7 +83,9 @@ class ParameterFitter:
             k_cat_base = baseline["parameters"]["kinetics.k_cat"]["value"]
             K_M_base = baseline["parameters"]["kinetics.K_M_co2"]["value"]
             K_i_base = baseline["parameters"]["kinetics.K_i_hco3"]["value"]
-            E_a_base = baseline["parameters"]["kinetics.E_a_inact"]["value"]
+            # Registry stores this in kJ/mol (see data/parameters/v2026.1.json
+            # "unit": "kJ/mol"); this fitter's bounds/model are in J/mol.
+            E_a_base = baseline["parameters"]["kinetics.E_a_inact"]["value"] * 1000.0
         except KeyError:
             k_cat_base = 1.0e6
             K_M_base = 8.5
@@ -91,13 +94,12 @@ class ParameterFitter:
             
         R_gas = 8.314
         T_ref = 298.15
-        
+
         def ca_rate_model(X, k_cat, K_M, K_i, E_a):
+            """Thin adapter to the shared models.ca_rate_model (single source
+            of truth for this rate law) matching scipy's stacked-X convention."""
             T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM = X
-            k_cat_T = k_cat * np.exp(-E_a / R_gas * (1.0 / T_K - 1.0 / T_ref))
-            pH_factor = np.where(pH < 7.0, 10 ** (pH - 7.0), 1.0)
-            rate = (k_cat_T * CA_U_per_mL * CO2_mM) / (K_M * (1.0 + HCO3_mM / K_i) + CO2_mM)
-            return rate * pH_factor
+            return models_ca_rate_model(T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM, k_cat, K_M, K_i, E_a)
         
         T_K = data["temperature_C"].values + 273.15
         pH = data["pH"].values
@@ -197,11 +199,7 @@ class ParameterFitter:
     def _residuals_ca(self, params, X, y_obs):
         T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM = X
         k_cat, K_M, K_i, E_a = params
-        R_gas = 8.314
-        T_ref = 298.15
-        k_cat_T = k_cat * np.exp(-E_a / R_gas * (1.0 / T_K - 1.0 / T_ref))
-        pH_factor = np.where(pH < 7, 10 ** (pH - 7.0), 1.0)
-        y_pred = (k_cat_T * CA_U_per_mL * CO2_mM) / (K_M * (1 + HCO3_mM / K_i) + CO2_mM) * pH_factor
+        y_pred = models_ca_rate_model(T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM, k_cat, K_M, K_i, E_a)
         return y_obs - y_pred
 
     def _fit_ce2_metal_sorption(

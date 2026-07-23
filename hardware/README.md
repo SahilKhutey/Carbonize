@@ -11,11 +11,11 @@ This document is the master index linking each hardware specification to its cor
 
 | Hardware Document | Software Companion | Description |
 |---|---|---|
-| [`sensor-stack.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/sensor-stack.md) | [`software-sensor-integration.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/software-sensor-integration.md) | Sensor registry, MQTT topics, Modbus/RS-232 drivers, calibration engine, quality guard |
-| [`daq-architecture.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/daq-architecture.md) | [`software-daq-edge-cloud.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/software-daq-edge-cloud.md) | PLC register map, Pi gateway, InfluxDB ring buffer, cloud sync, OTA, Prometheus metrics |
-| [`materials-spec.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/materials-spec.md) | [`software-lifecycle-tracking.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/software-lifecycle-tracking.md) | Component registry, consumable schedules, predictive wear models, work orders, OPEX reporting |
-| [`corrosion-test-protocol.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/corrosion-test-protocol.md) | [`software-corrosion-test-pipeline.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/software-corrosion-test-pipeline.md) | Specimen registry, inspection scheduling, pass/fail evaluation, procurement gate, qualification reports |
-| [`calibration-schedule.xlsx`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/calibration-schedule.xlsx) | [`software-calibration-scheduler.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/software-calibration-scheduler.md) | Calibration intervals, curve fitting, Celery Beat reminders, certificate generation, CPCB audit trail |
+| [`sensor-stack.md`](sensor-stack.md) | [`software-sensor-integration.md`](software-sensor-integration.md) | Sensor registry, MQTT topics, Modbus/RS-232 drivers, calibration engine, quality guard |
+| [`daq-architecture.md`](daq-architecture.md) | [`software-daq-edge-cloud.md`](software-daq-edge-cloud.md) | PLC register map, Pi gateway, InfluxDB ring buffer, cloud sync, OTA, Prometheus metrics |
+| [`materials-spec.md`](materials-spec.md) | [`software-lifecycle-tracking.md`](software-lifecycle-tracking.md) | Component registry, consumable schedules, predictive wear models, work orders, OPEX reporting |
+| [`corrosion-test-protocol.md`](corrosion-test-protocol.md) | [`software-corrosion-test-pipeline.md`](software-corrosion-test-pipeline.md) | Specimen registry, inspection scheduling, pass/fail evaluation, procurement gate, qualification reports |
+| [`calibration-schedule.xlsx`](calibration-schedule.xlsx) | [`software-calibration-scheduler.md`](software-calibration-scheduler.md) | Calibration intervals, curve fitting, Celery Beat reminders, certificate generation, CPCB audit trail |
 
 ---
 

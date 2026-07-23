@@ -1,6 +1,6 @@
 # Software Specification: DAQ Edge Software & Cloud Ingestion Pipeline
 
-**Companion to:** [`hardware/daq-architecture.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/daq-architecture.md)  
+**Companion to:** [`hardware/daq-architecture.md`](daq-architecture.md)  
 **Owner:** Platform Engineering / DevOps  
 **Status:** 🟡 Specification Complete — Implementation Pending Pilot Hardware  
 **Last updated:** 2026-07-20

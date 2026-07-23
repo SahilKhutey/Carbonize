@@ -140,7 +140,7 @@ class DataIngestor:
         
         # Convert numeric columns
         for field_name in schema_class.model_fields.keys():
-            if field_name in df.columns and field_name != "metal" and field_name != "timestamp":
+            if field_name in df.columns and field_name not in ("metal", "timestamp", "gas"):
                 df[field_name] = pd.to_numeric(df[field_name], errors="coerce")
         
         required_cols = [

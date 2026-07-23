@@ -277,10 +277,14 @@ class ExtendedKineticsEngine:
         plant: PlantProfile,
         reagent: ReagentFormulation,
         conditions: OperatingConditions,
-        residence_time_s: float = 27.0,
+        residence_time_s: Optional[float] = None,
     ) -> KineticsResult:
         if not self._warmed_up:
             self.warmup()
+            
+        # Resolve residence time from conditions object if not explicitly overridden
+        if residence_time_s is None:
+            residence_time_s = float(getattr(conditions, "residence_time_s", 27.0))
             
         start_time = time.perf_counter()
         

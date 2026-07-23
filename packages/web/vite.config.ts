@@ -36,6 +36,11 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    server: {
+      deps: {
+        inline: [/react/],
+      },
+    },
     setupFiles: [
       "./src/features/digital-twin/__tests__/setup.ts",
     ],

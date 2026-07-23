@@ -13,7 +13,7 @@
 | Michaelis constant (CO₂) | `K_M_co2` | 8.5 | mol/m³ | 🟡 | Khalifah 1971 (pH 7.0, 25°C) |
 | Product inhibition (HCO₃⁻) | `K_i_hco3` | 26.0 | mol/m³ | 🟡 | Jonsson et al. 1976 |
 | Thermal inactivation rate | `ca_inactivation` | 5.0 × 10⁻⁵ | s⁻¹ | 🔴 | Estimated from Tm ~60°C; no direct bench measurement |
-| Inactivation activation energy | `E_a_inact` | 85.0 | kJ/mol | 🟡 | Pocker & Sarkanen 1978 average |
+| Inactivation activation energy | `E_a_inact` | 85.0 | kJ/mol | 🔴 🔴 Discrepant / High Risk (2026-07-23) | Pocker & Sarkanen 1978 average |
 
 **Key uncertainty:** `k_cat` is for pure human CA-II. Industrial enzyme blends (CA-II + CA-XII)
 and immobilised-enzyme preparations can exhibit **5–50× lower apparent turnover** due to

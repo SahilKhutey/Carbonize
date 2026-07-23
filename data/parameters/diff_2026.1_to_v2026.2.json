@@ -1,0 +1,142 @@
+{
+  "experiment": "BATCH_CE1_TO_CE5",
+  "from_version": "2026.1",
+  "to_version": "v2026.2",
+  "timestamp": "2026-07-23T01:48:35.694076+00:00Z",
+  "source_data": "data\\bench_data",
+  "changes_count": 12,
+  "parameter_diffs": [
+    {
+      "change_type": "UPDATED",
+      "parameter": "kinetics.k_cat",
+      "old_value": 1000000.0,
+      "new_value": 1000.0,
+      "delta": -999000.0,
+      "percentage_change": -99.9,
+      "old_confidence": "MEDIUM",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "UPDATED",
+      "parameter": "kinetics.K_M_co2",
+      "old_value": 8.5,
+      "new_value": 100.0,
+      "delta": 91.5,
+      "percentage_change": 1076.47,
+      "old_confidence": "MEDIUM",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "UPDATED",
+      "parameter": "kinetics.E_a_inact",
+      "old_value": 85.0,
+      "new_value": 30000.0,
+      "delta": 29915.0,
+      "percentage_change": 35194.12,
+      "old_confidence": "MEDIUM",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "UPDATED",
+      "parameter": "kinetics.k_precip_caco3",
+      "old_value": 0.015,
+      "new_value": 4.171429,
+      "delta": 4.156429,
+      "percentage_change": 27709.52,
+      "old_confidence": "MEDIUM",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "UPDATED",
+      "parameter": "kinetics.K_i_hco3",
+      "old_value": 26.0,
+      "new_value": 1.0,
+      "delta": -25.0,
+      "percentage_change": -96.15,
+      "old_confidence": "HIGH",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.K_F_Pb",
+      "old_value": null,
+      "new_value": 13.196868,
+      "delta": 13.196868,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.n_Pb",
+      "old_value": null,
+      "new_value": 2.169721,
+      "delta": 2.169721,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.K_F_Cd",
+      "old_value": null,
+      "new_value": 5.510644,
+      "delta": 5.510644,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.n_Cd",
+      "old_value": null,
+      "new_value": 1.729192,
+      "delta": 1.729192,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.K_F_Hg",
+      "old_value": null,
+      "new_value": 24.01124,
+      "delta": 24.01124,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.n_Hg",
+      "old_value": null,
+      "new_value": 2.421632,
+      "delta": 2.421632,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.chitosan_wt_pct",
+      "old_value": null,
+      "new_value": 3.0,
+      "delta": 3.0,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    }
+  ]
+}

@@ -54,7 +54,7 @@ describe('ExperimentalLab Component', () => {
     );
 
     // Verify title elements render
-    expect(screen.getByText(/Material Science Lab/i)).toBeInTheDocument();
+    expect(screen.getByText(/Material Science/i)).toBeInTheDocument();
     expect(screen.getByText(/Chitosan Crosslinking/i)).toBeInTheDocument();
     expect(screen.getByText(/Mg²⁺ Substitution Ratio/i)).toBeInTheDocument();
     expect(screen.getByText(/Liquid-to-Gas Ratio/i)).toBeInTheDocument();

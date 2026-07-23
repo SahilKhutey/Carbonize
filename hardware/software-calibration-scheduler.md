@@ -1,6 +1,6 @@
 # Software Specification: Calibration & Preventive Maintenance Scheduler
 
-**Companion to:** [`hardware/calibration-schedule.xlsx`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/calibration-schedule.xlsx) and [`hardware/sensor-stack.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/sensor-stack.md) §4 (Auxiliary/Calibration)  
+**Companion to:** [`calibration-schedule.xlsx`](calibration-schedule.xlsx) and [`sensor-stack.md`](sensor-stack.md) §4 (Auxiliary/Calibration)  
 **Owner:** Operator Experience / Platform Engineering  
 **Status:** 🟡 Specification Complete — Implementation Pending Pilot Hardware  
 **Last updated:** 2026-07-20

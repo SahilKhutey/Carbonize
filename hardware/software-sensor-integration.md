@@ -1,6 +1,6 @@
 # Software Specification: Sensor Integration & Driver Layer
 
-**Companion to:** [`hardware/sensor-stack.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/sensor-stack.md)  
+**Companion to:** [`sensor-stack.md`](sensor-stack.md)  
 **Owner:** Platform Engineering  
 **Status:** 🟡 Specification Complete — Implementation Pending Pilot Hardware  
 **Last updated:** 2026-07-20

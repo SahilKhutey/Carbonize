@@ -31,6 +31,6 @@ Carbonize/
 To prevent version fragmentation and ambiguous drafts, all scientific theories, ODE kinetic equations, and mathematical models must be documented in a single canonical format within the `manuscript/theory/` directory.
 
 The current active canonical files are:
-1.  **Stochastic Modeling Framework**: [stochastic_modeling_v1.0.md](file:///c:/Users/ASUS/Documents/Carbonize/manuscript/theory/stochastic_modeling_v1.0.md) (Supersedes all legacy Google Gemini PDFs).
+1.  **Stochastic Modeling Framework**: [stochastic_modeling_v1.0.md](../../manuscript/theory/stochastic_modeling_v1.0.md) (Supersedes all legacy Google Gemini PDFs).
 2.  **Reaction Kinetics (planned)**: `kinetics_v1.0.md`.
 3.  **Economic Model (planned)**: `economic_model_v1.0.md`.

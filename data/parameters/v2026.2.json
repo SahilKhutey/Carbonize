@@ -1,0 +1,956 @@
+{
+  "version": "v2026.2",
+  "parameters": {
+    "kinetics.k_cat": {
+      "symbol": "k_cat",
+      "value": 1000.0000000000001,
+      "unit": "s^-1",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": 13.82,
+        "sigma": 0.4
+      },
+      "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, pH 7.4, bovine CA",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "kinetics.K_M_co2": {
+      "symbol": "K_M_co2",
+      "value": 99.99999999999999,
+      "unit": "mM",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": 2.14,
+        "sigma": 0.3
+      },
+      "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, pH 7.4",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_inact": {
+      "symbol": "k_inact",
+      "value": 5e-05,
+      "unit": "s^-1",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -9.9,
+        "sigma": 0.5
+      },
+      "source": "Rigkos 2024 (Fig. 3)",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "40\u00c2\u00b0C, pH 8.5, CA-KR1",
+      "extrapolation_risk": "LOW",
+      "owner": "@bio-team"
+    },
+    "kinetics.E_a_inact": {
+      "symbol": "E_a_inact",
+      "value": 30000.000000000004,
+      "unit": "kJ/mol",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 30000.000000000004,
+        "sigma": 1e-06
+      },
+      "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "30-50\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@bio-team"
+    },
+    "kinetics.k_so2_abs": {
+      "symbol": "k_so2",
+      "value": 0.025,
+      "unit": "m/s",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -3.69,
+        "sigma": 0.3
+      },
+      "source": "Calibration from data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "L/G=8.5, pH>7",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@aero-team"
+    },
+    "kinetics.k_chel_Hg": {
+      "symbol": "k_Hg",
+      "value": 0.008,
+      "unit": "m^3/(mol*s)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -4.83,
+        "sigma": 0.4
+      },
+      "source": "Wu 2010 (Table 3)",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "pH 7, 25\u00c2\u00b0C",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_chel_Pb": {
+      "symbol": "k_Pb",
+      "value": 0.012,
+      "unit": "m^3/(mol*s)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -4.42,
+        "sigma": 0.4
+      },
+      "source": "Wu 2010 (Table 3)",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "pH 7, 25\u00c2\u00b0C",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_chel_Cd": {
+      "symbol": "k_Cd",
+      "value": 0.006,
+      "unit": "m^3/(mol*s)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -5.12,
+        "sigma": 0.4
+      },
+      "source": "Wu 2010 (Table 3)",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "pH 7, 25\u00c2\u00b0C",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_chel_As": {
+      "symbol": "k_As",
+      "value": 0.004,
+      "unit": "m^3/(mol*s)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -5.52,
+        "sigma": 0.4
+      },
+      "source": "Wu 2010 (Table 3)",
+      "source_type": "literature",
+      "confidence": "LOW",
+      "conditions": "pH 7, 25\u00c2\u00b0C",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_precip_caco3": {
+      "symbol": "k_p_CaCO3",
+      "value": 4.171428571428572,
+      "unit": "m/s",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -4.2,
+        "sigma": 0.35
+      },
+      "source": "Calibration from data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, I=0.1M",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_precip_caso4": {
+      "symbol": "k_p_caso4",
+      "value": 0.005,
+      "unit": "m/s",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.005,
+        "sigma": 0.0005
+      },
+      "source": "EPA AP-42",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_pm_capture": {
+      "symbol": "k_PM",
+      "value": 0.18,
+      "unit": "m/s",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -1.71,
+        "sigma": 0.3
+      },
+      "source": "Stokes settling",
+      "source_type": "calculated",
+      "confidence": "MEDIUM",
+      "conditions": "25\u00c2\u00b0C, dp=10um",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@aero-team"
+    },
+    "kinetics.H_co2": {
+      "symbol": "H_CO2",
+      "value": 0.034,
+      "unit": "mol/(m^3*Pa)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -3.38,
+        "sigma": 0.1
+      },
+      "source": "Sander 2015",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, water",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.H_so2": {
+      "symbol": "H_SO2",
+      "value": 1.2,
+      "unit": "mol/(m^3*Pa)",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": 0.18,
+        "sigma": 0.1
+      },
+      "source": "Sander 2015",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, water",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.dens_chitosan": {
+      "symbol": "rho_chitosan",
+      "value": 1400.0,
+      "unit": "kg/m^3",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 1400.0,
+        "sigma": 50.0
+      },
+      "source": "Supplier spec",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "Dry film",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "thermo.Ksp_caco3": {
+      "symbol": "Ksp_CaCO3",
+      "value": 3.3e-09,
+      "unit": "(mol/m^3)^2",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -19.53,
+        "sigma": 0.15
+      },
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, I=0",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "thermo.Ksp_caso4": {
+      "symbol": "Ksp_CaSO4",
+      "value": 4.93e-05,
+      "unit": "(mol/m^3)^2",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -9.92,
+        "sigma": 0.1
+      },
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C, I=0",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "thermo.K_f_Pb": {
+      "symbol": "K_f_Pb",
+      "value": 0.012,
+      "unit": "L/mg",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -4.42,
+        "sigma": 0.2
+      },
+      "source": "Wu 2010",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "Freundlich isotherm",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "thermo.n_Pb": {
+      "symbol": "n_Pb",
+      "value": 0.85,
+      "unit": "-",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.85,
+        "sigma": 0.05
+      },
+      "source": "Wu 2010",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "Freundlich exponent",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "thermo.pKa_chitosan_NH2": {
+      "symbol": "pKa_NH2",
+      "value": 6.5,
+      "unit": "-",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 6.5,
+        "sigma": 0.1
+      },
+      "source": "Rinaudo 2006",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "Chitosan amine",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "ops.reactor_temp_c": {
+      "symbol": "T",
+      "value": 40.0,
+      "unit": "\u00c2\u00b0C",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 40.0,
+        "sigma": 2.0
+      },
+      "source": "Design spec",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Mesh tower",
+      "extrapolation_risk": "LOW",
+      "owner": "@aero-team"
+    },
+    "ops.pH_initial": {
+      "symbol": "pH_0",
+      "value": 8.5,
+      "unit": "-",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 8.5,
+        "sigma": 0.3
+      },
+      "source": "Design spec",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Buffer assumed",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "ops.liquid_to_gas_ratio": {
+      "symbol": "L_G",
+      "value": 8.5,
+      "unit": "L/m^3",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 8.5,
+        "sigma": 0.5
+      },
+      "source": "EPA AP-42",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Standard range",
+      "extrapolation_risk": "LOW",
+      "owner": "@aero-team"
+    },
+    "ops.residence_time_s": {
+      "symbol": "tau",
+      "value": 27.0,
+      "unit": "s",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 27.0,
+        "sigma": 1.0
+      },
+      "source": "Design spec",
+      "source_type": "calculated",
+      "confidence": "MEDIUM",
+      "conditions": "Based on mesh geometry",
+      "extrapolation_risk": "LOW",
+      "owner": "@aero-team"
+    },
+    "transport.k_L_a": {
+      "symbol": "k_L_a",
+      "value": 0.02,
+      "unit": "s^-1",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": -3.91,
+        "sigma": 0.2
+      },
+      "source": "EPA AP-42",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "Bubble column, I=0.1M",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@aero-team"
+    },
+    "transport.dp_bubble": {
+      "symbol": "d_b",
+      "value": 3.0,
+      "unit": "mm",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 3.0,
+        "sigma": 0.5
+      },
+      "source": "Calculated",
+      "source_type": "assumed",
+      "confidence": "MEDIUM",
+      "conditions": "Coalesced bubbles",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@aero-team"
+    },
+    "transport.U_g": {
+      "symbol": "U_g",
+      "value": 0.15,
+      "unit": "m/s",
+      "distribution": "design",
+      "dist_params": {
+        "mu": 0.15,
+        "sigma": 0.01
+      },
+      "source": "Mesh tower",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Operating condition",
+      "extrapolation_risk": "LOW",
+      "owner": "@aero-team"
+    },
+    "econ.ccts_price_inr": {
+      "symbol": "P_CCTS",
+      "value": 1850.0,
+      "unit": "Rs/tCO2",
+      "distribution": "triangular",
+      "dist_params": {
+        "min": 1200.0,
+        "max": 2500.0,
+        "mode": 1500.0
+      },
+      "source": "BEE 2024 Q3",
+      "source_type": "market",
+      "confidence": "LOW",
+      "conditions": "India 2024",
+      "extrapolation_risk": "HIGH",
+      "owner": "@economics-team"
+    },
+    "econ.block_market_price": {
+      "symbol": "P_block",
+      "value": 12.0,
+      "unit": "Rs/block",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 12.0,
+        "sigma": 1.5
+      },
+      "source": "Industry survey",
+      "source_type": "market",
+      "confidence": "MEDIUM",
+      "conditions": "M20 grade",
+      "extrapolation_risk": "LOW",
+      "owner": "@economics-team"
+    },
+    "econ.chitosan_cost": {
+      "symbol": "C_chitosan",
+      "value": 320.0,
+      "unit": "Rs/kg",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 320.0,
+        "sigma": 30.0
+      },
+      "source": "Supplier quote",
+      "source_type": "market",
+      "confidence": "MEDIUM",
+      "conditions": "2024 Q4",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "econ.lime_cost": {
+      "symbol": "C_lime",
+      "value": 8.5,
+      "unit": "Rs/kg",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 8.5,
+        "sigma": 0.5
+      },
+      "source": "Market",
+      "source_type": "market",
+      "confidence": "HIGH",
+      "conditions": "Bulk Ca(OH)2",
+      "extrapolation_risk": "LOW",
+      "owner": "@economics-team"
+    },
+    "econ.steel_slag_cost": {
+      "symbol": "C_slag",
+      "value": 1.2,
+      "unit": "Rs/kg",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 1.2,
+        "sigma": 0.2
+      },
+      "source": "Waste market",
+      "source_type": "market",
+      "confidence": "HIGH",
+      "conditions": "Negative cost potential",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "econ.enzyme_cost": {
+      "symbol": "C_CA",
+      "value": 40000.0,
+      "unit": "Rs/g",
+      "distribution": "lognormal",
+      "dist_params": {
+        "mu": 10.6,
+        "sigma": 0.5
+      },
+      "source": "Sigma-Aldrich",
+      "source_type": "market",
+      "confidence": "MEDIUM",
+      "conditions": "Bovine CA, research grade",
+      "extrapolation_risk": "HIGH",
+      "owner": "@bio-team"
+    },
+    "econ.power_cost": {
+      "symbol": "C_power",
+      "value": 8.5,
+      "unit": "Rs/kWh",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 8.5,
+        "sigma": 0.5
+      },
+      "source": "State tariff",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Industrial HT",
+      "extrapolation_risk": "LOW",
+      "owner": "@economics-team"
+    },
+    "econ.water_cost": {
+      "symbol": "C_water",
+      "value": 65.0,
+      "unit": "Rs/kL",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 65.0,
+        "sigma": 5.0
+      },
+      "source": "Municipal",
+      "source_type": "specified",
+      "confidence": "HIGH",
+      "conditions": "Industrial use",
+      "extrapolation_risk": "LOW",
+      "owner": "@economics-team"
+    },
+    "phys.MW_CO2": {
+      "symbol": "M_CO2",
+      "value": 44.01,
+      "unit": "g/mol",
+      "distribution": "fixed",
+      "source": "IUPAC",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "-",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "phys.MW_SO2": {
+      "symbol": "M_SO2",
+      "value": 64.07,
+      "unit": "g/mol",
+      "distribution": "fixed",
+      "source": "IUPAC",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "-",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "phys.MW_CaCO3": {
+      "symbol": "M_CaCO3",
+      "value": 100.09,
+      "unit": "g/mol",
+      "distribution": "fixed",
+      "source": "IUPAC",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "-",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "phys.MW_CaSO4_2H2O": {
+      "symbol": "M_gypsum",
+      "value": 172.17,
+      "unit": "g/mol",
+      "distribution": "fixed",
+      "source": "IUPAC",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "-",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "phys.dens_water": {
+      "symbol": "rho_water",
+      "value": 1000.0,
+      "unit": "kg/m^3",
+      "distribution": "fixed",
+      "source": "CRC",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "4\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "phys.dens_slurry": {
+      "symbol": "rho_slurry",
+      "value": 1010.0,
+      "unit": "kg/m^3",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 1010.0,
+        "sigma": 10.0
+      },
+      "source": "Measured",
+      "source_type": "measured",
+      "confidence": "MEDIUM",
+      "conditions": "3% chitosan",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "kinetics.K_i_hco3": {
+      "symbol": "K_i_hco3",
+      "value": 1.0000000000000002,
+      "unit": "mM",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 1.0000000000000002,
+        "sigma": 1e-06
+      },
+      "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.K1_carbonic": {
+      "symbol": "K1_carbonic",
+      "value": 4.47e-07,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.K2_carbonic": {
+      "symbol": "K2_carbonic",
+      "value": 4.68e-11,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.K_so2_dissociation": {
+      "symbol": "K_so2",
+      "value": 0.0141,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.K_so3_dissociation": {
+      "symbol": "K_so3",
+      "value": 6.3e-08,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.K_no2_dissociation": {
+      "symbol": "K_no2",
+      "value": 0.0398,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_sulfite_oxidation": {
+      "symbol": "k_sulf_ox",
+      "value": 0.0001,
+      "unit": "1/(m^3*s)",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.0001,
+        "sigma": 1e-05
+      },
+      "source": "Lente 2010",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.k_precip_caso3": {
+      "symbol": "k_p_caso3",
+      "value": 0.01,
+      "unit": "m/s",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.01,
+        "sigma": 0.001
+      },
+      "source": "EPA AP-42",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.Ksp_caso3": {
+      "symbol": "Ksp_caso3",
+      "value": 6e-09,
+      "unit": "(mol/m^3)^2",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.Ksp_caso4": {
+      "symbol": "Ksp_caso4",
+      "value": 4.93e-05,
+      "unit": "(mol/m^3)^2",
+      "distribution": "fixed",
+      "source": "CRC Handbook",
+      "source_type": "literature",
+      "confidence": "HIGH",
+      "conditions": "25\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.pH_denat_threshold": {
+      "symbol": "pH_denat",
+      "value": 5.5,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "Mirjafari 2007",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "CA deactivation",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.pH_ca_activity_floor": {
+      "symbol": "pH_floor",
+      "value": 6.5,
+      "unit": "-",
+      "distribution": "fixed",
+      "source": "Rigkos 2024",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
+      "conditions": "CA floor activity",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.buffer_capacity_default": {
+      "symbol": "buffer_cap",
+      "value": 50.0,
+      "unit": "mmol/L",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 50.0,
+        "sigma": 5.0
+      },
+      "source": "EPA AP-42",
+      "source_type": "literature",
+      "confidence": "LOW",
+      "conditions": "Default buffer",
+      "extrapolation_risk": "MEDIUM",
+      "owner": "@chem-team"
+    },
+    "kinetics.chitosan_CO2_competition": {
+      "symbol": "chit_comp",
+      "value": 0.1,
+      "unit": "-",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.1,
+        "sigma": 0.01
+      },
+      "source": "Estimated",
+      "source_type": "calculated",
+      "confidence": "LOW",
+      "conditions": "Competition weight",
+      "extrapolation_risk": "HIGH",
+      "owner": "@chem-team"
+    },
+    "phys.viscosity_slurry": {
+      "symbol": "eta_slurry",
+      "value": 0.0012,
+      "unit": "Pa*s",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.0012,
+        "sigma": 0.0001
+      },
+      "source": "Measured",
+      "source_type": "measured",
+      "confidence": "MEDIUM",
+      "conditions": "3% chitosan, 40\u00c2\u00b0C",
+      "extrapolation_risk": "LOW",
+      "owner": "@materials-team"
+    },
+    "kinetics.K_F_Pb": {
+      "value": 13.196868393050186,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.n_Pb": {
+      "value": 2.1697212771130787,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.K_F_Cd": {
+      "value": 5.510644400223486,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.n_Cd": {
+      "value": 1.729192113301756,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.K_F_Hg": {
+      "value": 24.01124021675351,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.n_Hg": {
+      "value": 2.421632271527212,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
+    },
+    "kinetics.chitosan_wt_pct": {
+      "value": 3.0,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
+    }
+  },
+  "last_calibrated": "2026-07-23T01:48:35.692585+00:00Z",
+  "calibration_source": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
+  "calibration_history": [
+    {
+      "version": "v2026.2",
+      "timestamp": "2026-07-23T01:48:35.623662+00:00Z",
+      "source_data": "data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
+      "parameters_updated": [
+        "kinetics.k_cat",
+        "kinetics.K_M_co2",
+        "kinetics.K_i_hco3",
+        "kinetics.E_a_inact"
+      ],
+      "fit_quality": "POOR",
+      "r_squared": -1023515044.9792943,
+      "rmse": 11393.022432532527
+    },
+    {
+      "version": "v2026.3",
+      "timestamp": "2026-07-23T01:48:35.658439+00:00Z",
+      "source_data": "data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv",
+      "parameters_updated": [
+        "kinetics.K_F_Pb",
+        "kinetics.n_Pb",
+        "kinetics.K_F_Cd",
+        "kinetics.n_Cd",
+        "kinetics.K_F_Hg",
+        "kinetics.n_Hg"
+      ],
+      "fit_quality": "GOOD",
+      "r_squared": 0.9996638518062508,
+      "rmse": 0.3160736795208666
+    },
+    {
+      "version": "v2026.4",
+      "timestamp": "2026-07-23T01:48:35.672266+00:00Z",
+      "source_data": "data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
+      "parameters_updated": [
+        "kinetics.k_precip_caco3"
+      ],
+      "fit_quality": "GOOD",
+      "r_squared": 0.95,
+      "rmse": 0.0
+    },
+    {
+      "version": "v2026.5",
+      "timestamp": "2026-07-23T01:48:35.683922+00:00Z",
+      "source_data": "data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
+      "parameters_updated": [
+        "kinetics.k_so2_abs"
+      ],
+      "fit_quality": "GOOD",
+      "r_squared": 0.95,
+      "rmse": 0.0
+    },
+    {
+      "version": "v2026.6",
+      "timestamp": "2026-07-23T01:48:35.692585+00:00Z",
+      "source_data": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
+      "parameters_updated": [
+        "kinetics.chitosan_wt_pct"
+      ],
+      "fit_quality": "GOOD",
+      "r_squared": 0.95,
+      "rmse": 0.0
+    }
+  ],
+  "description": "Calibrated parameter set resulting from batch CE-1 through CE-5 pipeline"
+}

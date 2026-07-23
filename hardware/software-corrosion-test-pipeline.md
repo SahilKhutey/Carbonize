@@ -1,6 +1,6 @@
 # Software Specification: Corrosion Test Data Pipeline
 
-**Companion to:** [`hardware/corrosion-test-protocol.md`](file:///c:/Users/ASUS/Documents/Carbonize/hardware/corrosion-test-protocol.md)  
+**Companion to:** [`corrosion-test-protocol.md`](corrosion-test-protocol.md)  
 **Owner:** Science / Platform Engineering  
 **Status:** 🟡 Specification Complete — Implementation Pending Lab Pilot  
 **Last updated:** 2026-07-20
