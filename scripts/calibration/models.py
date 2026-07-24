@@ -22,6 +22,14 @@ import numpy as np
 R_GAS = 8.314       # J/(mol*K)
 T_REF_K = 298.15    # 25 C reference temperature
 
+# Biochemical conversion constants for Carbonic Anhydrase II (bovine/human standard)
+# Specific activity ~ 3000 U/mg protein; Molecular Weight ~ 30,000 g/mol (30 kDa)
+CA_SPECIFIC_ACTIVITY_U_PER_MG = 3000.0
+CA_MOLECULAR_WEIGHT_G_PER_MOL = 30000.0
+# [E] (mol/L) = CA_U_per_mL * (1000 mL/L) / (3000 U/mg * 1000 mg/g * 30000 g/mol)
+CA_U_PER_ML_TO_MOLAR = 1000.0 / (CA_SPECIFIC_ACTIVITY_U_PER_MG * 1000.0 * CA_MOLECULAR_WEIGHT_G_PER_MOL)
+# = 1.1111e-8 mol/L per U/mL
+
 
 def ca_rate_model(
     T_K: np.ndarray,
@@ -41,13 +49,15 @@ def ca_rate_model(
     CO2 hydration term, expressed in natural bench assay units (mM, U/mL).
 
     Note on enzyme concentration scaling: CA_U_per_mL is specified in U/mL
-    (where 1 U = 1.6667e-8 mol/s activity scale). E_molar (mol/L) = CA_U_per_mL * 1.6667e-8.
+    and converted to active molar enzyme concentration E_molar (mol/L)
+    via CA_U_PER_ML_TO_MOLAR (1.1111e-8 mol/L per U/mL) based on CA II specific
+    activity (3000 U/mg) and MW (30 kDa).
 
     Returns predicted rate in mol/(L*s), matching CE-1's rate_mol_per_L_s observation column.
     """
     k_cat_T = k_cat * np.exp(-E_a / R_GAS * (1.0 / T_K - 1.0 / T_REF_K))
     pH_factor = np.where(pH < 7.0, 10 ** (pH - 7.0), 1.0)
-    E_molar = CA_U_per_mL * 1.6667e-8
+    E_molar = CA_U_per_mL * CA_U_PER_ML_TO_MOLAR
     rate = (k_cat_T * E_molar * CO2_mM) / (K_M * (1.0 + HCO3_mM / K_i) + CO2_mM)
     return rate * pH_factor
 

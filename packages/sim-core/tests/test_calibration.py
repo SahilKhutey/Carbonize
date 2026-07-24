@@ -150,4 +150,42 @@ def test_ce5_parameter_fitting():
     assert fit_result.convergence is True
 
 
+def test_ce1_baseline_literature_sanity_check():
+    """
+    Sanity check: Assert that ca_rate_model evaluated at the literature baseline parameters
+    (k_cat=1e6 s⁻¹, K_M=8.5 mM, K_i=26 mM, E_a=85 kJ/mol) against CE-1 bench data produces
+    predicted rates within 10x of the observed data's order of magnitude.
+    Prevents structural unit mismatches (e.g. treating U/mL as molar concentration directly)
+    from ever slipping through silently or pinning all parameters to bounds.
+    """
+    import numpy as np
+    from calibration.models import ca_rate_model
+    
+    csv_path = Path(__file__).parent.parent.parent.parent / "data/bench_data/CE-1/processed/ca_kinetics_bench.csv"
+    assert csv_path.exists()
+    df = pd.read_csv(csv_path)
+    
+    T_K = df["temperature_C"].values + 273.15
+    pH = df["pH"].values
+    CO2 = df["CO2_mM"].values
+    CA = df["CA_U_per_mL"].values
+    HCO3 = df["HCO3_mM"].fillna(0).values
+    y_obs = df["rate_mol_per_L_s"].values
+    
+    # Evaluate at literature baseline parameters
+    k_cat_lit = 1.0e6      # s⁻¹
+    K_M_lit = 8.5          # mM
+    K_i_lit = 26.0         # mM
+    E_a_lit = 85.0 * 1000  # J/mol
+    
+    y_pred = ca_rate_model(T_K, pH, CO2, CA, HCO3, k_cat_lit, K_M_lit, K_i_lit, E_a_lit)
+    
+    mean_obs = float(np.mean(y_obs))
+    mean_pred = float(np.mean(y_pred))
+    
+    ratio = mean_pred / mean_obs if mean_obs > 0 else 0.0
+    assert 0.1 <= ratio <= 10.0, f"Literature baseline rate prediction ({mean_pred:.4f}) deviates by >10x from bench observation ({mean_obs:.4f}), ratio={ratio:.2f}"
+
+
+
 
