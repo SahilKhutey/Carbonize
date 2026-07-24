@@ -165,19 +165,13 @@ class PredictionComparator:
                 )
 
         nominal_pct = confidence_level * 100.0
-        if fit_result.r_squared < 0:
-            # Worse than predicting the mean -- coverage% can look
-            # deceptively fine here because a bad fit inflates RMSE, which
-            # widens residual_band and can make everything "fit" inside a
-            # band that's only wide because the fit is bad. r_squared < 0
-            # is a scale-invariant red flag that overrides a passing
-            # coverage number.
+        if fit_result.r_squared < 0.50:
+            # Poor fit or worse than predicting the mean -- coverage% can look
+            # deceptively fine because a bad fit inflates RMSE, which widens
+            # residual_band. Requiring R² >= 0.50 prevents low R² models
+            # from reporting false-positive VALIDATED status.
             status = "NEEDS_RECALIBRATION"
-        elif within_pct >= nominal_pct * 0.85 and bias_ratio < 1.0:
-            # In-sample coverage doesn't need to hit the nominal rate
-            # exactly (this isn't held-out validation -- see class
-            # docstring), but should be reasonably close with no strong
-            # centering bias.
+        elif fit_result.r_squared >= 0.80 and within_pct >= nominal_pct * 0.85 and bias_ratio < 1.0:
             status = "VALIDATED"
         elif within_pct >= nominal_pct * 0.6:
             status = "NEEDS_REVIEW"

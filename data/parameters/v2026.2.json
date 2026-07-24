@@ -3,7 +3,7 @@
   "parameters": {
     "kinetics.k_cat": {
       "symbol": "k_cat",
-      "value": 1000.0000000000001,
+      "value": 1635682.627558369,
       "unit": "s^-1",
       "distribution": "lognormal",
       "dist_params": {
@@ -19,7 +19,7 @@
     },
     "kinetics.K_M_co2": {
       "symbol": "K_M_co2",
-      "value": 99.99999999999999,
+      "value": 20.90889486428627,
       "unit": "mM",
       "distribution": "lognormal",
       "dist_params": {
@@ -51,12 +51,12 @@
     },
     "kinetics.E_a_inact": {
       "symbol": "E_a_inact",
-      "value": 30000.000000000004,
+      "value": 13.415367601156788,
       "unit": "kJ/mol",
       "distribution": "normal",
       "dist_params": {
-        "mu": 30000.000000000004,
-        "sigma": 1e-06
+        "mu": 13.415367601156788,
+        "sigma": 2.8331239917617674
       },
       "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "source_type": "measured",
@@ -147,7 +147,7 @@
     },
     "kinetics.k_precip_caco3": {
       "symbol": "k_p_CaCO3",
-      "value": 9.094594594831663e-05,
+      "value": 2.5149837146502658e-05,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
@@ -640,12 +640,12 @@
     },
     "kinetics.K_i_hco3": {
       "symbol": "K_i_hco3",
-      "value": 1.0000000000000002,
+      "value": 15.287827765949963,
       "unit": "mM",
       "distribution": "normal",
       "dist_params": {
-        "mu": 1.0000000000000002,
-        "sigma": 1e-06
+        "mu": 15.287827765949963,
+        "sigma": 1.4542682550712178
       },
       "source": "Calibration from data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "source_type": "measured",
@@ -897,12 +897,12 @@
       "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
     }
   },
-  "last_calibrated": "2026-07-24T01:49:10.980053+00:00Z",
+  "last_calibrated": "2026-07-24T06:24:04.979871+00:00Z",
   "calibration_source": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
   "calibration_history": [
     {
       "version": "v2026.2",
-      "timestamp": "2026-07-24T01:49:10.748288+00:00Z",
+      "timestamp": "2026-07-24T06:24:04.811400+00:00Z",
       "source_data": "data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "parameters_updated": [
         "kinetics.k_cat",
@@ -910,13 +910,13 @@
         "kinetics.K_i_hco3",
         "kinetics.E_a_inact"
       ],
-      "fit_quality": "POOR",
-      "r_squared": -1023515044.9792943,
-      "rmse": 11393.022432532527
+      "fit_quality": "GOOD",
+      "r_squared": 0.9595806028906023,
+      "rmse": 0.07159566915904379
     },
     {
       "version": "v2026.3",
-      "timestamp": "2026-07-24T01:49:10.776454+00:00Z",
+      "timestamp": "2026-07-24T06:24:04.846973+00:00Z",
       "source_data": "data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv",
       "parameters_updated": [
         "kinetics.K_F_Pb",
@@ -932,18 +932,18 @@
     },
     {
       "version": "v2026.4",
-      "timestamp": "2026-07-24T01:49:10.829701+00:00Z",
+      "timestamp": "2026-07-24T06:24:04.898309+00:00Z",
       "source_data": "data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
       "parameters_updated": [
         "kinetics.k_precip_caco3"
       ],
       "fit_quality": "POOR",
-      "r_squared": 0.017311335593483412,
-      "rmse": 0.022196124744414323
+      "r_squared": 0.25899734340250713,
+      "rmse": 0.01927432005310884
     },
     {
       "version": "v2026.5",
-      "timestamp": "2026-07-24T01:49:10.900337+00:00Z",
+      "timestamp": "2026-07-24T06:24:04.946021+00:00Z",
       "source_data": "data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
       "parameters_updated": [
         "kinetics.k_so2_abs",
@@ -955,7 +955,7 @@
     },
     {
       "version": "v2026.6",
-      "timestamp": "2026-07-24T01:49:10.980053+00:00Z",
+      "timestamp": "2026-07-24T06:24:04.979871+00:00Z",
       "source_data": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
       "parameters_updated": [
         "kinetics.strength_coeff_chitosan",

@@ -38,18 +38,17 @@ def ca_rate_model(
     CE-1: enzyme-catalysed CO2 hydration rate (Michaelis-Menten with
     competitive HCO3- product inhibition and Arrhenius temperature
     correction). Same functional form as domain/kinetics/kernels.py's
-    CO2 hydration term, but expressed in the bench-assay's natural units
-    (mM, U/mL) rather than the reactor engine's mol/m^3 state vector --
-    these are legitimately different unit systems for a bench assay vs.
-    a reactor simulation, not the same unit-inconsistency bug already
-    fixed in the reactor kinetics engine.
+    CO2 hydration term, expressed in natural bench assay units (mM, U/mL).
 
-    Returns predicted rate in mol/(L*s), matching CE-1's
-    rate_mol_per_L_s observation column.
+    Note on enzyme concentration scaling: CA_U_per_mL is specified in U/mL
+    (where 1 U = 1.6667e-8 mol/s activity scale). E_molar (mol/L) = CA_U_per_mL * 1.6667e-8.
+
+    Returns predicted rate in mol/(L*s), matching CE-1's rate_mol_per_L_s observation column.
     """
     k_cat_T = k_cat * np.exp(-E_a / R_GAS * (1.0 / T_K - 1.0 / T_REF_K))
     pH_factor = np.where(pH < 7.0, 10 ** (pH - 7.0), 1.0)
-    rate = (k_cat_T * CA_U_per_mL * CO2_mM) / (K_M * (1.0 + HCO3_mM / K_i) + CO2_mM)
+    E_molar = CA_U_per_mL * 1.6667e-8
+    rate = (k_cat_T * E_molar * CO2_mM) / (K_M * (1.0 + HCO3_mM / K_i) + CO2_mM)
     return rate * pH_factor
 
 
@@ -65,12 +64,15 @@ def caco3_precipitation_rate(
     Ca_mM: np.ndarray | float,
     HCO3_mM: np.ndarray | float,
     k_precip_caco3: float,
+    chitosan_pct: np.ndarray | float = 1.0,
+    pH: np.ndarray | float = 8.5,
     Ksp_caco3: float = 3.31e-9,
 ) -> np.ndarray | float:
     """
-    CE-3: CaCO3 precipitation rate model driven by supersaturation ion product.
+    CE-3: CaCO3 precipitation rate model driven by supersaturation ion product,
+    chitosan crystallization template scaling, and pH carbonate speciation.
 
-    rate = k_precip_caco3 * max(0, [Ca²⁺][HCO₃⁻] - Ksp_caco3)
+    rate = k_precip_caco3 * max(0, [Ca²⁺][HCO₃⁻] - Ksp_caco3) * chitosan_pct * 10^(pH - 8.5)
 
     Units:
       - Ca_mM, HCO3_mM in mM (= mol/m³)
@@ -80,7 +82,9 @@ def caco3_precipitation_rate(
         rate_mol_per_L_s observation column.
     """
     ion_product = np.maximum(0.0, (Ca_mM * HCO3_mM) - Ksp_caco3)
-    return k_precip_caco3 * ion_product
+    template_factor = np.maximum(0.1, np.asarray(chitosan_pct, dtype=float))
+    pH_factor = 10.0 ** (np.asarray(pH, dtype=float) - 8.5)
+    return k_precip_caco3 * ion_product * template_factor * pH_factor
 
 
 def multi_gas_removal_efficiency(
@@ -138,7 +142,7 @@ EXPERIMENT_MODELS = {
     "CE-3": {
         "predict": caco3_precipitation_rate,
         "observed_column": "rate_mol_per_L_s",
-        "input_columns": ["Ca_mM", "HCO3_mM"],
+        "input_columns": ["Ca_mM", "HCO3_mM", "chitosan_pct", "pH"],
         "param_paths": ["kinetics.k_precip_caco3"],
     },
     "CE-4": {

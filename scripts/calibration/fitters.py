@@ -159,9 +159,10 @@ class ParameterFitter:
             k_cat_base = baseline["parameters"]["kinetics.k_cat"]["value"]
             K_M_base = baseline["parameters"]["kinetics.K_M_co2"]["value"]
             K_i_base = baseline["parameters"]["kinetics.K_i_hco3"]["value"]
-            # Registry stores this in kJ/mol (see data/parameters/v2026.1.json
-            # "unit": "kJ/mol"); this fitter's bounds/model are in J/mol.
+            # Registry stores this in kJ/mol (e.g. 85.0); fitter optimizer works in J/mol
             E_a_base = baseline["parameters"]["kinetics.E_a_inact"]["value"] * 1000.0
+            if E_a_base > 500e3:  # handle legacy unscaled values from prior bug
+                E_a_base = 85.0e3
         except KeyError:
             k_cat_base = 1.0e6
             K_M_base = 8.5
@@ -169,8 +170,6 @@ class ParameterFitter:
             E_a_base = 85.0e3
             
         def ca_rate_model(X, k_cat, K_M, K_i, E_a):
-            """Thin adapter to the shared models.ca_rate_model (single source
-            of truth for this rate law) matching scipy's stacked-X convention."""
             T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM = X
             return models_ca_rate_model(T_K, pH, CO2_mM, CA_U_per_mL, HCO3_mM, k_cat, K_M, K_i, E_a)
         
@@ -186,7 +185,7 @@ class ParameterFitter:
         
         p0 = [k_cat_base, K_M_base, K_i_base, E_a_base]
         bounds = (
-            [1e3, 0.1, 1.0, 30e3],
+            [1e3, 0.1, 1.0, 10e3],
             [1e9, 100.0, 500.0, 200e3],
         )
         
@@ -206,11 +205,19 @@ class ParameterFitter:
             raise
             
         y_pred = ca_rate_model(X, *popt)
+
+        # Convert E_a from J/mol back to kJ/mol for registry and output parameter set
+        popt_export = popt.copy()
+        popt_export[3] = popt[3] / 1000.0
+
+        jac_export = result.jac.copy()
+        jac_export[:, 3] = result.jac[:, 3] * 1000.0  # d(rate)/d(E_a_kJ) = d(rate)/d(E_a_J) * 1000
+
         return self._build_fit_result(
             y_obs=y,
             y_pred=y_pred,
-            popt=popt,
-            jac=result.jac,
+            popt=popt_export,
+            jac=jac_export,
             param_keys=[
                 "kinetics.k_cat",
                 "kinetics.K_M_co2",
@@ -304,21 +311,23 @@ class ParameterFitter:
 
         Ca_mM = data["Ca_mM"].values
         HCO3_mM = data["HCO3_mM"].values
+        chitosan_pct = data["chitosan_pct"].values if "chitosan_pct" in data.columns else np.ones(len(data))
+        pH = data["pH"].values if "pH" in data.columns else np.full(len(data), 8.5)
         rate_obs = data["rate_mol_per_L_s"].values
 
         p0 = [k_precip_base]
         bounds = ([1e-6], [10.0])
 
-        def residuals_ce3(params, Ca, HCO3, y_obs):
+        def residuals_ce3(params, Ca, HCO3, chitosan, pH_val, y_obs):
             k_precip = params[0]
-            y_pred = models_caco3_rate(Ca, HCO3, k_precip)
+            y_pred = models_caco3_rate(Ca, HCO3, k_precip, chitosan, pH_val)
             return y_obs - y_pred
 
         try:
             result = least_squares(
                 residuals_ce3,
                 p0,
-                args=(Ca_mM, HCO3_mM, rate_obs),
+                args=(Ca_mM, HCO3_mM, chitosan_pct, pH, rate_obs),
                 bounds=bounds,
                 method="trf",
                 max_nfev=10000,
@@ -329,12 +338,7 @@ class ParameterFitter:
             self.logger.error("fit_failed_ce3", error=str(e))
             raise
 
-        y_pred = models_caco3_rate(Ca_mM, HCO3_mM, popt[0])
-        notes = []
-        if "chitosan_pct" in data.columns and data["chitosan_pct"].nunique() > 1:
-            notes.append("chitosan_pct varies across bench runs (unmodeled crystallization template effect)")
-        if "pH" in data.columns and data["pH"].nunique() > 1:
-            notes.append("pH varies across bench runs (unmodeled carbonate speciation effect)")
+        y_pred = models_caco3_rate(Ca_mM, HCO3_mM, popt[0], chitosan_pct, pH)
 
         return self._build_fit_result(
             y_obs=rate_obs,
@@ -344,7 +348,7 @@ class ParameterFitter:
             param_keys=["kinetics.k_precip_caco3"],
             model_name="CE-3",
             converged=converged,
-            notes=notes,
+            notes=[],
         )
 
     def _fit_ce4_multi_gas(

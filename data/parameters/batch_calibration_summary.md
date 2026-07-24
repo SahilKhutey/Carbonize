@@ -1,6 +1,6 @@
 # 🧪 Batch Calibration Pipeline Executive Summary
 
-**Execution Timestamp:** 2026-07-24 01:49:10 UTC
+**Execution Timestamp:** 2026-07-24 06:24:04 UTC
 **Baseline Parameter Set:** `v2026.1`
 **Calibrated Parameter Set:** `v2026.2`
 
@@ -8,9 +8,9 @@
 
 | Experiment | Target Physics Name | R² Score | RMSE | MAPE % | Comparator Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **CE-1** | Carbonic Anhydrase Kinetics | -1023515044.9793 | 1.1393e+04 | 987872.27% | 🔴 NEEDS_RECALIBRATION |
+| **CE-1** | Carbonic Anhydrase Kinetics | 0.9596 | 7.1596e-02 | 5.13% | 🟢 VALIDATED |
 | **CE-2** | Heavy Metal Sorption | 0.9997 | 3.1607e-01 | 0.78% | 🟢 VALIDATED |
-| **CE-3** | Chitosan CaCO₃ Precipitation | 0.0173 | 2.2196e-02 | 58.48% | 🟢 VALIDATED |
+| **CE-3** | Chitosan CaCO₃ Precipitation | 0.2590 | 1.9274e-02 | 51.17% | 🔴 NEEDS_RECALIBRATION |
 | **CE-4** | Multi-Gas Absorption | 0.9870 | 1.2441e+00 | 1.17% | 🟢 VALIDATED |
 | **CE-5** | Formulation Sensitivity Screen | 0.9720 | 5.7163e-01 | 7.96% | 🟢 VALIDATED |
 
@@ -18,12 +18,12 @@
 
 | Parameter Path | Old Value (v2026.1) | New Value (v2026.2) | Δ Abs | Δ % | Experiment |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `kinetics.k_cat` | 1.0000e+06 | 1.0000e+03 | -9.9900e+05 | -99.90% | `data\bench_data` |
-| `kinetics.K_M_co2` | 8.5000e+00 | 1.0000e+02 | +9.1500e+01 | +1076.47% | `data\bench_data` |
-| `kinetics.E_a_inact` | 8.5000e+01 | 3.0000e+04 | +2.9915e+04 | +35194.12% | `data\bench_data` |
+| `kinetics.k_cat` | 1.0000e+06 | 1.6357e+06 | +6.3568e+05 | +63.57% | `data\bench_data` |
+| `kinetics.K_M_co2` | 8.5000e+00 | 2.0909e+01 | +1.2409e+01 | +145.99% | `data\bench_data` |
+| `kinetics.E_a_inact` | 8.5000e+01 | 1.3415e+01 | -7.1585e+01 | -84.22% | `data\bench_data` |
 | `kinetics.k_so2_abs` | 2.5000e-02 | 1.1468e-01 | +8.9684e-02 | +358.74% | `data\bench_data` |
-| `kinetics.k_precip_caco3` | 1.5000e-02 | 9.1000e-05 | -1.4909e-02 | -99.39% | `data\bench_data` |
-| `kinetics.K_i_hco3` | 2.6000e+01 | 1.0000e+00 | -2.5000e+01 | -96.15% | `data\bench_data` |
+| `kinetics.k_precip_caco3` | 1.5000e-02 | 2.5000e-05 | -1.4975e-02 | -99.83% | `data\bench_data` |
+| `kinetics.K_i_hco3` | 2.6000e+01 | 1.5288e+01 | -1.0712e+01 | -41.20% | `data\bench_data` |
 | `kinetics.K_F_Pb` | N/A | 1.3197e+01 | +1.3197e+01 | +100.00% | `data\bench_data` |
 | `kinetics.n_Pb` | N/A | 2.1697e+00 | +2.1697e+00 | +100.00% | `data\bench_data` |
 | `kinetics.K_F_Cd` | N/A | 5.5106e+00 | +5.5106e+00 | +100.00% | `data\bench_data` |
