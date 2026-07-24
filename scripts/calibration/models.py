@@ -121,11 +121,16 @@ def formulation_strength_response(
     pH: np.ndarray | float,
     strength_coeff_chitosan: float,
     pH_coeff_strength: float = 0.1,
+    press_force_bar: float = 50.0,
+    curing_time_h: float = 24.0,
+    ash_frac: float = 0.0,
 ) -> np.ndarray | float:
     """
     CE-5: Composite block compressive strength response (MPa) model.
+    Shared formulation strength model with domain/block/strength.py.
 
     strength_mpa = strength_coeff_chitosan * chitosan_pct * (1.0 + pH_coeff_strength * max(0, pH - 7.0))
+                   * 2.5 * (1 + 1.2 * ash_frac) * log10(press / 10 + 1) * (1 - exp(-cure_h / 24))
 
     Units:
       - chitosan_pct in wt% (1.0 to 5.0%)
@@ -134,7 +139,10 @@ def formulation_strength_response(
       - Returns predicted compressive strength in MPa, matching CE-5's response column.
     """
     pH_factor = 1.0 + pH_coeff_strength * np.maximum(0.0, pH - 7.0)
-    return strength_coeff_chitosan * chitosan_pct * pH_factor
+    curing_factor = 1.0 - np.exp(-curing_time_h / 24.0)
+    pressure_factor = np.log10(press_force_bar / 10.0 + 1.0)
+    base_strength = strength_coeff_chitosan * chitosan_pct * pH_factor
+    return base_strength * 2.5 * (1.0 + 1.2 * ash_frac) * pressure_factor * curing_factor
 
 
 # Maps each experiment to (required observation columns, in the exact
