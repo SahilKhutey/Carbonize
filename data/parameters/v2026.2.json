@@ -147,16 +147,16 @@
     },
     "kinetics.k_precip_caco3": {
       "symbol": "k_p_CaCO3",
-      "value": 2.5150046115621092e-05,
+      "value": 0.015,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
         "mu": -4.2,
         "sigma": 0.35
       },
-      "source": "Calibration from data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
-      "source_type": "measured",
-      "confidence": "HIGH",
+      "source": "Zeng 2024 (Fig. 6)",
+      "source_type": "literature",
+      "confidence": "MEDIUM",
       "conditions": "25\u00c2\u00b0C, I=0.1M",
       "extrapolation_risk": "MEDIUM",
       "owner": "@chem-team"
@@ -897,12 +897,12 @@
       "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
     }
   },
-  "last_calibrated": "2026-07-24T06:51:01.170501+00:00Z",
+  "last_calibrated": "2026-07-24T11:30:46.326422+00:00Z",
   "calibration_source": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
   "calibration_history": [
     {
       "version": "v2026.2",
-      "timestamp": "2026-07-24T06:51:00.990165+00:00Z",
+      "timestamp": "2026-07-24T11:30:46.079284+00:00Z",
       "source_data": "data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "parameters_updated": [
         "kinetics.k_cat",
@@ -916,7 +916,7 @@
     },
     {
       "version": "v2026.3",
-      "timestamp": "2026-07-24T06:51:01.013699+00:00Z",
+      "timestamp": "2026-07-24T11:30:46.120562+00:00Z",
       "source_data": "data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv",
       "parameters_updated": [
         "kinetics.K_F_Pb",
@@ -932,18 +932,7 @@
     },
     {
       "version": "v2026.4",
-      "timestamp": "2026-07-24T06:51:01.056383+00:00Z",
-      "source_data": "data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
-      "parameters_updated": [
-        "kinetics.k_precip_caco3"
-      ],
-      "fit_quality": "POOR",
-      "r_squared": 0.25899861549417735,
-      "rmse": 0.01927430350882773
-    },
-    {
-      "version": "v2026.5",
-      "timestamp": "2026-07-24T06:51:01.124225+00:00Z",
+      "timestamp": "2026-07-24T11:30:46.268925+00:00Z",
       "source_data": "data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
       "parameters_updated": [
         "kinetics.k_so2_abs",
@@ -954,8 +943,8 @@
       "rmse": 1.2440772381983267
     },
     {
-      "version": "v2026.6",
-      "timestamp": "2026-07-24T06:51:01.170501+00:00Z",
+      "version": "v2026.5",
+      "timestamp": "2026-07-24T11:30:46.326422+00:00Z",
       "source_data": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
       "parameters_updated": [
         "kinetics.strength_coeff_chitosan",

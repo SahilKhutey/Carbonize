@@ -2,9 +2,9 @@
   "experiment": "BATCH_CE1_TO_CE5",
   "from_version": "2026.1",
   "to_version": "v2026.2",
-  "timestamp": "2026-07-24T06:51:01.171502+00:00Z",
+  "timestamp": "2026-07-24T11:30:46.328236+00:00Z",
   "source_data": "data/bench_data",
-  "changes_count": 15,
+  "changes_count": 14,
   "parameter_diffs": [
     {
       "change_type": "UPDATED",
@@ -46,17 +46,6 @@
       "new_value": 0.114684,
       "delta": 0.089684,
       "percentage_change": 358.74,
-      "old_confidence": "MEDIUM",
-      "new_confidence": "HIGH",
-      "source": "data/bench_data"
-    },
-    {
-      "change_type": "UPDATED",
-      "parameter": "kinetics.k_precip_caco3",
-      "old_value": 0.015,
-      "new_value": 2.5e-05,
-      "delta": -0.014975,
-      "percentage_change": -99.83,
       "old_confidence": "MEDIUM",
       "new_confidence": "HIGH",
       "source": "data/bench_data"

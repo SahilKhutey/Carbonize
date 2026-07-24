@@ -156,16 +156,37 @@ class BatchCalibrationPipeline:
             uncertainty_estimator = UncertaintyEstimator(n_bootstrap=10)
             confidence_intervals = uncertainty_estimator.compute(fit_result=fit_result, data=df)
 
-            # 4. Update Working Parameter Set
-            current_params = self.updater.update(
-                baseline=current_params,
-                fit_result=fit_result,
-                confidence_intervals=confidence_intervals,
-                source_data=str(csv_path),
-            )
-
-            # 5. Evaluate Comparator Status
+            # 4. Evaluate Comparator Status FIRST -- this must gate whether
+            # the fit is trusted enough to promote into the working
+            # parameter set. Comparing only *after* already merging (the
+            # previous order) makes the comparator's verdict purely
+            # informational, with no actual power to keep an unvalidated
+            # fit out of what the production simulation engine reads.
             comparison = self.comparator.compare(fit_result=fit_result, observations=df, experiment=exp_id)
+
+            # 5. Update Working Parameter Set -- only promote if the
+            # comparator actually validated this fit. NEEDS_RECALIBRATION,
+            # NEEDS_REVIEW, and FITTER_NOT_IMPLEMENTED results are still
+            # recorded in the summary and provenance doc (so the real
+            # r_squared/rmse/status is visible), but must not silently
+            # become the new production default -- the prior baseline
+            # value is retained for that parameter until a fit actually
+            # earns VALIDATED.
+            TRUSTED_STATUSES = {"VALIDATED"}
+            if comparison.get("status") in TRUSTED_STATUSES:
+                current_params = self.updater.update(
+                    baseline=current_params,
+                    fit_result=fit_result,
+                    confidence_intervals=confidence_intervals,
+                    source_data=str(csv_path),
+                )
+            else:
+                logger.warning(
+                    "parameter_promotion_blocked",
+                    experiment=exp_id,
+                    status=comparison.get("status"),
+                    reason="comparator did not validate this fit -- baseline parameters retained for this experiment's parameters",
+                )
 
             # 6. Auto-Update RATE_CONSTANTS_PROVENANCE.md if not dry-run
             if not dry_run:
@@ -186,6 +207,7 @@ class BatchCalibrationPipeline:
                 "mape_pct": comparison.get("mape_pct", 0.0),
                 "comparator_status": comparison.get("status", "VALIDATED"),
                 "fitted_params": list(fit_result.parameters.keys()),
+                "promoted_to_v2026_2": comparison.get("status") in TRUSTED_STATUSES,
             })
 
         # 7. Generate Master Diff Manifest (Baseline v2026.1 -> Calibrated v2026.2)
@@ -236,8 +258,8 @@ class BatchCalibrationPipeline:
             "",
             "## 1. Multi-Experiment Calibration Matrix",
             "",
-            "| Experiment | Target Physics Name | R² Score | RMSE | MAPE % | Comparator Status |",
-            "| :--- | :--- | :--- | :--- | :--- | :--- |",
+            "| Experiment | Target Physics Name | R² Score | RMSE | MAPE % | Comparator Status | Promoted to v2026.2? |",
+            "| :--- | :--- | :--- | :--- | :--- | :--- | :--- |",
         ]
 
         for r in summary_results:
@@ -248,11 +270,13 @@ class BatchCalibrationPipeline:
                 status_icon = "🟡"
             else:  # NEEDS_RECALIBRATION and anything else unrecognized
                 status_icon = "🔴"
+            promoted = r.get("promoted_to_v2026_2", False)
+            promoted_str = "✅ Yes" if promoted else "⛔ No (baseline retained)"
             r_sq = f"{r['r_squared']:.4f}" if r["r_squared"] is not None else "N/A"
             rmse_s = f"{r['rmse']:.4e}" if r["rmse"] is not None else "N/A"
             mape_s = f"{r['mape_pct']:.2f}%" if r["mape_pct"] is not None else "N/A"
             md_lines.append(
-                f"| **{r['experiment']}** | {r['name']} | {r_sq} | {rmse_s} | {mape_s} | {status_icon} {status} |"
+                f"| **{r['experiment']}** | {r['name']} | {r_sq} | {rmse_s} | {mape_s} | {status_icon} {status} | {promoted_str} |"
             )
 
         md_lines.extend([
