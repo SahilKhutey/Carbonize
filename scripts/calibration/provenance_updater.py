@@ -25,7 +25,7 @@ EXPERIMENT_PARAMETER_MAP = {
     "CE-2": [],  # no heavy-metal Freundlich sorption rows exist in the doc yet
     "CE-3": ["k_precip_caco3", "k_precip_caso3", "k_precip_caso4", "KSP_CACO3", "KSP_CASO4", "KSP_CASO3"],
     "CE-4": ["k_so2_abs", "HENRY_SO2", "K_so2_dissociation", "k_no2_abs", "HENRY_NO2", "K_no2_dissociation"],
-    "CE-5": [],  # no formulation-sensitivity rows exist in the doc yet
+    "CE-5": ["strength_coeff_chitosan", "pH_coeff_strength"],
 }
 
 

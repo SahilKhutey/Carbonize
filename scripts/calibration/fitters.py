@@ -16,7 +16,13 @@ from scipy.stats import t as t_dist
 
 from cbms_shared.exceptions import CBMSError
 from cbms_shared.logging import get_logger
-from .models import ca_rate_model as models_ca_rate_model
+from cbms_sim.domain.experimental.config import CONFIG
+from .models import (
+    ca_rate_model as models_ca_rate_model,
+    caco3_precipitation_rate as models_caco3_rate,
+    multi_gas_removal_efficiency as models_multi_gas_efficiency,
+    formulation_strength_response as models_formulation_response,
+)
 
 logger = get_logger(__name__)
 
@@ -50,6 +56,76 @@ class ParameterFitter:
         self.experiment = experiment
         self.logger = get_logger(self.__class__.__name__)
     
+    def _build_fit_result(
+        self,
+        y_obs: np.ndarray,
+        y_pred: np.ndarray,
+        popt: np.ndarray,
+        jac: np.ndarray | None,
+        param_keys: List[str],
+        model_name: str,
+        converged: bool,
+        notes: List[str] | None = None,
+    ) -> FitResult:
+        """
+        Shared helper for computing R², RMSE, MAE, covariance, standard errors,
+        confidence intervals, AIC, BIC, and fit quality classification.
+        """
+        residuals = y_obs - y_pred
+        ss_res = float(np.sum(residuals**2))
+        ss_tot = float(np.sum((y_obs - np.mean(y_obs))**2))
+        r_squared = float(1.0 - ss_res / ss_tot) if ss_tot != 0.0 else 0.0
+        rmse = float(np.sqrt(np.mean(residuals**2))) if len(residuals) > 0 else 0.0
+        mae = float(np.mean(np.abs(residuals))) if len(residuals) > 0 else 0.0
+        n = len(y_obs)
+        k = len(popt)
+        dof = max(n - k, 1)
+
+        try:
+            if jac is not None and jac.size > 0:
+                cov = np.linalg.inv(jac.T @ jac) * (ss_res / dof)
+                se = np.sqrt(np.diag(cov))
+                t_crit = t_dist.ppf(0.975, dof)
+                ci_list = [
+                    (float(popt[i] - t_crit * se[i]), float(popt[i] + t_crit * se[i]))
+                    for i in range(k)
+                ]
+            else:
+                raise ValueError("No jacobian provided")
+        except Exception:
+            self.logger.warning("covariance_calculation_failed", model_name=model_name)
+            cov = np.full((k, k), np.nan)
+            se = np.full(k, np.nan)
+            ci_list = [(float(np.nan), float(np.nan)) for _ in range(k)]
+
+        aic = float(n * np.log(ss_res / n) + 2 * k) if n > 0 and ss_res > 0 else 0.0
+        bic = float(n * np.log(ss_res / n) + k * np.log(n)) if n > 0 and ss_res > 0 else 0.0
+        fit_quality = self._classify_fit_quality(r_squared, rmse, mae, float(y_obs.mean()) if len(y_obs) > 0 else 0.0)
+
+        param_dict = {key: float(popt[i]) for i, key in enumerate(param_keys)}
+        stderr_dict = {key: float(se[i]) for i, key in enumerate(param_keys)}
+        ci_dict = {key: ci_list[i] for i, key in enumerate(param_keys)}
+
+        return FitResult(
+            parameters=param_dict,
+            parameter_stderr=stderr_dict,
+            parameter_ci=ci_dict,
+            covariance=cov,
+            r_squared=r_squared,
+            rmse=rmse,
+            mae=mae,
+            aic=aic,
+            bic=bic,
+            residuals=residuals,
+            n_observations=n,
+            n_parameters=k,
+            degrees_of_freedom=dof,
+            fit_quality=fit_quality,
+            model_name=model_name,
+            convergence=converged,
+            notes=notes or [],
+        )
+
     def fit(
         self,
         data: pd.DataFrame,
@@ -92,9 +168,6 @@ class ParameterFitter:
             K_i_base = 26.0
             E_a_base = 85.0e3
             
-        R_gas = 8.314
-        T_ref = 298.15
-
         def ca_rate_model(X, k_cat, K_M, K_i, E_a):
             """Thin adapter to the shared models.ca_rate_model (single source
             of truth for this rate law) matching scipy's stacked-X convention."""
@@ -133,67 +206,19 @@ class ParameterFitter:
             raise
             
         y_pred = ca_rate_model(X, *popt)
-        residuals = y - y_pred
-        ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((y - np.mean(y))**2)
-        r_squared = 1 - ss_res / ss_tot if ss_tot != 0 else 0.0
-        rmse = np.sqrt(np.mean(residuals**2))
-        mae = np.mean(np.abs(residuals))
-        n = len(y)
-        k = len(popt)
-        dof = n - k
-        
-        try:
-            J = result.jac
-            cov = np.linalg.inv(J.T @ J) * (ss_res / dof)
-            se = np.sqrt(np.diag(cov))
-            t_crit = t_dist.ppf(0.975, dof)
-            ci = {
-                p: (popt[i] - t_crit * se[i], popt[i] + t_crit * se[i])
-                for i, p in enumerate(["k_cat", "K_M", "K_i", "E_a"])
-            }
-        except Exception:
-            self.logger.warning("covariance_calculation_failed")
-            se = np.full(k, np.nan)
-            ci = {p: (np.nan, np.nan) for p in ["k_cat", "K_M", "K_i", "E_a"]}
-            cov = np.full((k, k), np.nan)
-            
-        aic = n * np.log(ss_res / n) + 2 * k if n > 0 and ss_res > 0 else 0.0
-        bic = n * np.log(ss_res / n) + k * np.log(n) if n > 0 and ss_res > 0 else 0.0
-        fit_quality = self._classify_fit_quality(r_squared, rmse, mae, y.mean())
-        
-        return FitResult(
-            parameters={
-                "kinetics.k_cat": float(popt[0]),
-                "kinetics.K_M_co2": float(popt[1]),
-                "kinetics.K_i_hco3": float(popt[2]),
-                "kinetics.E_a_inact": float(popt[3]),
-            },
-            parameter_stderr={
-                "kinetics.k_cat": float(se[0]),
-                "kinetics.K_M_co2": float(se[1]),
-                "kinetics.K_i_hco3": float(se[2]),
-                "kinetics.E_a_inact": float(se[3]),
-            },
-            parameter_ci={
-                "kinetics.k_cat": (float(ci["k_cat"][0]), float(ci["k_cat"][1])),
-                "kinetics.K_M_co2": (float(ci["K_M"][0]), float(ci["K_M"][1])),
-                "kinetics.K_i_hco3": (float(ci["K_i"][0]), float(ci["K_i"][1])),
-                "kinetics.E_a_inact": (float(ci["E_a"][0]), float(ci["E_a"][1])),
-            },
-            covariance=cov,
-            r_squared=float(r_squared),
-            rmse=float(rmse),
-            mae=float(mae),
-            aic=float(aic),
-            bic=float(bic),
-            residuals=residuals,
-            n_observations=n,
-            n_parameters=k,
-            degrees_of_freedom=dof,
-            fit_quality=fit_quality,
+        return self._build_fit_result(
+            y_obs=y,
+            y_pred=y_pred,
+            popt=popt,
+            jac=result.jac,
+            param_keys=[
+                "kinetics.k_cat",
+                "kinetics.K_M_co2",
+                "kinetics.K_i_hco3",
+                "kinetics.E_a_inact",
+            ],
             model_name="CE-1",
-            convergence=converged,
+            converged=converged,
         )
 
     def _residuals_ca(self, params, X, y_obs):
@@ -265,69 +290,229 @@ class ParameterFitter:
             convergence=True,
         )
 
-    def _fit_ce3_precipitation(self, data, baseline):
-        # Placeholder fitting CaCO3 precipitation rate coefficient
-        y = data["rate_mol_per_L_s"].values
-        k_precip = float(np.mean(y) / 1e-2)
-        return FitResult(
-            parameters={"kinetics.k_precip_caco3": k_precip},
-            parameter_stderr={},
-            parameter_ci={},
-            covariance=np.array([]),
-            r_squared=0.95,
-            rmse=0.0,
-            mae=0.0,
-            aic=0.0,
-            bic=0.0,
-            residuals=np.zeros(len(data)),
-            n_observations=len(data),
-            n_parameters=1,
-            degrees_of_freedom=len(data) - 1,
-            fit_quality="GOOD",
+    def _fit_ce3_precipitation(
+        self,
+        data: pd.DataFrame,
+        baseline: dict,
+    ) -> FitResult:
+        self.logger.info("fitting_ce3_precipitation", n_points=len(data))
+
+        try:
+            k_precip_base = baseline["parameters"]["kinetics.k_precip_caco3"]["value"]
+        except KeyError:
+            k_precip_base = 1.5e-2
+
+        Ca_mM = data["Ca_mM"].values
+        HCO3_mM = data["HCO3_mM"].values
+        rate_obs = data["rate_mol_per_L_s"].values
+
+        p0 = [k_precip_base]
+        bounds = ([1e-6], [10.0])
+
+        def residuals_ce3(params, Ca, HCO3, y_obs):
+            k_precip = params[0]
+            y_pred = models_caco3_rate(Ca, HCO3, k_precip)
+            return y_obs - y_pred
+
+        try:
+            result = least_squares(
+                residuals_ce3,
+                p0,
+                args=(Ca_mM, HCO3_mM, rate_obs),
+                bounds=bounds,
+                method="trf",
+                max_nfev=10000,
+            )
+            popt = result.x
+            converged = result.success
+        except Exception as e:
+            self.logger.error("fit_failed_ce3", error=str(e))
+            raise
+
+        y_pred = models_caco3_rate(Ca_mM, HCO3_mM, popt[0])
+        notes = []
+        if "chitosan_pct" in data.columns and data["chitosan_pct"].nunique() > 1:
+            notes.append("chitosan_pct varies across bench runs (unmodeled crystallization template effect)")
+        if "pH" in data.columns and data["pH"].nunique() > 1:
+            notes.append("pH varies across bench runs (unmodeled carbonate speciation effect)")
+
+        return self._build_fit_result(
+            y_obs=rate_obs,
+            y_pred=y_pred,
+            popt=popt,
+            jac=result.jac,
+            param_keys=["kinetics.k_precip_caco3"],
             model_name="CE-3",
-            convergence=True,
+            converged=converged,
+            notes=notes,
         )
 
-    def _fit_ce4_multi_gas(self, data, baseline):
-        # Placeholder fitting SO2 absorption rate
-        return FitResult(
-            parameters={"kinetics.k_so2_abs": 2.5e-2},
-            parameter_stderr={},
-            parameter_ci={},
-            covariance=np.array([]),
-            r_squared=0.95,
-            rmse=0.0,
-            mae=0.0,
-            aic=0.0,
-            bic=0.0,
-            residuals=np.zeros(len(data)),
-            n_observations=len(data),
-            n_parameters=1,
-            degrees_of_freedom=len(data) - 1,
-            fit_quality="GOOD",
+    def _fit_ce4_multi_gas(
+        self,
+        data: pd.DataFrame,
+        baseline: dict,
+    ) -> FitResult:
+        self.logger.info("fitting_ce4_multi_gas", n_points=len(data))
+
+        # Single source of truth for reactor geometry residence time
+        base_tau = float(CONFIG.geometry.RESIDENCE_TIME)
+
+        try:
+            k_so2_base = baseline["parameters"]["kinetics.k_so2_abs"]["value"]
+        except KeyError:
+            k_so2_base = 2.5e-2
+
+        try:
+            k_no2_base = baseline["parameters"]["kinetics.k_no2_abs"]["value"]
+        except KeyError:
+            k_no2_base = 1.0e-2
+
+        inlet = data["inlet_ppm"].values
+        outlet = data["outlet_ppm"].values
+        # Target column matches comparator resolution: removal efficiency (%)
+        y_obs = np.where(inlet > 0, ((inlet - outlet) / inlet) * 100.0, 0.0)
+
+        # Derive residence time per row based on L_per_min flow rate vs nominal 10.0 L/min bench flow
+        flow_l_pm = data["L_per_min"].values if "L_per_min" in data.columns else np.full(len(data), 10.0)
+        t_res = np.where(flow_l_pm > 0, base_tau * (10.0 / flow_l_pm), base_tau)
+
+        gas_series = data["gas"].astype(str)
+        so2_mask = (gas_series == "SO2").values
+        nox_mask = (gas_series.isin(["NOx", "NO2"])).values
+
+        def residuals_gas(params, t_res_sub, y_obs_sub):
+            k_abs = params[0]
+            y_pred_sub = models_multi_gas_efficiency(k_abs, t_res_sub)
+            return y_obs_sub - y_pred_sub
+
+        bounds = ([1e-5], [10.0])
+
+        # 1. Fit SO2 absorption rate constant
+        popt_so2 = np.array([k_so2_base])
+        converged_so2 = True
+        if np.any(so2_mask):
+            try:
+                res_so2 = least_squares(
+                    residuals_gas,
+                    [k_so2_base],
+                    args=(t_res[so2_mask], y_obs[so2_mask]),
+                    bounds=bounds,
+                    method="trf",
+                    max_nfev=10000,
+                )
+                popt_so2 = res_so2.x
+                converged_so2 = res_so2.success
+            except Exception as e:
+                self.logger.error("fit_failed_ce4_so2", error=str(e))
+                raise
+
+        # 2. Fit NOx/NO2 absorption rate constant
+        popt_no2 = np.array([k_no2_base])
+        converged_no2 = True
+        if np.any(nox_mask):
+            try:
+                res_no2 = least_squares(
+                    residuals_gas,
+                    [k_no2_base],
+                    args=(t_res[nox_mask], y_obs[nox_mask]),
+                    bounds=bounds,
+                    method="trf",
+                    max_nfev=10000,
+                )
+                popt_no2 = res_no2.x
+                converged_no2 = res_no2.success
+            except Exception as e:
+                self.logger.error("fit_failed_ce4_no2", error=str(e))
+                raise
+
+        # 3. Combine predictions and construct block diagonal Jacobian matrix
+        y_pred = np.zeros(len(data))
+        if np.any(so2_mask):
+            y_pred[so2_mask] = models_multi_gas_efficiency(popt_so2[0], t_res[so2_mask])
+        if np.any(nox_mask):
+            y_pred[nox_mask] = models_multi_gas_efficiency(popt_no2[0], t_res[nox_mask])
+
+        # Block-diagonal Jacobian of shape (n_obs, 2)
+        jac_combined = np.zeros((len(data), 2))
+        if np.any(so2_mask):
+            jac_combined[so2_mask, 0] = t_res[so2_mask] * np.exp(-popt_so2[0] * t_res[so2_mask]) * 100.0
+        if np.any(nox_mask):
+            jac_combined[nox_mask, 1] = t_res[nox_mask] * np.exp(-popt_no2[0] * t_res[nox_mask]) * 100.0
+
+        popt_combined = np.array([popt_so2[0], popt_no2[0]])
+        param_keys = ["kinetics.k_so2_abs", "kinetics.k_no2_abs"]
+
+        notes = []
+        if "pH" in data.columns and data["pH"].nunique() > 1:
+            notes.append("pH varies across multi-gas bench runs (unmodeled sulfite/bisulfite equilibrium shift)")
+
+        return self._build_fit_result(
+            y_obs=y_obs,
+            y_pred=y_pred,
+            popt=popt_combined,
+            jac=jac_combined,
+            param_keys=param_keys,
             model_name="CE-4",
-            convergence=True,
+            converged=converged_so2 and converged_no2,
+            notes=notes,
         )
 
-    def _fit_ce5_formulation(self, data, baseline):
-        # Placeholder fitting optimal formulation parameters
-        return FitResult(
-            parameters={"kinetics.chitosan_wt_pct": 3.0},
-            parameter_stderr={},
-            parameter_ci={},
-            covariance=np.array([]),
-            r_squared=0.95,
-            rmse=0.0,
-            mae=0.0,
-            aic=0.0,
-            bic=0.0,
-            residuals=np.zeros(len(data)),
-            n_observations=len(data),
-            n_parameters=1,
-            degrees_of_freedom=len(data) - 1,
-            fit_quality="GOOD",
+    def _fit_ce5_formulation(
+        self,
+        data: pd.DataFrame,
+        baseline: dict,
+    ) -> FitResult:
+        self.logger.info("fitting_ce5_formulation", n_points=len(data))
+
+        try:
+            coeff_base = baseline["parameters"]["kinetics.strength_coeff_chitosan"]["value"]
+        except KeyError:
+            coeff_base = 2.5
+
+        try:
+            ph_mod_base = baseline["parameters"]["kinetics.pH_coeff_strength"]["value"]
+        except KeyError:
+            ph_mod_base = 0.1
+
+        chitosan_pct = data["chitosan_pct"].values
+        pH = data["pH"].values
+        y_obs = data["response"].values
+
+        p0 = [coeff_base, ph_mod_base]
+        bounds = ([0.01, 0.0], [50.0, 5.0])
+
+        def residuals_ce5(params, chitosan, pH_val, y_actual):
+            coeff, ph_mod = params
+            y_pred = models_formulation_response(chitosan, pH_val, coeff, ph_mod)
+            return y_actual - y_pred
+
+        try:
+            result = least_squares(
+                residuals_ce5,
+                p0,
+                args=(chitosan_pct, pH, y_obs),
+                bounds=bounds,
+                method="trf",
+                max_nfev=10000,
+            )
+            popt = result.x
+            converged = result.success
+        except Exception as e:
+            self.logger.error("fit_failed_ce5", error=str(e))
+            raise
+
+        y_pred = models_formulation_response(chitosan_pct, pH, popt[0], popt[1])
+        notes = ["Calibrated compressive strength response against bench chitosan/pH screen"]
+
+        return self._build_fit_result(
+            y_obs=y_obs,
+            y_pred=y_pred,
+            popt=popt,
+            jac=result.jac,
+            param_keys=["kinetics.strength_coeff_chitosan", "kinetics.pH_coeff_strength"],
             model_name="CE-5",
-            convergence=True,
+            converged=converged,
+            notes=notes,
         )
 
     def _classify_fit_quality(self, r2: float, rmse: float, mae: float, y_mean: float) -> str:

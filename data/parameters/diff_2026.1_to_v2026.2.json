@@ -2,9 +2,9 @@
   "experiment": "BATCH_CE1_TO_CE5",
   "from_version": "2026.1",
   "to_version": "v2026.2",
-  "timestamp": "2026-07-23T01:48:35.694076+00:00Z",
+  "timestamp": "2026-07-24T01:49:10.981188+00:00Z",
   "source_data": "data\\bench_data",
-  "changes_count": 12,
+  "changes_count": 15,
   "parameter_diffs": [
     {
       "change_type": "UPDATED",
@@ -41,11 +41,22 @@
     },
     {
       "change_type": "UPDATED",
+      "parameter": "kinetics.k_so2_abs",
+      "old_value": 0.025,
+      "new_value": 0.114684,
+      "delta": 0.089684,
+      "percentage_change": 358.74,
+      "old_confidence": "MEDIUM",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "UPDATED",
       "parameter": "kinetics.k_precip_caco3",
       "old_value": 0.015,
-      "new_value": 4.171429,
-      "delta": 4.156429,
-      "percentage_change": 27709.52,
+      "new_value": 9.1e-05,
+      "delta": -0.014909,
+      "percentage_change": -99.39,
       "old_confidence": "MEDIUM",
       "new_confidence": "HIGH",
       "source": "data\\bench_data"
@@ -129,10 +140,32 @@
     },
     {
       "change_type": "NEW_CALIBRATED_PARAMETER",
-      "parameter": "kinetics.chitosan_wt_pct",
+      "parameter": "kinetics.k_no2_abs",
       "old_value": null,
-      "new_value": 3.0,
-      "delta": 3.0,
+      "new_value": 0.049233,
+      "delta": 0.049233,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.strength_coeff_chitosan",
+      "old_value": null,
+      "new_value": 2.678182,
+      "delta": 2.678182,
+      "percentage_change": 100.0,
+      "old_confidence": "UNSET",
+      "new_confidence": "HIGH",
+      "source": "data\\bench_data"
+    },
+    {
+      "change_type": "NEW_CALIBRATED_PARAMETER",
+      "parameter": "kinetics.pH_coeff_strength",
+      "old_value": null,
+      "new_value": 0.0,
+      "delta": 0.0,
       "percentage_change": 100.0,
       "old_confidence": "UNSET",
       "new_confidence": "HIGH",

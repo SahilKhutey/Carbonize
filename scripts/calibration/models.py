@@ -61,6 +61,67 @@ def ca_rate_residuals(params, X, y_obs):
     return y_obs - y_pred
 
 
+def caco3_precipitation_rate(
+    Ca_mM: np.ndarray | float,
+    HCO3_mM: np.ndarray | float,
+    k_precip_caco3: float,
+    Ksp_caco3: float = 3.31e-9,
+) -> np.ndarray | float:
+    """
+    CE-3: CaCO3 precipitation rate model driven by supersaturation ion product.
+
+    rate = k_precip_caco3 * max(0, [Ca²⁺][HCO₃⁻] - Ksp_caco3)
+
+    Units:
+      - Ca_mM, HCO3_mM in mM (= mol/m³)
+      - Ksp_caco3 in mol²/m⁶ (default 3.31e-9)
+      - k_precip_caco3 in m³/(mol·s)
+      - Returns predicted precipitation rate in mol/(L·s), matching CE-3's
+        rate_mol_per_L_s observation column.
+    """
+    ion_product = np.maximum(0.0, (Ca_mM * HCO3_mM) - Ksp_caco3)
+    return k_precip_caco3 * ion_product
+
+
+def multi_gas_removal_efficiency(
+    k_abs: float,
+    residence_time_s: np.ndarray | float,
+) -> np.ndarray | float:
+    """
+    CE-4: First-order gas-liquid absorption removal efficiency (%).
+
+    efficiency_pct = (1.0 - exp(-k_abs * residence_time_s)) * 100.0
+
+    Units:
+      - k_abs in s⁻¹ (or m/s mass transfer velocity scale)
+      - residence_time_s in seconds (derived from L_per_min flow rate)
+      - Returns predicted gas removal efficiency in %, matching CE-4's
+        resolved target column.
+    """
+    return (1.0 - np.exp(-k_abs * residence_time_s)) * 100.0
+
+
+def formulation_strength_response(
+    chitosan_pct: np.ndarray | float,
+    pH: np.ndarray | float,
+    strength_coeff_chitosan: float,
+    pH_coeff_strength: float = 0.1,
+) -> np.ndarray | float:
+    """
+    CE-5: Composite block compressive strength response (MPa) model.
+
+    strength_mpa = strength_coeff_chitosan * chitosan_pct * (1.0 + pH_coeff_strength * max(0, pH - 7.0))
+
+    Units:
+      - chitosan_pct in wt% (1.0 to 5.0%)
+      - pH in pH units (7.0 to 10.0)
+      - strength_coeff_chitosan in MPa/wt%
+      - Returns predicted compressive strength in MPa, matching CE-5's response column.
+    """
+    pH_factor = 1.0 + pH_coeff_strength * np.maximum(0.0, pH - 7.0)
+    return strength_coeff_chitosan * chitosan_pct * pH_factor
+
+
 # Maps each experiment to (required observation columns, in the exact
 # order its forward-prediction function expects them) and the parameter
 # names (dotted paths as stored in the parameter-set JSON) it needs.
@@ -74,10 +135,24 @@ EXPERIMENT_MODELS = {
         "input_columns": ["temperature_C", "pH", "CO2_mM", "CA_U_per_mL", "HCO3_mM"],
         "param_paths": ["kinetics.k_cat", "kinetics.K_M_co2", "kinetics.K_i_hco3", "kinetics.E_a_inact"],
     },
-    # CE-2 (heavy metal Freundlich sorption), CE-3 (precipitation rate),
-    # CE-4 (multi-gas absorption), and CE-5 (formulation sensitivity)
-    # do not have forward-prediction models here yet. UQRunner raises a
-    # clear NotImplementedError for these rather than silently returning
-    # a generic reactor-scenario prediction that doesn't correspond to
-    # what those experiments actually measure -- see uq_runner.py.
+    "CE-3": {
+        "predict": caco3_precipitation_rate,
+        "observed_column": "rate_mol_per_L_s",
+        "input_columns": ["Ca_mM", "HCO3_mM"],
+        "param_paths": ["kinetics.k_precip_caco3"],
+    },
+    "CE-4": {
+        "predict": multi_gas_removal_efficiency,
+        "observed_column": "removal_efficiency_pct",
+        "input_columns": ["L_per_min"],
+        "param_paths": ["kinetics.k_so2_abs", "kinetics.k_no2_abs"],
+    },
+    "CE-5": {
+        "predict": formulation_strength_response,
+        "observed_column": "response",
+        "input_columns": ["chitosan_pct", "pH"],
+        "param_paths": ["kinetics.strength_coeff_chitosan", "kinetics.pH_coeff_strength"],
+    },
+    # CE-2 (heavy metal Freundlich sorption) does not have a forward-prediction
+    # model here yet. UQRunner raises a clear NotImplementedError for it.
 }

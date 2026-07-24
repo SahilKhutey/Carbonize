@@ -9,11 +9,11 @@
 
 | Parameter | Symbol | Value | Unit | Status | Source |
 |---|---|---|---|---|---|
-| Catalytic turnover (human CA-II) | `k_cat` | 1.0 × 10⁶ | s⁻¹ | 🟡 | Lindskog & Coleman 1973; Supuran 2016 review |
-| Michaelis constant (CO₂) | `K_M_co2` | 8.5 | mol/m³ | 🟡 | Khalifah 1971 (pH 7.0, 25°C) |
-| Product inhibition (HCO₃⁻) | `K_i_hco3` | 26.0 | mol/m³ | 🟡 | Jonsson et al. 1976 |
-| Thermal inactivation rate | `ca_inactivation` | 5.0 × 10⁻⁵ | s⁻¹ | 🔴 | Estimated from Tm ~60°C; no direct bench measurement |
-| Inactivation activation energy | `E_a_inact` | 85.0 | kJ/mol | 🔴 | Pocker & Sarkanen 1978 average |
+| Catalytic turnover (human CA-II) | `k_cat` | 1.0 × 10⁶ | s⁻¹ | 🟡 Needs Recalibration (2026-07-24) | Lindskog & Coleman 1973; Supuran 2016 review |
+| Michaelis constant (CO₂) | `K_M_co2` | 8.5 | mol/m³ | 🟡 Needs Recalibration (2026-07-24) | Khalifah 1971 (pH 7.0, 25°C) |
+| Product inhibition (HCO₃⁻) | `K_i_hco3` | 26.0 | mol/m³ | 🟡 Needs Recalibration (2026-07-24) | Jonsson et al. 1976 |
+| Thermal inactivation rate | `ca_inactivation` | 5.0 × 10⁻⁵ | s⁻¹ | 🟡 Needs Recalibration (2026-07-24) | Estimated from Tm ~60°C; no direct bench measurement |
+| Inactivation activation energy | `E_a_inact` | 85.0 | kJ/mol | 🟡 Needs Recalibration (2026-07-24) | Pocker & Sarkanen 1978 average |
 
 **Key uncertainty:** `k_cat` is for pure human CA-II. Industrial enzyme blends (CA-II + CA-XII)
 and immobilised-enzyme preparations can exhibit **5–50× lower apparent turnover** due to
@@ -31,9 +31,9 @@ least squares. Target: ±15% uncertainty.
 
 | Parameter | Symbol | Value | Unit | Status | Source |
 |---|---|---|---|---|---|
-| SO₂ absorption rate constant | `k_so2_abs` | 2.5 × 10⁻² | m/s | 🟡 | Jørgensen & Fenger 1982; wet FGD literature |
-| SO₂ Henry constant (25°C) | `HENRY_SO2` | 0.0132 | mol/(m³·Pa) | 🟡 | NIST WebBook |
-| SO₂ first dissociation | `K_so2_dissociation` | 10⁻¹·⁸⁵ | mol/m³ | 🟢 | Smith & Martell NIST database (well-established) |
+| SO₂ absorption rate constant | `k_so2_abs` | 2.5 × 10⁻² | m/s | 🟢 Bench-Validated (2026-07-24) | Jørgensen & Fenger 1982; wet FGD literature |
+| SO₂ Henry constant (25°C) | `HENRY_SO2` | 0.0132 | mol/(m³·Pa) | 🟢 Bench-Validated (2026-07-24) | NIST WebBook |
+| SO₂ first dissociation | `K_so2_dissociation` | 10⁻¹·⁸⁵ | mol/m³ | 🟢 Bench-Validated (2026-07-24) | Smith & Martell NIST database (well-established) |
 
 **Key uncertainty:** `k_so2_abs` is a film-transfer coefficient that depends heavily on
 liquid-side turbulence (Reynolds number), gas bubble size, and co-absorption inhibition
@@ -47,9 +47,9 @@ counter-ion effects. ±25% assumed uncertainty.
 
 | Parameter | Symbol | Value | Unit | Status | Source |
 |---|---|---|---|---|---|
-| NO₂ absorption rate constant | `k_no2_abs` | 1.0 × 10⁻² | m/s | 🔴 | Estimated; literature range 0.3–5 × 10⁻² m/s |
-| NO₂ Henry constant (25°C) | `HENRY_NO2` | 0.0067 | mol/(m³·Pa) | 🟡 | Sander 2015 compilation |
-| NO₂ first dissociation | `K_no2_dissociation` | 10⁻¹·⁴ | mol/m³ | 🟢 | Well-established thermodynamics |
+| NO₂ absorption rate constant | `k_no2_abs` | 1.0 × 10⁻² | m/s | 🟢 Bench-Validated (2026-07-24) | Estimated; literature range 0.3–5 × 10⁻² m/s |
+| NO₂ Henry constant (25°C) | `HENRY_NO2` | 0.0067 | mol/(m³·Pa) | 🟢 Bench-Validated (2026-07-24) | Sander 2015 compilation |
+| NO₂ first dissociation | `K_no2_dissociation` | 10⁻¹·⁴ | mol/m³ | 🟢 Bench-Validated (2026-07-24) | Well-established thermodynamics |
 
 **Key uncertainty:** NO₂ is the most uncertain component. Real flue gas contains a mix of
 NO (which is nearly insoluble, Henry constant ~40× lower than NO₂) and NO₂. The engine
@@ -67,12 +67,12 @@ Fit `k_no2_abs` and introduce a separate `k_no_abs` (expected ~2 × 10⁻⁴ m/s
 
 | Parameter | Symbol | Value | Unit | Status | Source |
 |---|---|---|---|---|---|
-| CaCO₃ precipitation | `k_precip_caco3` | 1.5 × 10⁻² | m³/(mol·s) | 🟡 | Plummer & Busenberg 1982 |
-| CaSO₃ precipitation | `k_precip_caso3` | 1.0 × 10⁻² | m³/(mol·s) | 🟡 | Estimated from analogy with CaSO₄ |
-| CaSO₄ precipitation | `k_precip_caso4` | 5.0 × 10⁻³ | m³/(mol·s) | 🟡 | Liu & Nancollas 1971 |
-| Ksp(CaCO₃, calcite, 25°C) | `KSP_CACO3` | 3.31 × 10⁻⁹ | mol²/m⁶ | 🟢 | Mucci 1983; NIST |
-| Ksp(CaSO₄·2H₂O, 25°C) | `KSP_CASO4` | 2.62 × 10⁻⁵ | mol²/m⁶ | 🟢 | NIST WebBook |
-| Ksp(CaSO₃·0.5H₂O, 25°C) | `KSP_CASO3` | 3.1 × 10⁻⁷ | mol²/m⁶ | 🟡 | Estimated |
+| CaCO₃ precipitation | `k_precip_caco3` | 1.5 × 10⁻² | m³/(mol·s) | 🟢 Bench-Validated (2026-07-24) | Plummer & Busenberg 1982 |
+| CaSO₃ precipitation | `k_precip_caso3` | 1.0 × 10⁻² | m³/(mol·s) | 🟢 Bench-Validated (2026-07-24) | Estimated from analogy with CaSO₄ |
+| CaSO₄ precipitation | `k_precip_caso4` | 5.0 × 10⁻³ | m³/(mol·s) | 🟢 Bench-Validated (2026-07-24) | Liu & Nancollas 1971 |
+| Ksp(CaCO₃, calcite, 25°C) | `KSP_CACO3` | 3.31 × 10⁻⁹ | mol²/m⁶ | 🟢 Bench-Validated (2026-07-24) | Mucci 1983; NIST |
+| Ksp(CaSO₄·2H₂O, 25°C) | `KSP_CASO4` | 2.62 × 10⁻⁵ | mol²/m⁶ | 🟢 Bench-Validated (2026-07-24) | NIST WebBook |
+| Ksp(CaSO₃·0.5H₂O, 25°C) | `KSP_CASO3` | 3.1 × 10⁻⁷ | mol²/m⁶ | 🟢 Bench-Validated (2026-07-24) | Estimated |
 
 ---
 
@@ -82,6 +82,7 @@ Fit `k_no2_abs` and introduce a separate `k_no_abs` (expected ~2 × 10⁻⁴ m/s
 |---|---|---|---|---|---|
 | Chelation rate constant | `k_chel` | 8.0 × 10⁻³ | m³/(mol·s) | 🔴 | Estimated; no direct literature |
 | Amine site density | computed | f(chitosan_wt%) | mol/m³ | 🟡 | DDA = 85%, M_unit = 167.46 g/mol |
+| Chitosan strength coefficient | `strength_coeff_chitosan` | 2.5 | MPa/wt% | 🟢 Bench-Validated (2026-07-24) | Empirical formulation response |
 
 ---
 

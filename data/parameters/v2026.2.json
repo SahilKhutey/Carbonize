@@ -67,7 +67,7 @@
     },
     "kinetics.k_so2_abs": {
       "symbol": "k_so2",
-      "value": 0.025,
+      "value": 0.11468421642057272,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
@@ -147,7 +147,7 @@
     },
     "kinetics.k_precip_caco3": {
       "symbol": "k_p_CaCO3",
-      "value": 4.171428571428572,
+      "value": 9.094594594831663e-05,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
@@ -878,19 +878,31 @@
       "confidence": "HIGH",
       "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
     },
-    "kinetics.chitosan_wt_pct": {
-      "value": 3.0,
+    "kinetics.k_no2_abs": {
+      "value": 0.0492327446815972,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv"
+    },
+    "kinetics.strength_coeff_chitosan": {
+      "value": 2.678181818723208,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
+    },
+    "kinetics.pH_coeff_strength": {
+      "value": 2.4321297384791334e-17,
       "source_type": "measured",
       "confidence": "HIGH",
       "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
     }
   },
-  "last_calibrated": "2026-07-23T01:48:35.692585+00:00Z",
+  "last_calibrated": "2026-07-24T01:49:10.980053+00:00Z",
   "calibration_source": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
   "calibration_history": [
     {
       "version": "v2026.2",
-      "timestamp": "2026-07-23T01:48:35.623662+00:00Z",
+      "timestamp": "2026-07-24T01:49:10.748288+00:00Z",
       "source_data": "data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "parameters_updated": [
         "kinetics.k_cat",
@@ -904,7 +916,7 @@
     },
     {
       "version": "v2026.3",
-      "timestamp": "2026-07-23T01:48:35.658439+00:00Z",
+      "timestamp": "2026-07-24T01:49:10.776454+00:00Z",
       "source_data": "data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv",
       "parameters_updated": [
         "kinetics.K_F_Pb",
@@ -920,36 +932,38 @@
     },
     {
       "version": "v2026.4",
-      "timestamp": "2026-07-23T01:48:35.672266+00:00Z",
+      "timestamp": "2026-07-24T01:49:10.829701+00:00Z",
       "source_data": "data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
       "parameters_updated": [
         "kinetics.k_precip_caco3"
       ],
-      "fit_quality": "GOOD",
-      "r_squared": 0.95,
-      "rmse": 0.0
+      "fit_quality": "POOR",
+      "r_squared": 0.017311335593483412,
+      "rmse": 0.022196124744414323
     },
     {
       "version": "v2026.5",
-      "timestamp": "2026-07-23T01:48:35.683922+00:00Z",
+      "timestamp": "2026-07-24T01:49:10.900337+00:00Z",
       "source_data": "data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
       "parameters_updated": [
-        "kinetics.k_so2_abs"
+        "kinetics.k_so2_abs",
+        "kinetics.k_no2_abs"
       ],
       "fit_quality": "GOOD",
-      "r_squared": 0.95,
-      "rmse": 0.0
+      "r_squared": 0.9870477996427343,
+      "rmse": 1.2440772381983267
     },
     {
       "version": "v2026.6",
-      "timestamp": "2026-07-23T01:48:35.692585+00:00Z",
+      "timestamp": "2026-07-24T01:49:10.980053+00:00Z",
       "source_data": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
       "parameters_updated": [
-        "kinetics.chitosan_wt_pct"
+        "kinetics.strength_coeff_chitosan",
+        "kinetics.pH_coeff_strength"
       ],
       "fit_quality": "GOOD",
-      "r_squared": 0.95,
-      "rmse": 0.0
+      "r_squared": 0.9719699049235146,
+      "rmse": 0.5716324311685227
     }
   ],
   "description": "Calibrated parameter set resulting from batch CE-1 through CE-5 pipeline"
