@@ -1,6 +1,6 @@
 # 🧪 Batch Calibration Pipeline Executive Summary
 
-**Execution Timestamp:** 2026-07-24 06:24:04 UTC
+**Execution Timestamp:** 2026-07-24 06:51:01 UTC
 **Baseline Parameter Set:** `v2026.1`
 **Calibrated Parameter Set:** `v2026.2`
 
@@ -18,21 +18,21 @@
 
 | Parameter Path | Old Value (v2026.1) | New Value (v2026.2) | Δ Abs | Δ % | Experiment |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `kinetics.k_cat` | 1.0000e+06 | 1.6357e+06 | +6.3568e+05 | +63.57% | `data\bench_data` |
-| `kinetics.K_M_co2` | 8.5000e+00 | 2.0909e+01 | +1.2409e+01 | +145.99% | `data\bench_data` |
-| `kinetics.E_a_inact` | 8.5000e+01 | 1.3415e+01 | -7.1585e+01 | -84.22% | `data\bench_data` |
-| `kinetics.k_so2_abs` | 2.5000e-02 | 1.1468e-01 | +8.9684e-02 | +358.74% | `data\bench_data` |
-| `kinetics.k_precip_caco3` | 1.5000e-02 | 2.5000e-05 | -1.4975e-02 | -99.83% | `data\bench_data` |
-| `kinetics.K_i_hco3` | 2.6000e+01 | 1.5288e+01 | -1.0712e+01 | -41.20% | `data\bench_data` |
-| `kinetics.K_F_Pb` | N/A | 1.3197e+01 | +1.3197e+01 | +100.00% | `data\bench_data` |
-| `kinetics.n_Pb` | N/A | 2.1697e+00 | +2.1697e+00 | +100.00% | `data\bench_data` |
-| `kinetics.K_F_Cd` | N/A | 5.5106e+00 | +5.5106e+00 | +100.00% | `data\bench_data` |
-| `kinetics.n_Cd` | N/A | 1.7292e+00 | +1.7292e+00 | +100.00% | `data\bench_data` |
-| `kinetics.K_F_Hg` | N/A | 2.4011e+01 | +2.4011e+01 | +100.00% | `data\bench_data` |
-| `kinetics.n_Hg` | N/A | 2.4216e+00 | +2.4216e+00 | +100.00% | `data\bench_data` |
-| `kinetics.k_no2_abs` | N/A | 4.9233e-02 | +4.9233e-02 | +100.00% | `data\bench_data` |
-| `kinetics.strength_coeff_chitosan` | N/A | 2.6782e+00 | +2.6782e+00 | +100.00% | `data\bench_data` |
-| `kinetics.pH_coeff_strength` | N/A | 0.0000e+00 | +0.0000e+00 | +100.00% | `data\bench_data` |
+| `kinetics.k_cat` | 1.0000e+06 | 2.4536e+06 | +1.4536e+06 | +145.36% | `data/bench_data` |
+| `kinetics.K_M_co2` | 8.5000e+00 | 2.0909e+01 | +1.2409e+01 | +145.99% | `data/bench_data` |
+| `kinetics.E_a_inact` | 8.5000e+01 | 1.3415e+01 | -7.1585e+01 | -84.22% | `data/bench_data` |
+| `kinetics.k_so2_abs` | 2.5000e-02 | 1.1468e-01 | +8.9684e-02 | +358.74% | `data/bench_data` |
+| `kinetics.k_precip_caco3` | 1.5000e-02 | 2.5000e-05 | -1.4975e-02 | -99.83% | `data/bench_data` |
+| `kinetics.K_i_hco3` | 2.6000e+01 | 1.5288e+01 | -1.0712e+01 | -41.20% | `data/bench_data` |
+| `kinetics.K_F_Pb` | N/A | 1.3197e+01 | +1.3197e+01 | N/A | `data/bench_data` |
+| `kinetics.n_Pb` | N/A | 2.1697e+00 | +2.1697e+00 | N/A | `data/bench_data` |
+| `kinetics.K_F_Cd` | N/A | 5.5106e+00 | +5.5106e+00 | N/A | `data/bench_data` |
+| `kinetics.n_Cd` | N/A | 1.7292e+00 | +1.7292e+00 | N/A | `data/bench_data` |
+| `kinetics.K_F_Hg` | N/A | 2.4011e+01 | +2.4011e+01 | N/A | `data/bench_data` |
+| `kinetics.n_Hg` | N/A | 2.4216e+00 | +2.4216e+00 | N/A | `data/bench_data` |
+| `kinetics.k_no2_abs` | N/A | 4.9233e-02 | +4.9233e-02 | N/A | `data/bench_data` |
+| `kinetics.strength_coeff_chitosan` | N/A | 2.1779e+00 | +2.1779e+00 | N/A | `data/bench_data` |
+| `kinetics.pH_coeff_strength` | N/A | 0.0000e+00 | +0.0000e+00 | N/A | `data/bench_data` |
 
 ## 3. Rate Constants Provenance Impact
 

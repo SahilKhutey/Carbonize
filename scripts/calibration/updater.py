@@ -98,6 +98,7 @@ class ParameterSetUpdater:
         diffs = []
         old_params = baseline.get("parameters", {})
         new_params = updated.get("parameters", {})
+        src_norm = str(source_data).replace("\\", "/")
         
         for p_key, new_entry in new_params.items():
             new_val = float(new_entry.get("value", 0.0))
@@ -115,7 +116,7 @@ class ParameterSetUpdater:
                         "percentage_change": round(pct_change, 2),
                         "old_confidence": old_params[p_key].get("confidence", "UNKNOWN"),
                         "new_confidence": new_entry.get("confidence", "HIGH"),
-                        "source": source_data,
+                        "source": src_norm,
                     })
             else:
                 diffs.append({
@@ -124,10 +125,10 @@ class ParameterSetUpdater:
                     "old_value": None,
                     "new_value": round(new_val, 6),
                     "delta": round(new_val, 6),
-                    "percentage_change": 100.0,
+                    "percentage_change": None,
                     "old_confidence": "UNSET",
                     "new_confidence": new_entry.get("confidence", "HIGH"),
-                    "source": source_data,
+                    "source": src_norm,
                 })
                     
         return {
@@ -135,7 +136,7 @@ class ParameterSetUpdater:
             "from_version": baseline.get("version", "v2026.1"),
             "to_version": updated.get("version", "v2026.2"),
             "timestamp": datetime.now(UTC).isoformat() + "Z",
-            "source_data": source_data,
+            "source_data": src_norm,
             "changes_count": len(diffs),
             "parameter_diffs": diffs,
         }

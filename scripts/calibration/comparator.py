@@ -126,6 +126,30 @@ class PredictionComparator:
                     "fabricated residuals."
                 ),
             }
+        # Guard against parameters pinned to optimizer bounds:
+        # Pinned parameters indicate search space mismatch or structural unit error.
+        pinned_notes = [
+            note for note in (fit_result.notes or [])
+            if "pinned to bound" in note.lower() or "pinned_to_bounds" in note.lower()
+        ]
+        if pinned_notes:
+            self.logger.warning(
+                "parameters_pinned_to_bounds",
+                experiment=experiment,
+                model_name=fit_result.model_name,
+                pinned=pinned_notes,
+            )
+            return {
+                "status": "NEEDS_RECALIBRATION",
+                "experiment": experiment,
+                "observations_count": int(n),
+                f"within_{int(confidence_level*100)}pct_ci_pct": None,
+                "mape_pct": None,
+                "message": (
+                    f"{fit_result.model_name}'s fitter pinned parameters to optimizer bounds "
+                    f"({'; '.join(pinned_notes)}) -- signature of search space mismatch or structural unit error."
+                ),
+            }
 
         dof = max(int(fit_result.degrees_of_freedom), 1)
         alpha = 1.0 - confidence_level

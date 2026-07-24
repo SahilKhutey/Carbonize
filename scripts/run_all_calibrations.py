@@ -269,10 +269,11 @@ class BatchCalibrationPipeline:
             old_str = f"{old_v:.4e}" if old_v is not None else "N/A"
             new_v = change.get("new_value", 0.0)
             delta = change.get("delta", 0.0)
-            pct = change.get("percentage_change", 0.0)
-            src = change.get("source", "batch")
+            pct = change.get("percentage_change")
+            pct_str = f"{pct:+.2f}%" if pct is not None else "N/A"
+            src = str(change.get("source", "batch")).replace("\\", "/")
             md_lines.append(
-                f"| `{p_name}` | {old_str} | {new_v:.4e} | {delta:+.4e} | {pct:+.2f}% | `{src}` |"
+                f"| `{p_name}` | {old_str} | {new_v:.4e} | {delta:+.4e} | {pct_str} | `{src}` |"
             )
 
         md_lines.extend([

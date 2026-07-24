@@ -65,12 +65,24 @@ class ParameterFitter:
         param_keys: List[str],
         model_name: str,
         converged: bool,
+        bounds: tuple | None = None,
         notes: List[str] | None = None,
     ) -> FitResult:
         """
         Shared helper for computing R², RMSE, MAE, covariance, standard errors,
         confidence intervals, AIC, BIC, and fit quality classification.
         """
+        notes_list = list(notes or [])
+        if bounds is not None and len(bounds) == 2:
+            lower_bounds, upper_bounds = bounds
+            for i, key in enumerate(param_keys):
+                if i < len(popt) and i < len(lower_bounds) and i < len(upper_bounds):
+                    val = float(popt[i])
+                    lb = float(lower_bounds[i])
+                    ub = float(upper_bounds[i])
+                    if abs(val - lb) <= 1e-4 * max(1.0, abs(lb)) or abs(val - ub) <= 1e-4 * max(1.0, abs(ub)):
+                        notes_list.append(f"Parameter {key} pinned to bound [{lb}, {ub}]")
+
         residuals = y_obs - y_pred
         ss_res = float(np.sum(residuals**2))
         ss_tot = float(np.sum((y_obs - np.mean(y_obs))**2))
@@ -123,7 +135,7 @@ class ParameterFitter:
             fit_quality=fit_quality,
             model_name=model_name,
             convergence=converged,
-            notes=notes or [],
+            notes=notes_list,
         )
 
     def fit(
@@ -226,6 +238,7 @@ class ParameterFitter:
             ],
             model_name="CE-1",
             converged=converged,
+            bounds=bounds,
         )
 
     def _residuals_ca(self, params, X, y_obs):
