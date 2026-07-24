@@ -70,7 +70,7 @@ Fit `k_no2_abs` and introduce a separate `k_no_abs` (expected ~2 × 10⁻⁴ m/s
 | CaCO₃ precipitation | `k_precip_caco3` | 1.5 × 10⁻² | m³/(mol·s) | 🟡 Needs Recalibration (2026-07-24) | Plummer & Busenberg 1982 |
 | CaSO₃ precipitation | `k_precip_caso3` | 1.0 × 10⁻² | m³/(mol·s) | 🟡 Needs Recalibration (2026-07-24) | Estimated from analogy with CaSO₄ |
 | CaSO₄ precipitation | `k_precip_caso4` | 5.0 × 10⁻³ | m³/(mol·s) | 🟡 Needs Recalibration (2026-07-24) | Liu & Nancollas 1971 |
-| Ksp(CaCO₃, calcite, 25°C) | `KSP_CACO3` | 3.31 × 10⁻⁹ | mol²/m⁶ | 🟡 Needs Recalibration (2026-07-24) | Mucci 1983; NIST |
+| Ksp(CaCO₃, calcite, 25°C) | `KSP_CACO3` | 3.3 × 10⁻³ | mol²/m⁶ | 🟡 Needs Recalibration (2026-07-24) | Mucci 1983; NIST |
 | Ksp(CaSO₄·2H₂O, 25°C) | `KSP_CASO4` | 2.62 × 10⁻⁵ | mol²/m⁶ | 🟡 Needs Recalibration (2026-07-24) | NIST WebBook |
 | Ksp(CaSO₃·0.5H₂O, 25°C) | `KSP_CASO3` | 3.1 × 10⁻⁷ | mol²/m⁶ | 🟡 Needs Recalibration (2026-07-24) | Estimated |
 

@@ -18,6 +18,7 @@ not inline in whichever script happens to need them first.
 from __future__ import annotations
 
 import numpy as np
+from cbms_shared.constants import KSP_CACO3
 
 R_GAS = 8.314       # J/(mol*K)
 T_REF_K = 298.15    # 25 C reference temperature
@@ -76,7 +77,7 @@ def caco3_precipitation_rate(
     k_precip_caco3: float,
     chitosan_pct: np.ndarray | float = 1.0,
     pH: np.ndarray | float = 8.5,
-    Ksp_caco3: float = 3.31e-9,
+    Ksp_caco3: float = KSP_CACO3,
 ) -> np.ndarray | float:
     """
     CE-3: CaCO3 precipitation rate model driven by supersaturation ion product,
@@ -86,7 +87,7 @@ def caco3_precipitation_rate(
 
     Units:
       - Ca_mM, HCO3_mM in mM (= mol/m³)
-      - Ksp_caco3 in mol²/m⁶ (default 3.31e-9)
+      - Ksp_caco3 in mol²/m⁶ (default KSP_CACO3 = 3.3e-3 mol²/m⁶)
       - k_precip_caco3 in m³/(mol·s)
       - Returns predicted precipitation rate in mol/(L·s), matching CE-3's
         rate_mol_per_L_s observation column.
