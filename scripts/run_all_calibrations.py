@@ -165,11 +165,7 @@ class BatchCalibrationPipeline:
             )
 
             # 5. Evaluate Comparator Status
-            target_col = self.comparator._resolve_target_column(exp_id, df)
-            y_obs_vec = df[target_col].dropna().values[:len(fit_result.residuals)]
-            pred_data = {"y_pred": y_obs_vec - fit_result.residuals}
-            obs_df = df.iloc[:len(fit_result.residuals)] if len(df) != len(fit_result.residuals) else df
-            comparison = self.comparator.compare(predictions=pred_data, observations=obs_df, experiment=exp_id)
+            comparison = self.comparator.compare(fit_result=fit_result, observations=df, experiment=exp_id)
 
             # 6. Auto-Update RATE_CONSTANTS_PROVENANCE.md if not dry-run
             if not dry_run:
@@ -245,9 +241,18 @@ class BatchCalibrationPipeline:
         ]
 
         for r in summary_results:
-            status_icon = "🟢" if r["comparator_status"] == "VALIDATED" else "🟡"
+            status = r["comparator_status"]
+            if status == "VALIDATED":
+                status_icon = "🟢"
+            elif status in ("NEEDS_REVIEW", "FITTER_NOT_IMPLEMENTED", "NO_DATA"):
+                status_icon = "🟡"
+            else:  # NEEDS_RECALIBRATION and anything else unrecognized
+                status_icon = "🔴"
+            r_sq = f"{r['r_squared']:.4f}" if r["r_squared"] is not None else "N/A"
+            rmse_s = f"{r['rmse']:.4e}" if r["rmse"] is not None else "N/A"
+            mape_s = f"{r['mape_pct']:.2f}%" if r["mape_pct"] is not None else "N/A"
             md_lines.append(
-                f"| **{r['experiment']}** | {r['name']} | {r['r_squared']:.4f} | {r['rmse']:.4e} | {r['mape_pct']:.2f}% | {status_icon} {r['comparator_status']} |"
+                f"| **{r['experiment']}** | {r['name']} | {r_sq} | {rmse_s} | {mape_s} | {status_icon} {status} |"
             )
 
         md_lines.extend([

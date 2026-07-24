@@ -41,6 +41,36 @@ class PredictionComparator:
     parameters evaluated against a held-out dataset, not the fitting data.
     """
 
+    # Maps each experiment to the raw observation column its fitters predict.
+    # CE-4 has no single response column (removal efficiency is derived from
+    # inlet_ppm/outlet_ppm) -- resolved specially in _resolve_target_column.
+    _TARGET_COLUMNS = {
+        "CE-1": "rate_mol_per_L_s",
+        "CE-2": "loading_mg_per_g",
+        "CE-3": "rate_mol_per_L_s",
+        "CE-5": "response",
+    }
+
+    def _resolve_target_column(self, experiment: str, observations: pd.DataFrame) -> pd.Series | None:
+        """
+        Return the observed response values (as a Series) that
+        fit_result.residuals were computed against, or None if this
+        experiment has no single resolvable response column (currently
+        CE-4, whose target -- gas removal efficiency -- is derived from
+        inlet_ppm/outlet_ppm rather than being a single raw column; CE-4's
+        fitter is a stub as of this writing, so this only matters once a
+        real CE-4 fitter exists).
+        """
+        if experiment == "CE-4":
+            if "inlet_ppm" in observations.columns and "outlet_ppm" in observations.columns:
+                inlet = observations["inlet_ppm"]
+                return ((inlet - observations["outlet_ppm"]) / inlet.replace(0, np.nan)) * 100.0
+            return None
+        col = self._TARGET_COLUMNS.get(experiment)
+        if col is None or col not in observations.columns:
+            return None
+        return observations[col]
+
     def __init__(self):
         self.logger = get_logger(self.__class__.__name__)
 
@@ -66,6 +96,7 @@ class PredictionComparator:
                 "experiment": experiment,
                 "observations_count": 0,
                 f"within_{int(confidence_level*100)}pct_ci_pct": None,
+                "mape_pct": None,
             }
 
         # Guard against exactly the stub-fitter pattern found in
@@ -86,6 +117,7 @@ class PredictionComparator:
                 "experiment": experiment,
                 "observations_count": int(n),
                 f"within_{int(confidence_level*100)}pct_ci_pct": None,
+                "mape_pct": None,
                 "message": (
                     f"{fit_result.model_name}'s fitter returned zero RMSE "
                     "and all-zero residuals for every observation -- this "
@@ -116,6 +148,22 @@ class PredictionComparator:
         # coverage. E.g. "always predicts 10% low" vs "unpredictably +/-30%".
         bias_ratio = abs(mean_residual) / residual_std if residual_std > 0 else 0.0
 
+        # MAPE: only computable if we can resolve which raw observation
+        # column these residuals were measured against (see
+        # _resolve_target_column). Left as None rather than 0.0 when it
+        # can't be resolved -- a fabricated 0.0% error is worse than an
+        # honest "not computed" for a number that feeds engineering
+        # decisions (e.g. the batch calibration summary report).
+        mape_pct = None
+        observed = self._resolve_target_column(experiment, observations)
+        if observed is not None:
+            observed = observed.to_numpy(dtype=float)[: len(residuals)]
+            nonzero = observed != 0
+            if np.any(nonzero):
+                mape_pct = float(
+                    np.mean(np.abs(residuals[: len(observed)][nonzero] / observed[nonzero])) * 100.0
+                )
+
         nominal_pct = confidence_level * 100.0
         if fit_result.r_squared < 0:
             # Worse than predicting the mean -- coverage% can look
@@ -144,6 +192,7 @@ class PredictionComparator:
             "mean_residual": round(mean_residual, 6),
             "residual_std": round(residual_std, 6),
             "bias_ratio": round(bias_ratio, 3),
+            "mape_pct": round(mape_pct, 3) if mape_pct is not None else None,
             "r_squared": fit_result.r_squared,
             "rmse": fit_result.rmse,
             "note": (

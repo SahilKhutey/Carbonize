@@ -16,11 +16,16 @@ logger = get_logger(__name__)
 PROVENANCE_FILE_PATH = Path("packages/sim-core/src/cbms_sim/domain/parameters/RATE_CONSTANTS_PROVENANCE.md")
 
 EXPERIMENT_PARAMETER_MAP = {
-    "CE-1": ["k_cat_CA", "E_a_inact"],
-    "CE-2": ["K_F_Pb", "n_Pb", "K_F_Cd", "n_Cd"],
-    "CE-3": ["k_precip_CaCO3", "K_sp_CaCO3"],
-    "CE-4": ["k_henry_SO2", "k_henry_NOx"],
-    "CE-5": ["strength_coeff_chitosan", "curing_temp_mod"],
+    # Verified against every actual backtick-wrapped constant name in
+    # RATE_CONSTANTS_PROVENANCE.md -- the previous mapping (k_cat_CA,
+    # k_precip_CaCO3, k_henry_SO2, etc.) never matched anything except
+    # E_a_inact by coincidence, so this automation silently did nothing
+    # for 11 of 12 parameters, including k_cat itself.
+    "CE-1": ["k_cat", "K_M_co2", "K_i_hco3", "ca_inactivation", "E_a_inact"],
+    "CE-2": [],  # no heavy-metal Freundlich sorption rows exist in the doc yet
+    "CE-3": ["k_precip_caco3", "k_precip_caso3", "k_precip_caso4", "KSP_CACO3", "KSP_CASO4", "KSP_CASO3"],
+    "CE-4": ["k_so2_abs", "HENRY_SO2", "K_so2_dissociation", "k_no2_abs", "HENRY_NO2", "K_no2_dissociation"],
+    "CE-5": [],  # no formulation-sensitivity rows exist in the doc yet
 }
 
 
@@ -65,12 +70,7 @@ class ProvenanceDocUpdater:
             if (experiment in line or match_param) and "|" in line and not line.startswith("| Parameter"):
                 parts = line.split("|")
                 if len(parts) >= 6:
-                    if comparator_status == "VALIDATED":
-                        parts[5] = f" 🟢 {status_icon} ({timestamp}) "
-                    elif "NEEDS_RECALIBRATION" in comparator_status:
-                        parts[5] = f" 🟡 {status_icon} ({timestamp}) "
-                    else:
-                        parts[5] = f" 🔴 {status_icon} ({timestamp}) "
+                    parts[5] = f" {status_icon} ({timestamp}) "
                     line = "|".join(parts)
                     updated = True
             new_lines.append(line)
@@ -78,5 +78,18 @@ class ProvenanceDocUpdater:
         if updated:
             self.doc_path.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
             logger.info("provenance_doc_updated", experiment=experiment, status=comparator_status)
-        
+        else:
+            logger.warning(
+                "provenance_doc_no_matching_rows",
+                experiment=experiment,
+                target_params=target_params,
+                note=(
+                    "No rows in RATE_CONSTANTS_PROVENANCE.md matched this "
+                    "experiment's tracked parameters -- either the doc has "
+                    "no rows for this experiment yet, or EXPERIMENT_PARAMETER_MAP "
+                    "is out of sync with the doc's actual constant names. "
+                    "The doc was NOT updated."
+                ),
+            )
+
         return updated
