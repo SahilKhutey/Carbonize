@@ -225,12 +225,64 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
   const duration = run.completed_at && run.created_at ? 
     Math.round((new Date(run.completed_at).getTime() - new Date(run.created_at).getTime()) / 1000.0) : 180;
 
-  const time_series = uq_metrics.time_series || {
-    co2_capture: makeTimeSeries(rand, 24, co2_uq.mean - co2_uq.std * 1.5, co2_uq.mean, co2_uq.std || 1.0),
-    so2_capture: makeTimeSeries(rand, 24, so2_uq.mean - so2_uq.std * 1.5, so2_uq.mean, so2_uq.std || 1.5),
-    block_strength: makeTimeSeries(rand, 24, resultObj.predicted_block_strength_mpa * 0.9, resultObj.predicted_block_strength_mpa, resultObj.predicted_block_strength_mpa * 0.05),
-    ph_profile: makeTimeSeries(rand, 24, 8.2, 8.5, 0.2)
-  };
+  const time_series: TimeSeriesResult = uq_metrics.time_series || (() => {
+    const points = 24;
+    const co2_capture: TimeSeriesPoint[] = [];
+    const so2_capture: TimeSeriesPoint[] = [];
+    const block_strength: TimeSeriesPoint[] = [];
+    const ph_profile: TimeSeriesPoint[] = [];
+
+    const co2_mean = co2_uq.mean;
+    const co2_std  = co2_uq.std || 1.0;
+    const so2_mean = so2_uq.mean;
+    const so2_std  = so2_uq.std || 1.5;
+    const str_mean = resultObj.predicted_block_strength_mpa;
+    const str_std  = str_mean * 0.05;
+
+    for (let i = 0; i < points; i++) {
+      const hr = i * 2;
+      const hourLabel = `h${hr.toString().padStart(2, '0')}`;
+      
+      const satCO2 = 1.0 - Math.exp(-hr / 3.5);
+      const satSO2 = 1.0 - Math.exp(-hr / 2.0);
+      const strFactor = hr === 0 ? 0.0 : Math.log(1.0 + hr) / Math.log(49.0);
+      const phVal = 8.5 - 0.7 * (1.0 - Math.exp(-hr / 5.0));
+
+      const co2_m = Math.min(100.0, Math.max(0.0, co2_mean * satCO2));
+      const so2_m = Math.min(100.0, Math.max(0.0, so2_mean * satSO2));
+      const str_m = Math.max(0.0, str_mean * strFactor);
+
+      co2_capture.push({
+        x: hourLabel,
+        median: parseFloat(co2_m.toFixed(2)),
+        p5: parseFloat(Math.max(0.0, co2_m - co2_std * 1.5).toFixed(2)),
+        p95: parseFloat(Math.min(100.0, co2_m + co2_std * 1.5).toFixed(2))
+      });
+
+      so2_capture.push({
+        x: hourLabel,
+        median: parseFloat(so2_m.toFixed(2)),
+        p5: parseFloat(Math.max(0.0, so2_m - so2_std * 1.5).toFixed(2)),
+        p95: parseFloat(Math.min(100.0, so2_m + so2_std * 1.5).toFixed(2))
+      });
+
+      block_strength.push({
+        x: hourLabel,
+        median: parseFloat(str_m.toFixed(2)),
+        p5: parseFloat(Math.max(0.0, str_m - str_std * 1.5).toFixed(2)),
+        p95: parseFloat(Math.min(60.0, str_m + str_std * 1.5).toFixed(2))
+      });
+
+      ph_profile.push({
+        x: hourLabel,
+        median: parseFloat(phVal.toFixed(2)),
+        p5: parseFloat((phVal - 0.15).toFixed(2)),
+        p95: parseFloat((phVal + 0.15).toFixed(2))
+      });
+    }
+
+    return { co2_capture, so2_capture, block_strength, ph_profile };
+  })();
 
   // ── Durability (from uq_metrics.durability) ──────────────────────────
   const durability = uq_metrics.durability ?? null;
