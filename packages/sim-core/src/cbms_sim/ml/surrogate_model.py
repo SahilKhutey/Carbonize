@@ -30,29 +30,16 @@ FEATURE_NAMES = ["enzyme_mg_per_l", "reactor_temp_c", "flow_nm3_per_hr"]
 OUTPUT_NAMES = ["co2_pct", "so2_pct", "nox_pct", "pm_pct", "metal_pct"]
 
 
-def _make_kernel():
+def _make_kernel(n_dims: int = 3):
     """
     Matern-5/2 kernel with per-dimension ARD length scales.
-
-    Bounds are deliberately wide to avoid the optimizer hitting either
-    boundary. A previous widening to length_scale_bounds=(1e-2, 1e5) and
-    constant_value_bounds=(1e-3, 1e3) was insufficient -- with only ~15-50
-    training samples across 3 input dimensions, the marginal likelihood
-    surface for this GP is under-constrained enough that the optimizer's
-    found optimum still sits right at both of those boundaries. Widened
-    further here (length_scale to 1e7, constant_value to 1e6); see
-    test_no_convergence_warning for the regression test that catches this.
-    If this test starts failing again as more training data / restarts are
-    added, prefer widening bounds again over suppressing the warning --
-    a warning that the optimizer wants to go past the bound is real
-    information about identifiability, not just noise.
-    WhiteKernel handles observation noise so the GP doesn't overfit.
+    n_dims=3 for 3D inputs [enzyme, temp, flow]; n_dims=2 for 2D inputs [enzyme, temp].
     """
     return (
         ConstantKernel(1.0, constant_value_bounds=(1e-3, 1e6))
         * Matern(
-            length_scale=[1.0, 1.0, 1.0],
-            length_scale_bounds=[(1e-2, 1e7)] * 3,
+            length_scale=[1.0] * n_dims,
+            length_scale_bounds=[(1e-2, 1e7)] * n_dims,
             nu=2.5,
         )
         + WhiteKernel(noise_level=1e-2, noise_level_bounds=(1e-5, 1e1))
@@ -64,18 +51,19 @@ class KineticsSurrogateModel:
     Multi-output Gaussian Process surrogate for the kinetics ODE solver.
 
     Fits one GP per output using ARD Matérn-5/2 kernels with feature scaling.
-    Provides both point predictions and model uncertainty (std dev) for all
-    five capture efficiency outputs.
+    Target co2_pct uses a 2D kernel [enzyme, temp] (dropping unidentifiable flow dimension),
+    while so2, nox, pm, and metal targets use full 3D ARD kernels [enzyme, temp, flow].
     """
 
     def __init__(self) -> None:
         self.scalers: list[StandardScaler] = []
         self.gps: list[GaussianProcessRegressor] = []
-        for _ in OUTPUT_NAMES:
+        for j, _ in enumerate(OUTPUT_NAMES):
             self.scalers.append(StandardScaler())
+            n_dims = 2 if j == 0 else 3
             self.gps.append(
                 GaussianProcessRegressor(
-                    kernel=_make_kernel(),
+                    kernel=_make_kernel(n_dims=n_dims),
                     n_restarts_optimizer=5,
                     normalize_y=True,    # zero-mean normalisation stabilises optimisation
                     random_state=42,
@@ -161,7 +149,8 @@ class KineticsSurrogateModel:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=ConvergenceWarning)
             for j, gp in enumerate(self.gps):
-                gp.fit(X_scaled, Y[:, j])
+                X_sub = X_scaled[:, :2] if j == 0 else X_scaled
+                gp.fit(X_sub, Y[:, j])
 
         self.fitted = True
 
@@ -190,7 +179,8 @@ class KineticsSurrogateModel:
 
         X_scaled = self.X_scaler.fit_transform(self._X_train)
         for j, gp in enumerate(self.gps):
-            gp.fit(X_scaled, self._Y_train[:, j])
+            X_sub = X_scaled[:, :2] if j == 0 else X_scaled
+            gp.fit(X_sub, self._Y_train[:, j])
         self.fitted = True
 
     # ------------------------------------------------------------------
@@ -215,7 +205,8 @@ class KineticsSurrogateModel:
 
         result: dict[str, float] = {}
         for j, (name, gp) in enumerate(zip(OUTPUT_NAMES, self.gps)):
-            mu, sigma = gp.predict(X_scaled, return_std=True)
+            X_sub = X_scaled[:, :2] if j == 0 else X_scaled
+            mu, sigma = gp.predict(X_sub, return_std=True)
             result[f"{name}_capture_pct"]        = float(np.clip(mu[0], 0.0, 100.0))
             result[f"{name}_uncertainty_1sigma"] = float(max(0.0, sigma[0]))
 
