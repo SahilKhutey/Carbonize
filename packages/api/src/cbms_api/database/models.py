@@ -148,7 +148,7 @@ class SimulationRun(Base):
     pdf_report_url: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
     celery_task_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     input_hash: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-    parameter_version: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default="v2026.1")
+    parameter_version: Mapped[Optional[str]] = mapped_column(String(50), nullable=True, default="v2026.2")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

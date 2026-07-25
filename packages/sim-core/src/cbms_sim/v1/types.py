@@ -252,7 +252,7 @@ class SimulationRequest(BaseModel):
     
     # Metadata
     submitted_at: datetime
-    parameter_set_version: str = Field(default="v2026.1")
+    parameter_set_version: str = Field(default="v2026.2")
     code_version: str = Field(default="0.1.0")
     
     @field_validator("plant")

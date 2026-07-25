@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS simulation_runs (
     pdf_report_url VARCHAR(512),
     celery_task_id VARCHAR(255),
     input_hash VARCHAR(64),
-    parameter_version VARCHAR(50) DEFAULT 'v2026.1',
+    parameter_version VARCHAR(50) DEFAULT 'v2026.2',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMPTZ
 );

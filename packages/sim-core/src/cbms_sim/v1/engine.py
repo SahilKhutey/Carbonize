@@ -38,7 +38,7 @@ class SimulationEngine:
     
     def __init__(
         self,
-        parameter_set: str = "v2026.1",
+        parameter_set: str = "v2026.2",
         *,
         parameter_registry: Optional[ParameterRegistry] = None,
         n_workers: int = 1,
