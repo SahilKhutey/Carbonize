@@ -95,7 +95,7 @@ class TestParameterRegistryContract:
 
     def test_default_active_parameter_set_reads_v2026_2(self):
         engine = SimulationEngine()
-        assert engine.registry.version == "2026.2"
+        assert engine.registry.version == "v2026.2"
         k_cat = engine.registry.get_value("kinetics.k_cat")
         assert abs(k_cat - 2453580.74) < 1.0
 
