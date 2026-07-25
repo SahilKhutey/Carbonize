@@ -187,6 +187,7 @@ class InternalSimulationEngine:
             so2_effs = []
             nox_effs = []
             hm_effs = []
+            pm_effs = []
             npvs = []
             paybacks = []
             strengths = []
@@ -235,6 +236,7 @@ class InternalSimulationEngine:
                     so2_eff = k_s.capture_efficiencies.get("so2_pct", 0.0)
                     nox_eff = k_s.capture_efficiencies.get("nox_pct", 0.0)
                     hm_eff = k_s.capture_efficiencies.get("metal_pct", 0.0)
+                    pm_eff = k_s.capture_efficiencies.get("pm_pct", 0.0)
                     
                     mb_s = self.mb_engine.compute(k_s, p_sample, r_sample)
                     bp_s = self.block_predictor.predict(mb_s, c_sample)
@@ -247,6 +249,7 @@ class InternalSimulationEngine:
                     so2_eff = 0.0
                     nox_eff = 0.0
                     hm_eff = 0.0
+                    pm_eff = 0.0
                     npv_val = 0.0
                     payback_val = 999.0
                     strength_val = 0.0
@@ -256,6 +259,7 @@ class InternalSimulationEngine:
                 so2_effs.append(so2_eff)
                 nox_effs.append(nox_eff)
                 hm_effs.append(hm_eff)
+                pm_effs.append(pm_eff)
                 npvs.append(npv_val)
                 paybacks.append(payback_val)
                 strengths.append(strength_val)
@@ -268,6 +272,7 @@ class InternalSimulationEngine:
                 out["strength_distribution"] = self._make_dist_stats(strengths, n_samples)
                 out["nox_distribution"] = self._make_dist_stats(nox_effs, n_samples)
                 out["heavy_metal_distribution"] = self._make_dist_stats(hm_effs, n_samples)
+                out["pm_distribution"] = self._make_dist_stats(pm_effs, n_samples)
 
                 
             if sim_type in ["sobol", "full"] and len(co2_effs) > 0:

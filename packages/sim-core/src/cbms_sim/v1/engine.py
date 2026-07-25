@@ -270,6 +270,7 @@ class SimulationEngine:
         mc_strength_dist = None
         mc_nox_dist = None
         mc_metal_dist = None
+        mc_pm_dist = None
         if "capture_distribution" in internal_res:
             mc_cap_dist = DistributionStats(**internal_res["capture_distribution"])
             mc_npv_dist = DistributionStats(**internal_res["npv_distribution"])
@@ -280,6 +281,8 @@ class SimulationEngine:
                 mc_nox_dist = DistributionStats(**internal_res["nox_distribution"])
             if "heavy_metal_distribution" in internal_res:
                 mc_metal_dist = DistributionStats(**internal_res["heavy_metal_distribution"])
+            if "pm_distribution" in internal_res:
+                mc_pm_dist = DistributionStats(**internal_res["pm_distribution"])
 
         # Sobol sensitivity
         sens_out = None
@@ -312,6 +315,7 @@ class SimulationEngine:
             strength_distribution=mc_strength_dist,
             nox_distribution=mc_nox_dist,
             heavy_metal_distribution=mc_metal_dist,
+            pm_distribution=mc_pm_dist,
             started_at=started_at,
             completed_at=completed_at,
             total_wall_clock_s=wall_clock,

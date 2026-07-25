@@ -224,6 +224,33 @@ class TestSimulationEngineContract:
             "whether hm_eff has regressed to reading the wrong "
             "capture_efficiencies key again."
         )
+
+    def test_pm_distribution_reflects_real_capture(self, sample_request):
+        """
+        Verify pm_distribution is populated in Monte Carlo simulations
+        and tracks kinetics.capture.pm_pct.
+        """
+        sample_request = sample_request.model_copy(update={
+            "options": SimulationOptions(
+                simulation_type=SimulationType.MONTE_CARLO,
+                n_mc_samples=100,
+                random_seed=42
+            )
+        })
+
+        engine = SimulationEngine()
+        result = engine.run(sample_request)
+
+        assert result.is_successful
+        assert result.pm_distribution is not None
+        assert result.pm_distribution.n_samples == 100
+
+        point_estimate = result.kinetics.capture.pm_pct
+        mc_mean = result.pm_distribution.mean
+        assert abs(mc_mean - point_estimate) < 1.0, (
+            f"pm_distribution.mean ({mc_mean}) diverges from point-estimate "
+            f"kinetics.capture.pm_pct ({point_estimate})."
+        )
         
     def test_validation_exception_on_bad_inputs(self, sample_request):
         # Trigger Pydantic error
