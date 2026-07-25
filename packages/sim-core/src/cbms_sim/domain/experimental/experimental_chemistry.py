@@ -27,7 +27,7 @@ from numba import njit
 from scipy.integrate import solve_ivp
 from typing import Dict
 from .config import CONFIG, R_GAS, STD_PRESSURE, MOLAR
-from cbms_shared.constants import HENRY_CO2, HENRY_SO2, HENRY_NO2, KSP_CACO3, KSP_CASO4
+from cbms_shared.constants import HENRY_CO2, HENRY_SO2, HENRY_NO2, KSP_CACO3, KSP_CASO4, derive_free_amine_density
 
 
 @njit(cache=True, fastmath=True)
@@ -103,7 +103,6 @@ def reaction_rhs_experimental(
 
     # 5) Heavy metal chelation
     metal_inlet = 0.5
-    from cbms_shared.constants import derive_free_amine_density
     free_amine_density = derive_free_amine_density(chitosan_conc_g_l=10.0, degree_of_deacetylation=0.85, crosslinking_density=crosslinking_density)
     dMetal_dt = k_chel * free_amine_density * metal_inlet
     metal_chel_new = dMetal_dt
@@ -262,10 +261,15 @@ class ExperimentalBiomineralizationSolver:
             grade = "Reject"
 
         # Sizing & maintenance calculations
+        # Volumetric safety factor: +15% margin for validated kinetic parameters, +35% for unvalidated precipitation kinetics
+        precipitation_validated = False  # CE-3 precipitation kinetics currently unvalidated (R² = 0.2590)
+        safety_margin_pct = 15.0 if precipitation_validated else 35.0
+        vol_margin_factor = 1.0 + (safety_margin_pct / 100.0)
+
         actual_flow_m3_s = (self.flow_nm3_hr / 3600.0) * (self.T / 273.15)
         vessel_area = actual_flow_m3_s / self.velocity
-        vessel_diameter = float(np.sqrt(4.0 * vessel_area / np.pi))
-        vessel_height = float(self.velocity * self.tau)
+        vessel_height = float(self.velocity * self.tau * np.sqrt(vol_margin_factor))
+        vessel_diameter = float(np.sqrt(4.0 * vessel_area * np.sqrt(vol_margin_factor) / np.pi))
 
         liquid_flow_m3_hr = float((self.flow_nm3_hr * self.l_g) / 1000.0)
         pump_flow_m3_s = liquid_flow_m3_hr / 3600.0
@@ -284,6 +288,7 @@ class ExperimentalBiomineralizationSolver:
             descaling_interval = 365.0
             annual_downtime = 0.0
         adjusted_operating_hours = float(max(0.0, 8760.0 - annual_downtime))
+        descaling_confidence = "HIGH" if precipitation_validated else "MEDIUM (unvalidated precipitation kinetics)"
 
         return {
             "success": True,
@@ -309,6 +314,8 @@ class ExperimentalBiomineralizationSolver:
                 "descaling_interval_days": descaling_interval,
                 "annual_downtime_hours": annual_downtime,
                 "adjusted_operating_hours": adjusted_operating_hours,
-                "total_scaling_rate_kg_hr": total_scaling_rate
+                "total_scaling_rate_kg_hr": total_scaling_rate,
+                "sizing_safety_margin_pct": safety_margin_pct,
+                "descaling_confidence": descaling_confidence,
             }
         }

@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import numpy as np
 from numba import njit
+from cbms_shared.constants import derive_free_amine_density
 
 
 from cbms_shared.constants import HENRY_SO2, KSP_CACO3, KSP_CASO4
@@ -99,7 +100,6 @@ def reaction_rhs_numba(
     dCaSO4_dt = rate_caso4
     
     # 5) Heavy metal chelation (Langmuir/saturable site depletion form)
-    from cbms_shared.constants import derive_free_amine_density
     free_amine_density = derive_free_amine_density(chitosan_conc_g_l=10.0, degree_of_deacetylation=0.85)
     dMetal_dt = k_chel * max(0.0, free_amine_density - metal_chel) * metal_inlet
     metal_chel_new = dMetal_dt

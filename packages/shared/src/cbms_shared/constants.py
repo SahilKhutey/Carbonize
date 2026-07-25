@@ -40,6 +40,16 @@ KSP_CASO4 = 49.3
 KSP_CASO3 = 6.0e-3
 
 
+try:
+    from numba import njit
+except ImportError:
+    def njit(func=None, **kwargs):
+        if func is None:
+            return lambda f: f
+        return func
+
+
+@njit
 def derive_free_amine_density(
     chitosan_conc_g_l: float = 10.0,
     degree_of_deacetylation: float = 0.85,

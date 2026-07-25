@@ -34,6 +34,8 @@ interface SimResults {
     annual_downtime_hours: number;
     adjusted_operating_hours: number;
     total_scaling_rate_kg_hr: number;
+    sizing_safety_margin_pct?: number;
+    descaling_confidence?: string;
   };
 }
 
@@ -473,11 +475,21 @@ export function ExperimentalLab() {
 
                 {/* Maintenance Interval */}
                 <div className="bg-slate-950/60 border border-slate-850 p-4 rounded-xl">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Descaling Maintenance</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Descaling Maintenance</span>
+                    {experimentalResults.sizing.descaling_confidence && (
+                      <span className="text-[9px] font-semibold text-amber-400 bg-amber-950/40 border border-amber-800/40 px-1.5 py-0.5 rounded">
+                        {experimentalResults.sizing.descaling_confidence}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-lg font-black text-amber-500 mt-1">
                     Every {experimentalResults.sizing.descaling_interval_days.toFixed(1)} Days
                   </div>
-                  <p className="text-[10px] text-slate-500 mt-1">Scale rate: {experimentalResults.sizing.total_scaling_rate_kg_hr.toFixed(2)} kg/hr</p>
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    Scale rate: {experimentalResults.sizing.total_scaling_rate_kg_hr.toFixed(2)} kg/hr 
+                    {experimentalResults.sizing.sizing_safety_margin_pct && ` (+${experimentalResults.sizing.sizing_safety_margin_pct}% safety margin)`}
+                  </p>
                 </div>
 
                 {/* Operating Hours */}

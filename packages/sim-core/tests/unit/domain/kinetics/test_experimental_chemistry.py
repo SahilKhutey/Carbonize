@@ -85,8 +85,11 @@ def test_scrubber_sizing_calculations():
     assert "sizing" in res
     sizing = res["sizing"]
     assert sizing["vessel_diameter_m"] > 0.0
-    assert sizing["vessel_height_m"] == pytest.approx(2.5 * 27.0) # velocity * tau
+    vol_factor = np.sqrt(1.0 + (sizing["sizing_safety_margin_pct"] / 100.0))
+    assert sizing["vessel_height_m"] == pytest.approx(2.5 * 27.0 * vol_factor) # velocity * tau * vol_factor
     assert sizing["circulating_liquid_flow_m3_hr"] == pytest.approx(120.0) # flow * l_g / 1000
     assert sizing["pump_power_kw"] > 0.0
     assert sizing["descaling_interval_days"] > 0.0
     assert sizing["adjusted_operating_hours"] <= 8760.0
+    assert "sizing_safety_margin_pct" in sizing
+    assert "descaling_confidence" in sizing
