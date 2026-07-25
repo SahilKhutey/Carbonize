@@ -22,11 +22,10 @@ import { DistributionChart }    from "../components/uncertainty/DistributionChar
 import { ConfidenceBandChart }  from "../components/uncertainty/ConfidenceBand";
 import { SobolTornadoChart }    from "../components/uncertainty/SobolTornadoChart";
 import {
-  generateMockResult, mulberry32, makeNormalSamples,
-  uqFromSamples, makeTimeSeries, makeSobolIndices
-} from "../utils/mockData";
+  mulberry32, makeNormalSamples, uqFromSamples, makeSobolIndices
+} from "../utils/statistics";
 import { ci90HalfWidth }        from "../types/results";
-import type { SimulationResult, UQMetric, SobolIndex, SensitivityResult } from "../types/results";
+import type { SimulationResult, UQMetric, SobolIndex, SensitivityResult, TimeSeriesResult, ConfidenceBandPoint } from "../types/results";
 
 // ---------------------------------------------------------------------------
 // Tab definition
@@ -52,7 +51,7 @@ function DistributionModal({
   target,
   onClose,
 }: {
-  metric: ReturnType<typeof generateMockResult>["capture"]["co2_pct"];
+  metric: UQMetric;
   label: string;
   unit: string;
   target?: number;
@@ -227,10 +226,10 @@ function mapBackendResultToFrontend(run: any): SimulationResult {
 
   const time_series: TimeSeriesResult = uq_metrics.time_series || (() => {
     const points = 24;
-    const co2_capture: TimeSeriesPoint[] = [];
-    const so2_capture: TimeSeriesPoint[] = [];
-    const block_strength: TimeSeriesPoint[] = [];
-    const ph_profile: TimeSeriesPoint[] = [];
+    const co2_capture: ConfidenceBandPoint[] = [];
+    const so2_capture: ConfidenceBandPoint[] = [];
+    const block_strength: ConfidenceBandPoint[] = [];
+    const ph_profile: ConfidenceBandPoint[] = [];
 
     const co2_mean = co2_uq.mean;
     const co2_std  = co2_uq.std || 1.0;
