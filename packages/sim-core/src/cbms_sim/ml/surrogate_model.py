@@ -128,7 +128,12 @@ class KineticsSurrogateModel:
                 enzyme_mg_per_l=float(enzyme),
                 ca_source_type=DomainCalciumSource.LIME,
             )
-            conditions = DomainConditions(reactor_temp_c=float(temp))
+            from decimal import Decimal
+            residence_time_s = max(2.0, min(300.0, 27.0 * (10000.0 / float(flow))))
+            conditions = DomainConditions(
+                reactor_temp_c=float(temp),
+                residence_time_s=Decimal(str(round(residence_time_s, 2)))
+            )
             res = engine.solve(plant, reagent, conditions)
             effs = res.capture_efficiencies
             Y[i, 0] = effs.get("co2_pct",   0.0)

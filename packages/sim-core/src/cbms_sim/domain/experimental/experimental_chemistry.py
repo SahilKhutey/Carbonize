@@ -103,7 +103,8 @@ def reaction_rhs_experimental(
 
     # 5) Heavy metal chelation
     metal_inlet = 0.5
-    free_amine_density = 0.05 * (1.0 - 0.25 * crosslinking_density)
+    from cbms_shared.constants import derive_free_amine_density
+    free_amine_density = derive_free_amine_density(chitosan_conc_g_l=10.0, degree_of_deacetylation=0.85, crosslinking_density=crosslinking_density)
     dMetal_dt = k_chel * free_amine_density * metal_inlet
     metal_chel_new = dMetal_dt
 
