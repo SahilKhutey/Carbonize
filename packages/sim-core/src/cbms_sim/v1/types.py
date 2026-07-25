@@ -10,6 +10,7 @@ All types use Pydantic v2 for:
 All units are SI by default. Convert at API boundaries.
 """
 
+import os
 from pydantic import BaseModel, Field, field_validator
 from pydantic_core import core_schema
 from typing import Literal, Optional, Any
@@ -17,6 +18,11 @@ from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from uuid import UUID
+
+
+def get_active_parameter_set_version() -> str:
+    """Return active parameter set version from ACTIVE_PARAMETER_SET env var, defaulting to 'v2026.2'."""
+    return os.environ.get("ACTIVE_PARAMETER_SET", "v2026.2")
 
 
 # =============================================================================
@@ -252,7 +258,7 @@ class SimulationRequest(BaseModel):
     
     # Metadata
     submitted_at: datetime
-    parameter_set_version: str = Field(default="v2026.2")
+    parameter_set_version: str = Field(default_factory=get_active_parameter_set_version)
     code_version: str = Field(default="0.1.0")
     
     @field_validator("plant")

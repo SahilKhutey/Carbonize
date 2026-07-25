@@ -93,6 +93,18 @@ class TestParameterRegistryContract:
         with pytest.raises(ParameterError):
             registry.get("invalid.param")
 
+    def test_default_active_parameter_set_reads_v2026_2(self):
+        engine = SimulationEngine()
+        assert engine.registry.version == "2026.2"
+        k_cat = engine.registry.get_value("kinetics.k_cat")
+        assert abs(k_cat - 2453580.74) < 1.0
+
+    def test_active_parameter_set_env_var_override(self, monkeypatch):
+        monkeypatch.setenv("ACTIVE_PARAMETER_SET", "v2026.1")
+        engine = SimulationEngine()
+        assert engine.registry.version == "2026.1"
+        assert engine.registry.get_value("kinetics.k_cat") == 1000000.0
+
 
 @pytest.fixture
 def sample_request():

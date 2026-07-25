@@ -22,7 +22,7 @@ from cbms_sim.v1.exceptions import (
     SimulationError, ValidationError, ConvergenceError,
     NumericalError, ParameterError, ResourceError, ErrorCode, ErrorContext,
 )
-from cbms_sim.v1.parameters import ParameterRegistry
+from cbms_sim.v1.parameters import ParameterRegistry, get_active_parameter_set_version
 
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,11 @@ logger = logging.getLogger(__name__)
 
 class SimulationEngine:
     """
-    Main entry point for running simulations.
+    Primary interface for running simulations.
+    
+    Usage:
+        engine = SimulationEngine()  # uses active parameter set version
+        result = engine.run(request)
     
     Threading: Instances are stateless after construction; safe to share
     across threads. Numba kernels are warmed up on first use (thread-safe).
@@ -38,12 +42,14 @@ class SimulationEngine:
     
     def __init__(
         self,
-        parameter_set: str = "v2026.2",
+        parameter_set: Optional[str] = None,
         *,
         parameter_registry: Optional[ParameterRegistry] = None,
         n_workers: int = 1,
         cache_dir: Optional[str] = None,
     ):
+        if parameter_set is None:
+            parameter_set = get_active_parameter_set_version()
         if parameter_registry is None:
             try:
                 parameter_registry = ParameterRegistry.from_version(
