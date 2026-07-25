@@ -1,6 +1,6 @@
 # 🧪 Batch Calibration Pipeline Executive Summary
 
-**Execution Timestamp:** 2026-07-25 12:09:28 UTC
+**Execution Timestamp:** 2026-07-25 12:36:00 UTC
 **Baseline Parameter Set:** `v2026.1`
 **Calibrated Parameter Set:** `v2026.2`
 
@@ -10,7 +10,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **CE-1** | Carbonic Anhydrase Kinetics | 0.9596 | 7.1596e-02 | 5.13% | 🟢 VALIDATED | ✅ Yes |
 | **CE-2** | Heavy Metal Sorption | 0.9997 | 3.1607e-01 | 0.78% | 🟢 VALIDATED | ✅ Yes |
-| **CE-3** | Chitosan CaCO₃ Precipitation | 0.2590 | 1.9274e-02 | 51.17% | 🔴 NEEDS_RECALIBRATION | ⛔ No (baseline retained) |
+| **CE-3** | Chitosan CaCO₃ Precipitation | 0.3081 | 2.9655e-02 | 61.42% | 🔴 NEEDS_RECALIBRATION | ⛔ No (baseline retained) |
 | **CE-4** | Multi-Gas Absorption | 0.9870 | 1.2441e+00 | 1.17% | 🟢 VALIDATED | ✅ Yes |
 | **CE-5** | Formulation Sensitivity Screen | 0.9720 | 5.7163e-01 | 7.96% | 🟢 VALIDATED | ✅ Yes |
 

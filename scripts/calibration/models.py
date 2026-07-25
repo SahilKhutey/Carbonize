@@ -78,12 +78,13 @@ def caco3_precipitation_rate(
     chitosan_pct: np.ndarray | float = 1.0,
     pH: np.ndarray | float = 8.5,
     Ksp_caco3: float = KSP_CACO3,
+    A_nuc: float = 1.2,
 ) -> np.ndarray | float:
     """
     CE-3: CaCO3 precipitation rate model driven by supersaturation ion product,
-    chitosan crystallization template scaling, and pH carbonate speciation.
+    chitosan crystallization template scaling, pH carbonate speciation, and nucleation induction kinetics.
 
-    rate = k_precip_caco3 * max(0, [Ca²⁺][HCO₃⁻] - Ksp_caco3) * chitosan_pct * 10^(pH - 8.5)
+    rate = k_precip_caco3 * max(0, [Ca²⁺][HCO₃⁻] - Ksp_caco3) * chitosan_pct * 10^(pH - 8.5) * (1 - exp(-(ln S)² / A_nuc))
 
     Units:
       - Ca_mM, HCO3_mM in mM (= mol/m³)
@@ -92,10 +93,15 @@ def caco3_precipitation_rate(
       - Returns predicted precipitation rate in mol/(L·s), matching CE-3's
         rate_mol_per_L_s observation column.
     """
-    ion_product = np.maximum(0.0, (Ca_mM * HCO3_mM) - Ksp_caco3)
+    ion_product = Ca_mM * HCO3_mM
+    supersat_ratio = np.maximum(1.001, ion_product / max(Ksp_caco3, 1e-9))
+    ln_S = np.log(supersat_ratio)
+    nucleation_factor = 1.0 - np.exp(-(ln_S ** 2) / max(A_nuc, 0.1))
+
+    ion_excess = np.maximum(0.0, ion_product - Ksp_caco3)
     template_factor = np.maximum(0.1, np.asarray(chitosan_pct, dtype=float))
     pH_factor = 10.0 ** (np.asarray(pH, dtype=float) - 8.5)
-    return k_precip_caco3 * ion_product * template_factor * pH_factor
+    return k_precip_caco3 * ion_excess * template_factor * pH_factor * nucleation_factor
 
 
 def multi_gas_removal_efficiency(
