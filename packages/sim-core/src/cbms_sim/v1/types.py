@@ -476,6 +476,7 @@ class SimulationResult(BaseModel):
     so2_distribution: Optional[DistributionStats] = None
     strength_distribution: Optional[DistributionStats] = None
     nox_distribution: Optional[DistributionStats] = None
+    heavy_metal_distribution: Optional[DistributionStats] = None
     
     # Metadata
     started_at: Optional[datetime] = None

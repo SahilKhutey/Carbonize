@@ -179,6 +179,51 @@ class TestSimulationEngineContract:
         assert result.capture_distribution.n_samples == 100
         assert result.npv_distribution is not None
         assert result.payback_distribution is not None
+
+    def test_heavy_metal_distribution_reflects_real_capture_not_placeholder(self, sample_request):
+        """
+        Regression test: hm_eff previously looked up capture_efficiencies
+        under the wrong keys ("heavy_metals_pct"/"hm_pct"), which never
+        matched the kinetics engine's real key ("metal_pct"). Every single
+        MC sample silently used a hardcoded 95.0 fallback instead of the
+        real per-sample computed value -- heavy_metal_distribution existed,
+        had the right type and n_samples, and would pass a naive
+        "is not None" check, but every sample was the same wrong constant.
+
+        This test instead checks the distribution is internally consistent
+        with kinetics.capture.metal_pct (the same run's single-point
+        estimate) -- if hm_eff reverts to a hardcoded fallback, this value
+        would silently diverge from the real capture calculation again.
+        """
+        sample_request = sample_request.model_copy(update={
+            "options": SimulationOptions(
+                simulation_type=SimulationType.MONTE_CARLO,
+                n_mc_samples=100,
+                random_seed=42
+            )
+        })
+
+        engine = SimulationEngine(parameter_set="v2026.1")
+        result = engine.run(sample_request)
+
+        assert result.is_successful
+        assert result.heavy_metal_distribution is not None
+        assert result.heavy_metal_distribution.n_samples == 100
+
+        # The MC distribution's mean should be close to the single-point
+        # kinetics estimate for the same request -- both derive from the
+        # same underlying model, just sampled vs. point-evaluated. A stale
+        # hardcoded fallback (95.0 or the pre-fix 95.0 default) would not
+        # track a specific request's actual computed capture value.
+        point_estimate = result.kinetics.capture.metal_pct
+        mc_mean = result.heavy_metal_distribution.mean
+        assert abs(mc_mean - point_estimate) < 1.0, (
+            f"heavy_metal_distribution.mean ({mc_mean}) diverges from the "
+            f"point-estimate kinetics.capture.metal_pct ({point_estimate}) "
+            "by more than a reasonable MC-sampling tolerance -- check "
+            "whether hm_eff has regressed to reading the wrong "
+            "capture_efficiencies key again."
+        )
         
     def test_validation_exception_on_bad_inputs(self, sample_request):
         # Trigger Pydantic error

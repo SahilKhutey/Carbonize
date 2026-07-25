@@ -234,7 +234,7 @@ class InternalSimulationEngine:
                     co2_eff = k_s.capture_efficiencies.get("co2_pct", 0.0)
                     so2_eff = k_s.capture_efficiencies.get("so2_pct", 0.0)
                     nox_eff = k_s.capture_efficiencies.get("nox_pct", 0.0)
-                    hm_eff = k_s.capture_efficiencies.get("heavy_metals_pct", k_s.capture_efficiencies.get("hm_pct", 95.0))
+                    hm_eff = k_s.capture_efficiencies.get("metal_pct", 0.0)
                     
                     mb_s = self.mb_engine.compute(k_s, p_sample, r_sample)
                     bp_s = self.block_predictor.predict(mb_s, c_sample)

@@ -282,7 +282,7 @@ async def _execute_simulation(
             # ---------------------------------------------------------------
             nox_dist  = sim_result.nox_distribution
             pm_dist   = getattr(sim_result, "pm_distribution",  None)
-            hm_dist   = getattr(sim_result, "metal_distribution", None)
+            hm_dist   = getattr(sim_result, "heavy_metal_distribution", None)
 
             def _dist_dict(dist, fallback_mean: float, fallback_std: float):
                 """Safely serialise a DistributionStats (or None) to a plain dict."""
