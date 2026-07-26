@@ -17,8 +17,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Add script directory to path so calibration package can be imported
+# Add script and package directories to path so calibration package and cbms_shared can be imported
+root_path = Path(__file__).parent.parent
 sys.path.append(str(Path(__file__).parent))
+sys.path.insert(0, str(root_path / "packages" / "shared" / "src"))
+sys.path.insert(0, str(root_path / "packages" / "sim-core" / "src"))
 
 from calibration.comparator import PredictionComparator
 from calibration.fitters import ParameterFitter
@@ -310,6 +313,12 @@ class BatchCalibrationPipeline:
 
         with open(report_path, "w", encoding="utf-8") as f:
             f.write("\n".join(md_lines))
+
+        # Write PR body summary file for GitHub Actions continuous calibration
+        pr_summary_path = Path(report_path).parent / "calibration_pr_summary.md"
+        with open(pr_summary_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(md_lines))
+        logger.info("wrote_calibration_pr_summary", path=str(pr_summary_path))
 
 
 def main() -> int:

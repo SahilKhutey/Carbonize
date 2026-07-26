@@ -147,34 +147,18 @@
     },
     "kinetics.k_precip_caco3": {
       "symbol": "k_p_CaCO3",
-      "value": 0.000129,
+      "value": 0.00012901511264840204,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
-        "mu": -8.95,
-        "sigma": 0.12
+        "mu": -4.2,
+        "sigma": 0.35
       },
-      "source": "CE-3 Bench Calibration 2026",
+      "source": "Calibration from data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
       "source_type": "measured",
       "confidence": "HIGH",
-      "conditions": "25°C, I=0.1M",
-      "extrapolation_risk": "LOW",
-      "owner": "@chem-team"
-    },
-    "kinetics.A_nuc_caco3": {
-      "symbol": "A_nuc_CaCO3",
-      "value": 0.0865,
-      "unit": "dimensionless",
-      "distribution": "normal",
-      "dist_params": {
-        "mu": 0.0865,
-        "sigma": 0.008
-      },
-      "source": "CE-3 Bench Calibration 2026",
-      "source_type": "measured",
-      "confidence": "HIGH",
-      "conditions": "25°C, Near-threshold supersaturation",
-      "extrapolation_risk": "LOW",
+      "conditions": "25\u00c2\u00b0C, I=0.1M",
+      "extrapolation_risk": "MEDIUM",
       "owner": "@chem-team"
     },
     "kinetics.k_precip_caso4": {
@@ -894,6 +878,12 @@
       "confidence": "HIGH",
       "source": "Calibration from data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv"
     },
+    "kinetics.A_nuc_caco3": {
+      "value": 0.0010592977827916794,
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "source": "Calibration from data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv"
+    },
     "kinetics.k_no2_abs": {
       "value": 0.0492327446815972,
       "source_type": "measured",
@@ -913,12 +903,12 @@
       "source": "Calibration from data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv"
     }
   },
-  "last_calibrated": "2026-07-25T12:36:00.667988+00:00Z",
+  "last_calibrated": "2026-07-26T01:43:18.111645+00:00Z",
   "calibration_source": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
   "calibration_history": [
     {
       "version": "v2026.2",
-      "timestamp": "2026-07-25T12:36:00.387071+00:00Z",
+      "timestamp": "2026-07-26T01:43:17.933997+00:00Z",
       "source_data": "data\\bench_data\\CE-1\\processed\\ca_kinetics_bench.csv",
       "parameters_updated": [
         "kinetics.k_cat",
@@ -932,7 +922,7 @@
     },
     {
       "version": "v2026.3",
-      "timestamp": "2026-07-25T12:36:00.458481+00:00Z",
+      "timestamp": "2026-07-26T01:43:17.961821+00:00Z",
       "source_data": "data\\bench_data\\CE-2\\processed\\metal_sorption_bench.csv",
       "parameters_updated": [
         "kinetics.K_F_Pb",
@@ -948,7 +938,19 @@
     },
     {
       "version": "v2026.4",
-      "timestamp": "2026-07-25T12:36:00.621585+00:00Z",
+      "timestamp": "2026-07-26T01:43:18.020419+00:00Z",
+      "source_data": "data\\bench_data\\CE-3\\processed\\caco3_precipitation_bench.csv",
+      "parameters_updated": [
+        "kinetics.k_precip_caco3",
+        "kinetics.A_nuc_caco3"
+      ],
+      "fit_quality": "POOR",
+      "r_squared": 0.8401538480447983,
+      "rmse": 0.014754139308531625
+    },
+    {
+      "version": "v2026.5",
+      "timestamp": "2026-07-26T01:43:18.072270+00:00Z",
       "source_data": "data\\bench_data\\CE-4\\processed\\multi_gas_bench.csv",
       "parameters_updated": [
         "kinetics.k_so2_abs",
@@ -959,8 +961,8 @@
       "rmse": 1.2440772381983267
     },
     {
-      "version": "v2026.5",
-      "timestamp": "2026-07-25T12:36:00.667988+00:00Z",
+      "version": "v2026.6",
+      "timestamp": "2026-07-26T01:43:18.111645+00:00Z",
       "source_data": "data\\bench_data\\CE-5\\processed\\formulation_screen_bench.csv",
       "parameters_updated": [
         "kinetics.strength_coeff_chitosan",

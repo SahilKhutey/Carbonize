@@ -1,0 +1,56 @@
+name: Continuous Calibration & Parameter Set Promotion
+
+on:
+  push:
+    paths:
+      - 'data/bench_data/**'
+  workflow_dispatch:
+
+jobs:
+  run-calibration:
+    name: Run Batch Calibration & Open PR
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy pydantic structlog pytest
+
+      - name: Execute Continuous Batch Calibration Pipeline
+        run: |
+          PYTHONPATH=packages/shared/src:packages/sim-core/src:scripts python scripts/run_all_calibrations.py
+
+      - name: Check for Calibration Output Changes
+        id: git-check
+        run: |
+          if [ -n "$(git status --porcelain data/parameters/)" ]; then
+            echo "changes_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_exist=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request for Calibration Promotion
+        if: steps.git-check.outputs.changes_exist == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(calibration): continuous calibration update from new bench data"
+          branch: "automated-calibration-update"
+          title: "🤖 Continuous Calibration & Parameter Provenance Update"
+          body-path: "data/parameters/calibration_pr_summary.md"
+          labels: "calibration, automated-pr, chemistry"
+          reviewers: "SahilKhutey"
