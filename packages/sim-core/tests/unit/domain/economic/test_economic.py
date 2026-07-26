@@ -18,7 +18,7 @@ def test_economic_engine_calculations():
     
     res = engine.compute(mb, strength_mpa=25.0, operating_hours_per_year=8000)
     
-    assert res["capex_inr"] == 1.2e8
+    assert res["capex_inr"] == 18.5e6
     assert res["annual_opex_inr"] > 0.0
     assert res["annual_revenue_inr"] > 0.0
     assert "npv_10yr_inr" in res

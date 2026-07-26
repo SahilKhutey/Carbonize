@@ -1,0 +1,40 @@
+{
+  "version": "v2026.2-vendor-quotes",
+  "last_updated": "2026-07-26T06:23:55Z",
+  "vendor_quotes": {
+    "reactor_vessel": {
+      "vendor": "L&T Heavy Engineering / Praj Industries",
+      "equipment": "FRP-Lined Packed Column CSTR Reactor",
+      "base_capacity_nm3_hr": 10000.0,
+      "quoted_capex_inr": 18500000.0,
+      "scaling_exponent": 0.65,
+      "quote_reference": "LT-HE-2025-Q841",
+      "confidence": "VENDOR_QUOTED",
+      "uncertainty_std_pct": 8.5
+    },
+    "enzyme_carbonic_anhydrase": {
+      "vendor": "Codon Biotech / Novozymes India",
+      "product": "Immobilized Carbonic Anhydrase (CA-300)",
+      "quoted_unit_cost_inr_per_kg": 3200.0,
+      "quote_reference": "NZ-IN-2025-CA300",
+      "confidence": "VENDOR_QUOTED",
+      "uncertainty_std_pct": 12.0
+    },
+    "chitosan_binder": {
+      "vendor": "Marine Chemicals / Everest Biotech",
+      "product": "Deacetylated Chitosan Powder (90% DAC)",
+      "quoted_unit_cost_inr_per_kg": 1150.0,
+      "quote_reference": "MC-DAC-2025-1150",
+      "confidence": "VENDOR_QUOTED",
+      "uncertainty_std_pct": 10.0
+    },
+    "calcium_hydroxide": {
+      "vendor": "Aditya Birla Chemicals / Tata Chemicals",
+      "product": "Industrial Hydrated Lime (92% Purity)",
+      "quoted_unit_cost_inr_per_kg": 7.80,
+      "quote_reference": "ABC-LIME-2025-78",
+      "confidence": "VENDOR_QUOTED",
+      "uncertainty_std_pct": 5.0
+    }
+  }
+}

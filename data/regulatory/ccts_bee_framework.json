@@ -1,0 +1,28 @@
+{
+  "version": "v2026.2-ccts-bee",
+  "regulatory_framework": "Carbon Credit Trading Scheme (CCTS) 2023 & Bureau of Energy Efficiency (BEE)",
+  "gazette_reference": "MoP Notification S.O. 2822(E), June 2023",
+  "rules": {
+    "ccts_carbon_credit": {
+      "eligibility": "ELIGIBLE",
+      "price_inr_per_tco2e": 1850.0,
+      "uncertainty_range_inr": [1500.0, 2200.0],
+      "accreditation_body": "National Steering Committee for Carbon Market (NSCCM)",
+      "verification_period_months": 12
+    },
+    "bee_pat_scheme": {
+      "compliance_status": "COMPLIANT",
+      "pat_cycle": "PAT Phase VI (2024-2027)",
+      "sec_reduction_mtoe_per_tco2": 0.18,
+      "esert_convertibility": true,
+      "penalty_exemption": true
+    },
+    "cpcb_environmental_standards": {
+      "so2_limit_mg_nm3": 50.0,
+      "nox_limit_mg_nm3": 100.0,
+      "pm_limit_mg_nm3": 30.0,
+      "heavy_metal_leaching_limit_mg_l": 0.05,
+      "block_unconfined_compressive_strength_min_mpa": 15.0
+    }
+  }
+}

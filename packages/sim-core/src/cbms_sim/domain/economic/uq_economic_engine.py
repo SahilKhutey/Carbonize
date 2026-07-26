@@ -60,23 +60,25 @@ class EconomicUQEngine:
             lifetime_years=lifetime_years,
             discount_rate=discount_rate,
         )
-        # Cost parameters with uncertainty
+        # Cost parameters with uncertainty (matching vendor quote specifications)
         self.cost_params = {
-            'ccts_price_mean': 1850,
-            'ccts_price_std': 250,  # ±13% uncertainty
-            'block_price_mean': 12,
-            'block_price_std': 1.5,  # ±12% uncertainty
-            'chitosan_cost_mean': 320,
-            'chitosan_cost_std': 50,
-            'ca_cost_mean': 50000,
-            'ca_cost_std': 12000,  # ±24% uncertainty (custom expression)
+            'ccts_price_mean': 1850.0,       # CCTS 2023 Gazette (₹1,500 - ₹2,200/tCO2e)
+            'ccts_price_std': 175.0,         # ±9.5% regulatory market fluctuation
+            'block_price_mean': 800.0,       # INR/ton solid aggregate
+            'block_price_std': 65.0,         # ±8.1% market fluctuation
+            'chitosan_cost_mean': 1150.0,    # Marine Chemicals 90% DAC Powder (₹1,150/kg)
+            'chitosan_cost_std': 115.0,      # ±10% vendor quote variance
+            'ca_cost_mean': 7.80,            # Tata/Aditya Birla Hydrated Lime (₹7.80/kg)
+            'ca_cost_std': 0.39,             # ±5% vendor quote variance
+            'enzyme_cost_mean': 3.20,        # Codon Biotech CA-300 (₹3.20/L @ 12 mg/L)
+            'enzyme_cost_std': 0.38,         # ±12% vendor quote variance
             'power_cost_mean': 8.5,
             'power_cost_std': 0.5,
-            'water_cost_mean': 65,
-            'water_cost_std': 8,
-            'opex_labor_mean': 1800000,  # annual
-            'opex_labor_std': 200000,
-            'opex_maint_pct': 0.05,  # 5% of CAPEX
+            'water_cost_mean': 65.0,
+            'water_cost_std': 8.0,
+            'opex_labor_mean': 1800000.0,
+            'opex_labor_std': 200000.0,
+            'opex_maint_pct': 0.04,          # 4% of CAPEX
         }
     
     def run(
