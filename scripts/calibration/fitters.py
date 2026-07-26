@@ -320,7 +320,12 @@ class ParameterFitter:
         try:
             k_precip_base = baseline["parameters"]["kinetics.k_precip_caco3"]["value"]
         except KeyError:
-            k_precip_base = 1.5e-2
+            k_precip_base = 1.5e-3
+
+        try:
+            A_nuc_base = baseline["parameters"]["kinetics.A_nuc_caco3"]["value"]
+        except KeyError:
+            A_nuc_base = 1.2
 
         Ca_mM = data["Ca_mM"].values
         HCO3_mM = data["HCO3_mM"].values
@@ -328,12 +333,12 @@ class ParameterFitter:
         pH = data["pH"].values if "pH" in data.columns else np.full(len(data), 8.5)
         rate_obs = data["rate_mol_per_L_s"].values
 
-        p0 = [k_precip_base]
-        bounds = ([1e-6], [10.0])
+        p0 = [k_precip_base, A_nuc_base]
+        bounds = ([1e-6, 0.001], [10.0, 500.0])
 
         def residuals_ce3(params, Ca, HCO3, chitosan, pH_val, y_obs):
-            k_precip = params[0]
-            y_pred = models_caco3_rate(Ca, HCO3, k_precip, chitosan, pH_val)
+            k_precip, A_nuc = params
+            y_pred = caco3_precipitation_rate(Ca, HCO3, k_precip, chitosan, pH_val, A_nuc=A_nuc)
             return y_obs - y_pred
 
         try:
@@ -351,14 +356,14 @@ class ParameterFitter:
             self.logger.error("fit_failed_ce3", error=str(e))
             raise
 
-        y_pred = models_caco3_rate(Ca_mM, HCO3_mM, popt[0], chitosan_pct, pH)
+        y_pred = caco3_precipitation_rate(Ca_mM, HCO3_mM, popt[0], chitosan_pct, pH, A_nuc=popt[1])
 
         return self._build_fit_result(
             y_obs=rate_obs,
             y_pred=y_pred,
             popt=popt,
             jac=result.jac,
-            param_keys=["kinetics.k_precip_caco3"],
+            param_keys=["kinetics.k_precip_caco3", "kinetics.A_nuc_caco3"],
             model_name="CE-3",
             converged=converged,
             notes=[],

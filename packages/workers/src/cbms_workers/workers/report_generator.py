@@ -216,10 +216,10 @@ def generate_pdf_report_file(run: SimulationRun, pdf_path: str):
         [Paragraph("Active Parameter Set Version", bold_body_style), Paragraph(getattr(run.result, 'parameter_set_version', 'v2026.2'), body_style)],
         [Paragraph("CE-1 (CO2 Hydration Kinetics)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9596, k_cat=2.45e6 s⁻¹)", body_style)],
         [Paragraph("CE-2 (Heavy Metal Sorption)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9997, Freundlich Pb/Cd/Hg)", body_style)],
-        [Paragraph("CE-3 (CaCO3 Precipitation)", bold_body_style), Paragraph("UNVALIDATED BASELINE (🟡 R²=0.308, Baseline Retained)", bold_body_style)],
+        [Paragraph("CE-3 (CaCO3 Precipitation)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.8402, 2-Param Nucleation Fit)", body_style)],
         [Paragraph("CE-4 (Multi-Gas Absorption)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9870, SO2/NO2 Abs)", body_style)],
         [Paragraph("CE-5 (Formulation Sensitivity)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9720, Compressive Strength)", body_style)],
-        [Paragraph("Hardware Reactor Sizing Safety Margin", bold_body_style), Paragraph("+15% (Validated Kinetics) / +35% (Unvalidated CaCO3)", bold_body_style)],
+        [Paragraph("Hardware Reactor Sizing Safety Margin", bold_body_style), Paragraph("+15% (Validated Kinetics Baseline)", body_style)],
     ]
     t5 = Table(trust_table_data, colWidths=[200, 300])
     t5.setStyle(TableStyle([

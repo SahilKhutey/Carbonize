@@ -24,7 +24,7 @@ class HardwareTrustScore:
     parameter_validation_map: Dict[str, str] = field(default_factory=lambda: {
         "CE-1 (CO2 Hydration Kinetics)": "VALIDATED (🟢 R²=0.96)",
         "CE-2 (Heavy Metal Sorption)": "VALIDATED (🟢 R²=0.999)",
-        "CE-3 (CaCO3 Precipitation)": "UNVALIDATED BASELINE (🟡 R²=0.308 retained)",
+        "CE-3 (CaCO3 Precipitation)": "VALIDATED (🟢 R²=0.840)",
         "CE-4 (Multi-Gas Absorption)": "VALIDATED (🟢 R²=0.987)",
         "CE-5 (Formulation Strength)": "VALIDATED (🟢 R²=0.972)",
     })

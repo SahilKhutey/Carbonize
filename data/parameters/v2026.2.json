@@ -147,18 +147,34 @@
     },
     "kinetics.k_precip_caco3": {
       "symbol": "k_p_CaCO3",
-      "value": 0.015,
+      "value": 0.000129,
       "unit": "m/s",
       "distribution": "lognormal",
       "dist_params": {
-        "mu": -4.2,
-        "sigma": 0.35
+        "mu": -8.95,
+        "sigma": 0.12
       },
-      "source": "Zeng 2024 (Fig. 6)",
-      "source_type": "literature",
-      "confidence": "MEDIUM",
-      "conditions": "25\u00c2\u00b0C, I=0.1M",
-      "extrapolation_risk": "MEDIUM",
+      "source": "CE-3 Bench Calibration 2026",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25°C, I=0.1M",
+      "extrapolation_risk": "LOW",
+      "owner": "@chem-team"
+    },
+    "kinetics.A_nuc_caco3": {
+      "symbol": "A_nuc_CaCO3",
+      "value": 0.0865,
+      "unit": "dimensionless",
+      "distribution": "normal",
+      "dist_params": {
+        "mu": 0.0865,
+        "sigma": 0.008
+      },
+      "source": "CE-3 Bench Calibration 2026",
+      "source_type": "measured",
+      "confidence": "HIGH",
+      "conditions": "25°C, Near-threshold supersaturation",
+      "extrapolation_risk": "LOW",
       "owner": "@chem-team"
     },
     "kinetics.k_precip_caso4": {

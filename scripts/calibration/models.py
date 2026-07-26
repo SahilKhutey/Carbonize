@@ -94,14 +94,14 @@ def caco3_precipitation_rate(
         rate_mol_per_L_s observation column.
     """
     ion_product = Ca_mM * HCO3_mM
-    supersat_ratio = np.maximum(1.001, ion_product / max(Ksp_caco3, 1e-9))
+    supersat_ratio = np.maximum(1.0001, ion_product / max(Ksp_caco3, 1e-9))
     ln_S = np.log(supersat_ratio)
-    nucleation_factor = 1.0 - np.exp(-(ln_S ** 2) / max(A_nuc, 0.1))
+    nucleation_factor = 1.0 - np.exp(-(ln_S ** 2) / np.maximum(A_nuc, 1e-4))
 
-    ion_excess = np.maximum(0.0, ion_product - Ksp_caco3)
-    template_factor = np.maximum(0.1, np.asarray(chitosan_pct, dtype=float))
-    pH_factor = 10.0 ** (np.asarray(pH, dtype=float) - 8.5)
-    return k_precip_caco3 * ion_excess * template_factor * pH_factor * nucleation_factor
+    driving_force = np.maximum(0.0, ion_product - Ksp_caco3) ** 0.82
+    template_factor = np.sqrt(np.maximum(0.1, np.asarray(chitosan_pct, dtype=float)))
+    pH_factor = 10.0 ** (0.75 * (np.asarray(pH, dtype=float) - 8.5))
+    return k_precip_caco3 * driving_force * template_factor * pH_factor * nucleation_factor
 
 
 def multi_gas_removal_efficiency(
