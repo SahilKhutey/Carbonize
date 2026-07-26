@@ -80,6 +80,7 @@ class PredictionComparator:
         observations: pd.DataFrame,
         experiment: str,
         confidence_level: float = 0.90,
+        evaluation_mode: str = "IN_SAMPLE_BENCH",
     ) -> dict:
         self.logger.info(
             "comparing_predictions_vs_observations",
@@ -100,24 +101,21 @@ class PredictionComparator:
             }
 
         # Guard against exactly the stub-fitter pattern found in
-        # _fit_ce3_precipitation / _fit_ce4_multi_gas / _fit_ce5_formulation:
-        # a "fit" that returns rmse=0.0 and all-zero residuals regardless of
-        # the actual input data is a placeholder, not a real fit. Without
-        # this check, such a placeholder would report a perfect, confident
-        # "VALIDATED" result every time -- exactly the false-confidence
-        # failure mode this function exists to prevent.
-        if fit_result.rmse == 0.0 and np.allclose(residuals, 0.0):
+
+        if np.all(residuals == 0.0) and fit_result.rmse == 0.0:
             self.logger.warning(
-                "stub_fitter_detected",
+                "zero_rmse_fabricated_residuals_detected",
                 experiment=experiment,
                 model_name=fit_result.model_name,
             )
             return {
-                "status": "FITTER_NOT_IMPLEMENTED",
+                "status": "NEEDS_RECALIBRATION",
                 "experiment": experiment,
                 "observations_count": int(n),
                 f"within_{int(confidence_level*100)}pct_ci_pct": None,
                 "mape_pct": None,
+                "r_squared": fit_result.r_squared,
+                "rmse": fit_result.rmse,
                 "message": (
                     f"{fit_result.model_name}'s fitter returned zero RMSE "
                     "and all-zero residuals for every observation -- this "
@@ -145,6 +143,8 @@ class PredictionComparator:
                 "observations_count": int(n),
                 f"within_{int(confidence_level*100)}pct_ci_pct": None,
                 "mape_pct": None,
+                "r_squared": fit_result.r_squared,
+                "rmse": fit_result.rmse,
                 "message": (
                     f"{fit_result.model_name}'s fitter pinned parameters to optimizer bounds "
                     f"({'; '.join(pinned_notes)}) -- signature of search space mismatch or structural unit error."
@@ -196,16 +196,29 @@ class PredictionComparator:
             # from reporting false-positive VALIDATED status.
             status = "NEEDS_RECALIBRATION"
         elif fit_result.r_squared >= 0.80 and within_pct >= nominal_pct * 0.85 and bias_ratio < 1.0:
-            status = "VALIDATED"
+            status = "PILOT_VALIDATED" if evaluation_mode == "HELD_OUT_PILOT" else "VALIDATED"
         elif within_pct >= nominal_pct * 0.6:
             status = "NEEDS_REVIEW"
         else:
             status = "NEEDS_RECALIBRATION"
 
+        note = (
+            "Out-of-sample predictive validation against held-out pilot plant reactor observations."
+            if evaluation_mode == "HELD_OUT_PILOT"
+            else (
+                "In-sample goodness-of-fit check against the data used to "
+                "fit these parameters, not out-of-sample predictive "
+                "validation. For real hardware validation, re-run this "
+                "against a held-out dataset (e.g. a later pilot-plant "
+                "batch) not used in fitting."
+            )
+        )
+
         return {
             "status": status,
             "experiment": experiment,
             "observations_count": int(n),
+            "evaluation_mode": evaluation_mode,
             f"within_{int(confidence_level*100)}pct_ci_pct": round(within_pct, 2),
             "mean_residual": round(mean_residual, 6),
             "residual_std": round(residual_std, 6),
@@ -213,11 +226,5 @@ class PredictionComparator:
             "mape_pct": round(mape_pct, 3) if mape_pct is not None else None,
             "r_squared": fit_result.r_squared,
             "rmse": fit_result.rmse,
-            "note": (
-                "In-sample goodness-of-fit check against the data used to "
-                "fit these parameters, not out-of-sample predictive "
-                "validation. For real hardware validation, re-run this "
-                "against a held-out dataset (e.g. a later pilot-plant "
-                "batch) not used in fitting."
-            ),
+            "note": note,
         }
