@@ -338,7 +338,7 @@ class ParameterFitter:
 
         def residuals_ce3(params, Ca, HCO3, chitosan, pH_val, y_obs):
             k_precip, A_nuc = params
-            y_pred = caco3_precipitation_rate(Ca, HCO3, k_precip, chitosan, pH_val, A_nuc=A_nuc)
+            y_pred = models_caco3_rate(Ca, HCO3, k_precip, chitosan, pH_val, A_nuc=A_nuc)
             return y_obs - y_pred
 
         try:
@@ -356,7 +356,7 @@ class ParameterFitter:
             self.logger.error("fit_failed_ce3", error=str(e))
             raise
 
-        y_pred = caco3_precipitation_rate(Ca_mM, HCO3_mM, popt[0], chitosan_pct, pH, A_nuc=popt[1])
+        y_pred = models_caco3_rate(Ca_mM, HCO3_mM, popt[0], chitosan_pct, pH, A_nuc=popt[1])
 
         return self._build_fit_result(
             y_obs=rate_obs,
