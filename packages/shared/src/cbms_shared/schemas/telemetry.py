@@ -12,9 +12,9 @@ from uuid import UUID, uuid4
 class TelemetryPoint(BaseModel):
     """Single sensor telemetry point from PLC/DAQ gateway."""
     ts: datetime = Field(default_factory=datetime.utcnow, description="Timestamp of observation")
-    sensor_id: str = Field(..., example="CO2-GAS-01", description="Unique sensor tag")
+    sensor_id: str = Field(..., json_schema_extra={"example": "CO2-GAS-01"}, description="Unique sensor tag")
     value: float = Field(..., description="Scaled process value in engineering units")
-    unit: str = Field(..., example="vol%", description="Engineering unit")
+    unit: str = Field(..., json_schema_extra={"example": "vol%"}, description="Engineering unit")
     quality: Literal["GOOD", "UNCERTAIN", "BAD_RANGE", "BAD_STUCK"] = Field(default="GOOD", description="Quality code")
     raw_counts: Optional[int] = Field(None, description="Raw 4-20mA / Modbus ADC counts")
     cal_offset: float = Field(default=0.0, description="Applied calibration offset")

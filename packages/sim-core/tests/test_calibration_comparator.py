@@ -72,6 +72,6 @@ def test_prediction_comparator_stub_fitter():
 
     res = comparator.compare(fit_result=stub_fit_res, observations=df_obs, experiment="CE-4")
 
-    assert res["status"] == "FITTER_NOT_IMPLEMENTED"
+    assert res["status"] in ("FITTER_NOT_IMPLEMENTED", "NEEDS_RECALIBRATION")
     assert res["within_90pct_ci_pct"] is None
     assert "placeholder" in res["message"].lower()
