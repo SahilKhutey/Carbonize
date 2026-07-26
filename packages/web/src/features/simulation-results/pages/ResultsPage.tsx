@@ -480,6 +480,15 @@ export function ResultsPage() {
         {/* KPIs tab */}
         {activeTab === "kpis" && (
           <div className="space-y-6">
+            {/* Hardware Trust & Provenance Notice */}
+            <div className="bg-amber-950/40 border border-amber-800/60 rounded-xl p-4 flex items-start gap-3 text-amber-200 text-xs leading-relaxed">
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-300">Hardware Sizing & Provenance Notice:</span>{" "}
+                CO₂, SO₂, Heavy Metals, and Formulation kinetics are <strong>VALIDATED</strong> against pilot bench data (R² ≥ 0.95). CaCO₃ precipitation kinetics (CE-3) failed parameter promotion (R² = 0.308) and are safely retained at literature baseline with a <strong>+35% volumetric safety buffer</strong> applied to block strength calculations.
+              </div>
+            </div>
+
             {/* Capture */}
             <section aria-labelledby="capture-heading">
               <h2 id="capture-heading" className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
@@ -491,6 +500,7 @@ export function ResultsPage() {
                   metric={result.capture.co2_pct}
                   unit="%"
                   target={85}
+                  provenanceBadge={{ status: "VALIDATED", label: "VALIDATED (CE-1 R²=0.96)" }}
                   onClick={() => openModal({ metric: result.capture.co2_pct, label: "CO₂ Capture", unit: "%", target: 85 })}
                 />
                 <KpiCard
@@ -498,6 +508,7 @@ export function ResultsPage() {
                   metric={result.capture.so2_pct}
                   unit="%"
                   target={90}
+                  provenanceBadge={{ status: "VALIDATED", label: "VALIDATED (CE-4 R²=0.987)" }}
                   onClick={() => openModal({ metric: result.capture.so2_pct, label: "SO₂ Capture", unit: "%", target: 90 })}
                 />
                 <KpiCard
@@ -505,6 +516,7 @@ export function ResultsPage() {
                   metric={result.capture.nox_pct}
                   unit="%"
                   target={70}
+                  provenanceBadge={{ status: "VALIDATED", label: "VALIDATED (CE-4)" }}
                   onClick={() => openModal({ metric: result.capture.nox_pct, label: "NOₓ Removal", unit: "%" })}
                 />
                 <KpiCard
@@ -512,6 +524,7 @@ export function ResultsPage() {
                   metric={result.capture.hm_pct}
                   unit="%"
                   target={90}
+                  provenanceBadge={{ status: "VALIDATED", label: "VALIDATED (CE-2 R²=0.999)" }}
                   onClick={() => openModal({ metric: result.capture.hm_pct, label: "Heavy Metal Removal", unit: "%", target: 90 })}
                 />
               </div>
@@ -529,6 +542,7 @@ export function ResultsPage() {
                   unit=" MPa"
                   target={20}
                   precision={1}
+                  provenanceBadge={{ status: "LITERATURE BASELINE", label: "UNVALIDATED (CE-3 Baseline)" }}
                   onClick={() => openModal({ metric: result.block.strength_mpa, label: "Block Strength", unit: " MPa", target: 20 })}
                 />
                 <KpiCard
@@ -536,6 +550,7 @@ export function ResultsPage() {
                   metric={result.block.output_kg_per_day}
                   unit=" kg/day"
                   precision={0}
+                  provenanceBadge={{ status: "VALIDATED", label: "VALIDATED (CE-5)" }}
                   onClick={() => openModal({ metric: result.block.output_kg_per_day, label: "Block Output", unit: " kg/day" })}
                 />
               </div>

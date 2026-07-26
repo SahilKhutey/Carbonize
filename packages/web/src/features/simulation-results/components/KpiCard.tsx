@@ -133,6 +133,11 @@ interface KpiCardProps {
   /** Trend direction and label for period-over-period comparison */
   trend?: "up" | "down" | "flat";
   trendLabel?: string;
+  /** Optional provenance status badge (e.g. VALIDATED or UNVALIDATED BASELINE) */
+  provenanceBadge?: {
+    status: "VALIDATED" | "UNVALIDATED" | "LITERATURE BASELINE";
+    label?: string;
+  };
   /** Show mini sparkline — only for cards with samples */
   showSparkline?: boolean;
   /** Click handler — e.g. open distribution modal */
@@ -148,6 +153,7 @@ export const KpiCard = memo(function KpiCard({
   lowIsGood = false,
   trend,
   trendLabel,
+  provenanceBadge,
   showSparkline = true,
   onClick,
 }: KpiCardProps) {
@@ -204,6 +210,29 @@ export const KpiCard = memo(function KpiCard({
           size="sm"
         />
       </div>
+
+      {/* Provenance badge */}
+      {provenanceBadge && (
+        <div className="mt-2 flex items-center gap-1.5">
+          <span
+            className={`
+              inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider
+              ${
+                provenanceBadge.status === "VALIDATED"
+                  ? "bg-emerald-950/80 text-emerald-400 border border-emerald-800/50"
+                  : "bg-amber-950/80 text-amber-400 border border-amber-800/50"
+              }
+            `}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                provenanceBadge.status === "VALIDATED" ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
+              }`}
+            />
+            {provenanceBadge.label || provenanceBadge.status}
+          </span>
+        </div>
+      )}
 
       {/* Target comparison */}
       {target !== undefined && (

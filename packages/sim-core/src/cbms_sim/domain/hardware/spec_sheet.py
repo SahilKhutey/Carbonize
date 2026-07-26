@@ -21,6 +21,13 @@ class HardwareTrustScore:
     ci_90_coverage_pct: float              # Empirical % of observations in p05-p95 band
     recommended_safety_margin_pct: float   # Sizing safety factor (+15% to +50%)
     hardware_guidance_text: str            # Direct engineering recommendation
+    parameter_validation_map: Dict[str, str] = field(default_factory=lambda: {
+        "CE-1 (CO2 Hydration Kinetics)": "VALIDATED (🟢 R²=0.96)",
+        "CE-2 (Heavy Metal Sorption)": "VALIDATED (🟢 R²=0.999)",
+        "CE-3 (CaCO3 Precipitation)": "UNVALIDATED BASELINE (🟡 R²=0.308 retained)",
+        "CE-4 (Multi-Gas Absorption)": "VALIDATED (🟢 R²=0.987)",
+        "CE-5 (Formulation Strength)": "VALIDATED (🟢 R²=0.972)",
+    })
 
 
 @dataclass

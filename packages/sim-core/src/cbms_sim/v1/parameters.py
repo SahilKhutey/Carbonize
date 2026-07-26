@@ -10,13 +10,8 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime, timezone
 
-from cbms_sim.v1.types import ParameterSet
+from cbms_sim.v1.types import ParameterSet, get_active_parameter_set_version
 from cbms_sim.v1.exceptions import ParameterError
-
-
-def get_active_parameter_set_version() -> str:
-    """Return active parameter set version from ACTIVE_PARAMETER_SET env var, defaulting to 'v2026.2'."""
-    return os.environ.get("ACTIVE_PARAMETER_SET", "v2026.2")
 
 
 class ParameterRegistry:

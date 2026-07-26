@@ -209,5 +209,26 @@ def generate_pdf_report_file(run: SimulationRun, pdf_path: str):
         ]))
         story.append(t4)
 
+    # Section 5: Hardware Trust Score & Parameter Provenance
+    story.append(Spacer(1, 15))
+    story.append(Paragraph("5. Hardware Trust Score & Parameter Provenance Summary", section_title_style))
+    trust_table_data = [
+        [Paragraph("Active Parameter Set Version", bold_body_style), Paragraph(getattr(run.result, 'parameter_set_version', 'v2026.2'), body_style)],
+        [Paragraph("CE-1 (CO2 Hydration Kinetics)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9596, k_cat=2.45e6 s⁻¹)", body_style)],
+        [Paragraph("CE-2 (Heavy Metal Sorption)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9997, Freundlich Pb/Cd/Hg)", body_style)],
+        [Paragraph("CE-3 (CaCO3 Precipitation)", bold_body_style), Paragraph("UNVALIDATED BASELINE (🟡 R²=0.308, Baseline Retained)", bold_body_style)],
+        [Paragraph("CE-4 (Multi-Gas Absorption)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9870, SO2/NO2 Abs)", body_style)],
+        [Paragraph("CE-5 (Formulation Sensitivity)", bold_body_style), Paragraph("VALIDATED (🟢 R²=0.9720, Compressive Strength)", body_style)],
+        [Paragraph("Hardware Reactor Sizing Safety Margin", bold_body_style), Paragraph("+15% (Validated Kinetics) / +35% (Unvalidated CaCO3)", bold_body_style)],
+    ]
+    t5 = Table(trust_table_data, colWidths=[200, 300])
+    t5.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f8fafc")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#e2e8f0")),
+        ('PADDING', (0,0), (-1,-1), 6),
+        ('TEXTCOLOR', (1,3), (1,3), colors.HexColor("#d97706")), # Highlight CE-3 in Amber
+    ]))
+    story.append(t5)
+
     # Build the document
     doc.build(story)
