@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
-    if: vars.PROD_INFRA_READY == 'true' || vars.PROD_INFRA_READY == '' || true
+    if: vars.PROD_INFRA_READY == 'true'
 
     steps:
       - uses: actions/checkout@v4

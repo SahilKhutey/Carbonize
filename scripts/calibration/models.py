@@ -71,6 +71,15 @@ def ca_rate_residuals(params, X, y_obs):
     return y_obs - y_pred
 
 
+def freundlich_isotherm(C_e: np.ndarray | float, K_F: float, n: float) -> np.ndarray | float:
+    """
+    CE-2: Freundlich equilibrium adsorption isotherm model.
+    q_e = K_F * C_e^(1/n)
+    """
+    n_val = max(n, 1e-4)
+    return K_F * (np.maximum(0.0, C_e) ** (1.0 / n_val))
+
+
 def caco3_precipitation_rate(
     Ca_mM: np.ndarray | float,
     HCO3_mM: np.ndarray | float,

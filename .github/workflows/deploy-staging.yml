@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: staging
-    if: vars.STAGING_INFRA_READY == 'true' || vars.STAGING_INFRA_READY == '' || true
+    if: vars.STAGING_INFRA_READY == 'true'
 
     steps:
       - uses: actions/checkout@v4
