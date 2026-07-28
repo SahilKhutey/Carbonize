@@ -192,6 +192,7 @@ def run_held_out_validation():
             k_abs = k_so2 if gases[i] == "SO2" else k_no2
             y_pred[i] = multi_gas_removal_efficiency(k_abs, t_res)
 
+        residuals = y_obs - y_pred
         ss_res = np.sum(residuals**2)
         ss_tot = np.sum((y_obs - np.mean(y_obs))**2)
         r2 = float(1.0 - (ss_res / ss_tot)) if ss_tot > 0 else 0.0
