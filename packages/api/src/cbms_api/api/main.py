@@ -12,6 +12,7 @@ from prometheus_client import make_asgi_app, CONTENT_TYPE_LATEST, generate_lates
 from cbms_api.database.connection import engine, init_database_rls
 from cbms_api.database.models import Base
 from cbms_api.api.routes import auth, plants, simulations, reports, reagents, analytics, operator, experimental, hardware, pollutants
+from cbms_api.routers import ingestion
 from cbms_api.middleware.tenant_isolation import TenantIsolationMiddleware
 from cbms_api.observability.middleware import ObservabilityMiddleware
 from cbms_shared.exceptions import (
@@ -116,6 +117,7 @@ app.include_router(analytics.router, prefix="/api")
 app.include_router(operator.router, prefix="/api")
 app.include_router(experimental.router, prefix="/api")
 app.include_router(hardware.router, prefix="/api")
+app.include_router(ingestion.router, prefix="/api")
 app.include_router(pollutants.router)
 
 @app.get("/health", tags=["System"])

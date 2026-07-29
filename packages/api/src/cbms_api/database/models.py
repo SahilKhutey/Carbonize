@@ -7,7 +7,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 from typing import Optional, List
 from sqlalchemy import (
-    String, Numeric, Integer, ForeignKey, DateTime, Boolean, Text, Index
+    String, Numeric, Integer, Float, ForeignKey, DateTime, Boolean, Text, Index
 )
 from sqlalchemy import TypeDecorator, CHAR, JSON
 from sqlalchemy.dialects.postgresql import UUID as POSTGRES_UUID, JSONB as POSTGRES_JSONB
@@ -298,8 +298,24 @@ class GeneratedReport(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    organization: Mapped["Organization"] = relationship()
-    run: Mapped["SimulationRun"] = relationship()
+class SensorReadingORM(Base):
+    __tablename__ = "sensor_readings"
+
+    id: Mapped[UUID] = mapped_column(SafeUUID(), primary_key=True, default=uuid4)
+    reading_id: Mapped[UUID] = mapped_column(SafeUUID(), index=True, nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
+    measurement_type: Mapped[str] = mapped_column(String(50), nullable=False)
+    value: Mapped[float] = mapped_column(Float, nullable=False)
+    unit: Mapped[str] = mapped_column(String(20), nullable=False)
+    quality: Mapped[str] = mapped_column(String(20), default="GOOD")
+    sensor_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    uncertainty: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    source: Mapped[str] = mapped_column(String(50), default="PHYSICAL_SENSOR")
+    source_version: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    plant_id: Mapped[Optional[UUID]] = mapped_column(SafeUUID(), nullable=True)
+    simulation_id: Mapped[Optional[UUID]] = mapped_column(SafeUUID(), nullable=True)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(SafeJSONB(), default=dict)
+
 
 
 

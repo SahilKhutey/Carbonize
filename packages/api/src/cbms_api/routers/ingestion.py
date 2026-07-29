@@ -13,13 +13,9 @@ from datetime import datetime, timezone
 
 from cbms_shared.schemas.reading import SensorReading, Measurement, BatchMetadata
 from cbms_api.services.ingestion_service import ingestion_service
+from cbms_api.auth.rbac import get_current_active_user, AuthUser
 
-# Stub auth
-def get_current_active_user():
-    return {"user": "admin"}
-AuthUser = Any
-
-router = APIRouter(prefix="/api/v1/ingest", tags=["ingestion"])
+router = APIRouter(prefix="/ingest", tags=["ingestion"])
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def ingest_reading(

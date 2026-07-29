@@ -11,24 +11,17 @@ from uuid import UUID
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# Stubbed out imports assuming existence in the API package
-try:
-    from cbms_api.config import get_settings
-    from cbms_api.db.connection import async_session_factory
-    from cbms_api.db.models.sensor_reading import SensorReadingORM
-except ImportError:
-    pass
+from cbms_api.config import get_settings
+from cbms_api.database.connection import async_session_maker
+from cbms_api.database.models import SensorReadingORM
+from cbms_shared.logging import get_logger
 
 from cbms_shared.schemas.reading import (
     SensorReading, Measurement, BatchMetadata,
     DataSource, DataQuality,
 )
 
-class DummyLogger:
-    def info(self, *args, **kwargs):
-        pass
-
-logger = DummyLogger()
+logger = get_logger(__name__)
 
 class IngestionService:
     """Receives sensor readings from any source and persists them."""
@@ -43,7 +36,7 @@ class IngestionService:
         self._validate(reading)
         
         # 2. Persist to time-series database
-        async with async_session_factory() as session:
+        async with async_session_maker() as session:
             # Each measurement is a separate row in TS
             for measurement in reading.measurements:
                 await self._persist_measurement(
