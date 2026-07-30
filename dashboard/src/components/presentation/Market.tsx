@@ -1,9 +1,9 @@
 import { useReveal } from '../../hooks/useReveal';
 
 const marketData = [
-  { size: '$50B', tier: 'TAM', desc: 'Global CO₂ capture market today', primary: false },
-  { size: '$200B', tier: 'SAM', desc: 'Solvent + monitoring by 2030', primary: false },
-  { size: '$10M', tier: 'SOM', desc: '5-year reachable: 50 plants', primary: true },
+  { size: '$50B', tier: 'TAM (Total Addressable Market)', desc: 'Global industrial point-source carbon capture equipment & solvent market', primary: false },
+  { size: '$200B', tier: 'SAM (Serviceable Addressable)', desc: 'Projected global CCUS market by 2030 driven by IRA 45Q & EU ETS carbon prices', primary: false },
+  { size: '$10M', tier: 'SOM (Serviceable Obtainable)', desc: 'Series A 18-month target: 50 industrial plants across cement, steel & power', primary: true },
 ];
 
 export default function Market() {
@@ -13,10 +13,10 @@ export default function Market() {
     <section id="market" className="section section-bg" ref={ref}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-20">
-          <span className="section-eyebrow">Market</span>
-          <h2 className="section-title">$50B TAM → $200B by 2030</h2>
+          <span className="section-eyebrow">Market Opportunity</span>
+          <h2 className="section-title">$50B TAM Growing to $200B by 2030</h2>
           <p className="section-subtitle">
-            Carbon capture is a 10× growth market. Climate targets demand gigaton-scale deployment.
+            Point-source decarbonization for 600+ cement plants, steel mills, and power stations requiring high-performance absorbents.
           </p>
         </div>
 
