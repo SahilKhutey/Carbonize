@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+  
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+  
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+  
+  .reduce-motion *,
+  .reduce-motion *::before,
+  .reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  body {
+    @apply bg-bg text-text;
+    font-family: var(--font-sans);
+    transition: background-color var(--duration-normal), color var(--duration-normal);
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-surface);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-strong);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-tertiary);
+  }
+}
+
+@layer components {
+  .theme-card {
+    @apply bg-surface border border-border rounded-theme-md shadow-theme-md transition-all;
+  }
+  .theme-card-elevated {
+    @apply bg-surface-elevated border border-border rounded-theme-lg shadow-theme-lg;
+  }
+  .theme-button {
+    @apply px-3 py-2 rounded-theme-md bg-surface-hover text-text border border-border hover:bg-surface-active transition-colors;
+  }
+  .theme-button-primary {
+    @apply px-3 py-2 rounded-theme-md bg-primary-500 text-white hover:bg-primary-600 transition-colors;
+  }
+}
