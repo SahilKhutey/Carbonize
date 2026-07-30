@@ -622,6 +622,57 @@ app.post('/api/v1/compchem/materials/phase-diagram', (_, res) => {
   });
 });
 
+app.post('/api/v1/ssml/band-structure', (req, res) => {
+  const func = req.body?.functional || 'LDA';
+  const gap = func === 'HSE06' ? 1.42 : (func === 'PBE' ? 1.15 : 1.05);
+  res.json({
+    k_distances: [0.0, 1.0, 2.0, 3.0],
+    k_positions: [0.0, 1.0, 2.0, 3.0],
+    labels: ['Γ', 'X', 'M', 'Γ'],
+    bands: Array.from({ length: 4 }, () => [2.0, 3.0, 4.2 + gap, 6.0]),
+    efermi: 4.2,
+    gap_info: { gap, vbm: 3.5, cbm: 3.5 + gap, direct: true, type: 'semiconductor' },
+  });
+});
+
+app.post('/api/v1/ssml/dos', (_, res) => {
+  res.json({
+    energies: Array.from({ length: 20 }, (_, i) => -5 + i * 0.75),
+    dos: Array.from({ length: 20 }, () => Math.random() * 10 + 2),
+    efermi: 4.2,
+  });
+});
+
+app.post('/api/v1/ssml/phonons', (_, res) => {
+  res.json({
+    k_distances: [0.0, 1.0, 2.0, 3.0],
+    bands: Array.from({ length: 4 }, () => [5.0, 8.0, 12.0, 15.0, 18.0, 22.4]),
+  });
+});
+
+app.post('/api/v1/ssml/transport', (_, res) => {
+  res.json({
+    mu: [3.0, 3.5, 4.0, 4.5, 5.0],
+    sigma: [1.2e5, 1.4e5, 1.5e5, 1.3e5, 1.1e5],
+    seebeck: [-120, -150, -185.4, -160, -130],
+    kappa_e: [0.8, 1.0, 1.2, 1.1, 0.9],
+    power_factor: [2.1, 2.8, 3.4, 2.9, 2.2],
+    ZT: [0.95, 1.25, 1.45, 1.30, 1.05],
+  });
+});
+
+app.post('/api/v1/ssml/active-learning/run', (req, res) => {
+  const iters = req.body?.n_iterations || 5;
+  const history = Array.from({ length: iters }, (_, i) => ({
+    iteration: i + 1,
+    n_labeled: (i + 1) * 10,
+    avg_uncertainty: 0.12 / Math.sqrt(i + 1),
+    max_uncertainty: 0.18 / Math.sqrt(i + 1),
+  }));
+  res.json({ history });
+});
+
+
 
 
 
