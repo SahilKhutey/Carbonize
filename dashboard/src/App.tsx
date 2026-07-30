@@ -47,6 +47,7 @@ const ThemeCustomizer = lazy(() => import('@/components/theme/ThemeCustomizer').
 const PublicLanding = lazy(() => import('@/pages/PublicLanding').then((m) => ({ default: m.PublicLanding })));
 const PricingPage = lazy(() => import('@/pages/Pricing').then((m) => ({ default: m.PricingPage })));
 const BlogIndex = lazy(() => import('@/pages/BlogIndex').then((m) => ({ default: m.BlogIndex })));
+const PresentationLanding = lazy(() => import('@/pages/PresentationLanding'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,6 +106,7 @@ export function App() {
                 <Route path="/landing" element={<Suspense fallback={<PageLoader />}><PublicLanding /></Suspense>} />
                 <Route path="/pricing" element={<Suspense fallback={<PageLoader />}><PricingPage /></Suspense>} />
                 <Route path="/blog" element={<Suspense fallback={<PageLoader />}><BlogIndex /></Suspense>} />
+                <Route path="/presentation" element={<Suspense fallback={<PageLoader />}><PresentationLanding /></Suspense>} />
               </Route>
             </Routes>
             <ExportDialogGlobal />
