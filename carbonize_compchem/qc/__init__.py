@@ -1,0 +1,3 @@
+"""
+Quantum Chemistry (QC) Package
+"""
