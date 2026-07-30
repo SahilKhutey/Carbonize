@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="turtlebot3_carbonize">
+
+  <xacro:arg name="load_lidar"        default="true"/>
+  <xacro:arg name="load_manipulator"  default="false"/>
+  <xacro:arg name="load_gas_sensors"  default="true"/>
+  <xacro:arg name="load_full_urdf"    default="true"/>
+
+  <!-- ─── Base (always loaded) ─────────────────────────────── -->
+  <xacro:include filename="$(find turtlebot3_description)/urdf/turtlebot3_waffle_pi.urdf.xacro"/>
+
+  <link name="base_footprint"/>
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+  </joint>
+
+  <!-- ─── Camera (always loaded for vision) ────────────────── -->
+  <xacro:include filename="$(find carbonize_description)/xacro/camera_macro.xacro"/>
+  <xacro:carbonize_camera prefix="front_" parent="base_link" xyz="0.10 0 0.30" rpy="0 0 0"/>
+
+  <!-- ─── LiDAR (optional) ─────────────────────────────────── -->
+  <xacro:if value="$(arg load_lidar)">
+    <xacro:include filename="$(find carbonize_description)/xacro/lidar_macro.xacro"/>
+    <xacro:carbonize_lidar prefix="top_" parent="base_link" xyz="0 0 0.40"/>
+  </xacro:if>
+
+  <!-- ─── Manipulator (optional, heavy) ────────────────────── -->
+  <xacro:if value="$(arg load_manipulator)">
+    <xacro:include filename="$(find carbonize_description)/xacro/ur5_arm_macro.xacro"/>
+    <xacro:ur5_arm prefix="arm_" parent="base_link"/>
+  </xacro:if>
+
+  <!-- ─── Gas sensor array (optional) ──────────────────────── -->
+  <xacro:if value="$(arg load_gas_sensors)">
+    <xacro:include filename="$(find carbonize_description)/xacro/gas_array_macro.xacro"/>
+    <xacro:gas_sensor_array prefix="gas_" parent="base_link" n_sensors="4"/>
+  </xacro:if>
+
+  <!-- ─── Gazebo plugins (only with full URDF) ─────────────── -->
+  <xacro:if value="$(arg load_full_urdf)">
+    <xacro:include filename="$(find carbonize_gazebo_plugins)/xacro/plugins.xacro"/>
+    <xacro:carbonize_gazebo_plugins/>
+  </xacro:if>
+
+</robot>
