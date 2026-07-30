@@ -1,0 +1,31 @@
+{
+  "title": "Carbonize Inference Pipeline",
+  "panels": [
+    {
+      "title": "Inference Latency (p50, p95, p99)",
+      "type": "timeseries",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, carbonize_inference_latency_seconds_bucket)", "legendFormat": "p50"},
+        {"expr": "histogram_quantile(0.95, carbonize_inference_latency_seconds_bucket)", "legendFormat": "p95"},
+        {"expr": "histogram_quantile(0.99, carbonize_inference_latency_seconds_bucket)", "legendFormat": "p99"}
+      ]
+    },
+    {
+      "title": "Inference Success Rate",
+      "type": "stat",
+      "targets": [
+        {"expr": "rate(carbonize_inference_total{status=\"success\"}[5m]) / rate(carbonize_inference_total[5m])"}
+      ]
+    },
+    {
+      "title": "Camera FPS",
+      "type": "gauge",
+      "targets": [{"expr": "carbonize_ros_camera_fps"}]
+    },
+    {
+      "title": "Queue Depth",
+      "type": "timeseries",
+      "targets": [{"expr": "carbonize_inference_queue_size"}]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CycloneDDS xmlns="https://cdds.io/config">
+  
+  <!-- Shared-memory transport via iceoryx for zero-copy -->
+  <Domain id="any">
+    <SharedMemory>
+      <Enable>true</Enable>
+      <Prefix>/carbonize_shm</Prefix>
+      <Size>536870912</Size>     <!-- 512 MB -->
+    </SharedMemory>
+    
+    <Internal>
+      <SocketReceiveBufferSize>1048576</SocketReceiveBufferSize>
+      <SocketSendBufferSize>1048576</SocketSendBufferSize>
+    </Internal>
+    
+    <General>
+      <Interfaces>
+        <NetworkInterface autodetermine="true" priority="default" multicast="default" />
+      </Interfaces>
+      <AllowMulticast>true</AllowMulticast>
+      <MaxMessageSize>65500B</MaxMessageSize>
+    </General>
+    
+    <QoS>
+      <DefaultResponseTimeout>100ms</DefaultResponseTimeout>
+    </QoS>
+  </Domain>
+</CycloneDDS>

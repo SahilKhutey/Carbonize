@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - carbonize-net
+
+  backend:
+    image: carbonize/backend:latest
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgresql://user:pass@postgres:5432/carbonize
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - carbonize-net
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - carbonize-net
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: carbonize
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    networks:
+      - carbonize-net
+
+  mock-server:
+    build: ./dashboard
+    command: npx tsx src/mock/server.ts
+    ports:
+      - "8000:8000"
+    profiles: ["dev"]
+    networks:
+      - carbonize-net
+
+networks:
+  carbonize-net:
+    driver: bridge
+
+volumes:
+  pg-data:

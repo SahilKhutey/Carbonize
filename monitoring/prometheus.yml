@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'carbonize-backend'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['carbonize-backend:8000']
+        labels:
+          service: 'carbonize-api'
+          tier: 'cloud'
+  
+  - job_name: 'carbonize-inference-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['carbonize-worker:9090']
+        labels:
+          service: 'carbonize-ml'
+          tier: 'edge'
+  
+  - job_name: 'carbonize-ros-bridge'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ros-bridge:9090']
+        labels:
+          service: 'carbonize-ros'
+          tier: 'edge'
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']

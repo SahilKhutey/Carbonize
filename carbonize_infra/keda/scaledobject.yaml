@@ -1,0 +1,83 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: carbonize-inference-scaler
+  namespace: carbonize
+spec:
+  scaleTargetRef:
+    name: carbonize-inference
+  pollingInterval: 10
+  cooldownPeriod: 60
+  minReplicaCount: 2
+  maxReplicaCount: 50
+  
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: kafka.carbonize.svc:9092
+        consumerGroup: carbonize-inference
+        topic: inference-requests
+        lagThreshold: '5'
+        activationLagThreshold: '1'
+    
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        metricName: carbonize_gpu_utilization_percent
+        threshold: '75'
+        activationThreshold: '20'
+        query: |
+          avg(
+            carbonize_gpu_utilization_percent{service="carbonize-inference"}
+          )
+    
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        metricName: carbonize_system_cpu_percent
+        threshold: '70'
+        query: |
+          avg(
+            carbonize_system_cpu_percent{service="carbonize-inference"}
+          )
+    
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        metricName: carbonize_system_memory_rss
+        threshold: '4Gi'
+        query: |
+          avg(
+            carbonize_system_memory_rss{service="carbonize-inference"}
+          )
+    
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring:9090
+        metricName: carbonize_inference_p95_latency_ms
+        threshold: '200'
+        query: |
+          histogram_quantile(
+            0.95,
+            rate(carbonize_inference_latency_seconds_bucket[5m])
+          ) * 1000
+  
+  advanced:
+    horizontalPodAutoscalerConfig:
+      behavior:
+        scaleUp:
+          stabilizationWindowSeconds: 30
+          policies:
+            - type: Percent
+              value: 100
+              periodSeconds: 30
+            - type: Pods
+              value: 4
+              periodSeconds: 30
+          selectPolicy: Max
+        scaleDown:
+          stabilizationWindowSeconds: 300
+          policies:
+            - type: Percent
+              value: 10
+              periodSeconds: 60

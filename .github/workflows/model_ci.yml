@@ -1,0 +1,41 @@
+name: YOLO Model CI
+
+on:
+  push:
+    paths:
+      - 'carbonize_ml/**'
+      - 'data/dataset.yaml'
+
+jobs:
+  train-and-register:
+    runs-on: gpu-runner
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install deps
+        run: pip install -r requirements.lock
+      
+      - name: Train model
+        run: |
+          python carbonize_ml/train.py \
+            --data data/dataset.yaml \
+            --weights yolov8n.pt \
+            --epochs 100 \
+            --imgsz 640
+      
+      - name: Evaluate
+        run: python carbonize_ml/evaluate.py --weights runs/train/exp/weights/best.pt
+      
+      - name: Register to MLflow
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_URI }}
+        run: |
+          python carbonize_mlops/register_model.py \
+            --model runs/train/exp/weights/best.pt \
+            --metrics runs/eval/metrics.json \
+            --dataset-version ${{ github.sha }}
