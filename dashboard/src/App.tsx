@@ -44,6 +44,9 @@ const Fleet = lazy(() => import('@/pages/Fleet').then((m) => ({ default: m.Fleet
 const Alerts = lazy(() => import('@/pages/Alerts').then((m) => ({ default: m.Alerts })));
 const Experiments = lazy(() => import('@/pages/Experiments').then((m) => ({ default: m.Experiments })));
 const ThemeCustomizer = lazy(() => import('@/components/theme/ThemeCustomizer').then((m) => ({ default: m.ThemeCustomizer })));
+const PublicLanding = lazy(() => import('@/pages/PublicLanding').then((m) => ({ default: m.PublicLanding })));
+const PricingPage = lazy(() => import('@/pages/Pricing').then((m) => ({ default: m.PricingPage })));
+const BlogIndex = lazy(() => import('@/pages/BlogIndex').then((m) => ({ default: m.BlogIndex })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +102,9 @@ export function App() {
                 <Route path="/alerts" element={<Suspense fallback={<PageLoader />}><Alerts /></Suspense>} />
                 <Route path="/experiments" element={<Suspense fallback={<PageLoader />}><Experiments /></Suspense>} />
                 <Route path="/theme-customizer" element={<Suspense fallback={<PageLoader />}><ThemeCustomizer /></Suspense>} />
+                <Route path="/landing" element={<Suspense fallback={<PageLoader />}><PublicLanding /></Suspense>} />
+                <Route path="/pricing" element={<Suspense fallback={<PageLoader />}><PricingPage /></Suspense>} />
+                <Route path="/blog" element={<Suspense fallback={<PageLoader />}><BlogIndex /></Suspense>} />
               </Route>
             </Routes>
             <ExportDialogGlobal />

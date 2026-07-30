@@ -1,0 +1,14 @@
+apiVersion: v2
+name: carbonize
+description: AI-designed chemistry for industrial carbon capture
+type: application
+version: 1.0.0
+appVersion: 2.0.0
+maintainers:
+  - name: Carbonize Engineering
+    email: eng@carbonize.io
+keywords:
+  - carbon-capture
+  - chemistry
+  - ml
+  - sustainability
