@@ -739,6 +739,231 @@ wss.on('connection', (ws) => {
   ws.on('close', () => console.log('Client disconnected'));
 });
 
+// ─── Demo / MVP Mock Endpoints ────────────────────────────────────────────────
+
+function makeSolvents(n = 100) {
+  const groups = ['Primary amine', 'Secondary amine', 'Tertiary amine', 'Piperazine', 'Amino acid salt', 'Blended'];
+  return Array.from({ length: n }, (_, i) => {
+    const isHero = i === 236;
+    return {
+      id: `SOLV-${String(i).padStart(4, '0')}`,
+      functional_group: groups[i % groups.length],
+      molecular_weight: 89 + (i % 80),
+      co2_loading_max: isHero ? 0.71 : 0.45 + Math.random() * 0.25,
+      heat_of_absorption_kj_mol: isHero ? 48 : 55 + Math.random() * 30,
+      absorption_rate_1_s: isHero ? 3200 : 800 + Math.random() * 2000,
+      degradation_rate_per_year: isHero ? 0.018 : 0.06 + Math.random() * 0.10,
+      volatility_kpa: isHero ? 0.6 : 1.5 + Math.random() * 3,
+      viscosity_mpa_s: isHero ? 2.1 : 2 + Math.random() * 5,
+      corrosivity_index: isHero ? 0.12 : 0.2 + Math.random() * 0.5,
+      synthesis_cost_usd_per_kg: isHero ? 2.4 : 1.5 + Math.random() * 5,
+      predicted_energy_saving_vs_mea: isHero ? 0.32 : Math.random() * 0.3,
+      overall_score: isHero ? 94.7 : 30 + Math.random() * 55,
+      is_hero: isHero,
+      lab_validated: isHero,
+    };
+  });
+}
+
+const DEMO_SOLVENTS = makeSolvents(500);
+
+function makeTelemetry(n = 48) {
+  return Array.from({ length: n }, (_, i) => {
+    const t = new Date(Date.now() - (n - i) * 3600000);
+    const anomaly = i === 12 || i === 31;
+    return {
+      timestamp: t.toISOString(),
+      co2_removal_efficiency: anomaly ? 0.72 : 0.88 + Math.random() * 0.09,
+      absorber_top_temperature_c: 40 + Math.random() * 5,
+      absorber_bottom_temperature_c: 52 + Math.random() * 4,
+      stripper_pressure_bar: 1.8 + Math.random() * 0.3,
+      lean_loading_mol_mol: 0.18 + Math.random() * 0.05,
+      rich_loading_mol_mol: 0.48 + Math.random() * 0.06,
+      reboiler_duty_gj_per_ton: 3.2 + Math.random() * 0.6,
+      solvent_flow_rate_m3h: 120 + Math.random() * 15,
+      flue_gas_co2_inlet_pct: 12 + Math.random() * 2,
+      anomaly_score: anomaly ? 0.72 + Math.random() * 0.2 : Math.random() * 0.35,
+      anomaly_type: anomaly ? 'thermal_runaway_precursor' : null,
+    };
+  });
+}
+
+function makeLabResults(n = 20) {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `LAB-${String(i).padStart(3, '0')}`,
+    solvent_id: `SOLV-${String(i).padStart(4, '0')}`,
+    test_type: ['VLE', 'WWC_kinetics', 'oxidative_degradation', 'corrosion'][i % 4],
+    temperature_c: [40, 60, 80][i % 3],
+    measured_value: 0.42 + Math.random() * 0.25,
+    predicted_value: 0.44 + Math.random() * 0.23,
+    model_accuracy: 0.88 + Math.random() * 0.09,
+    status: 'completed',
+    lab_date: new Date(Date.now() - i * 86400000 * 3).toISOString(),
+  }));
+}
+
+function makeChaosResults(n = 10) {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `CHAOS-${String(i).padStart(3, '0')}`,
+    experiment_name: [
+      'Pod Kill — Absorber Controller',
+      'Network Partition — Kafka Broker',
+      'CPU Hog — Anomaly Detector',
+      'Memory Leak — API Server',
+      'Disk Full — TimescaleDB',
+    ][i % 5],
+    status: 'completed',
+    steady_state_maintained: i !== 3,
+    mttr_minutes: 2 + Math.random() * 8,
+    blast_radius: 'minimal',
+    run_date: new Date(Date.now() - i * 86400000 * 7).toISOString(),
+  }));
+}
+
+const DEMO_TELEMETRY = makeTelemetry(48);
+const DEMO_LAB = makeLabResults(20);
+const DEMO_CHAOS = makeChaosResults(10);
+
+app.get('/api/v1/demo/overview', (_req, res) => {
+  res.json({
+    platform_version: '1.0.0',
+    candidates_screened: 12000,
+    hero_candidate: 'SOLV-0237',
+    hero_energy_saving: 0.32,
+    hero_loading_increase: 0.18,
+    lab_accuracy: 0.924,
+    datasets_validated: 34,
+    annual_savings_usd: 26_000_000,
+    payback_months: 5.8,
+  });
+});
+
+app.get('/api/v1/demo/solvents', (req, res) => {
+  const { sort_by = 'overall_score', limit = '100', offset = '0', search = '' } = req.query as Record<string, string>;
+  let list = [...DEMO_SOLVENTS];
+  if (search) list = list.filter((s) => s.id.includes(search.toUpperCase()) || s.functional_group.toLowerCase().includes(search.toLowerCase()));
+  list.sort((a: any, b: any) => b[sort_by] - a[sort_by]);
+  const page = list.slice(Number(offset), Number(offset) + Number(limit));
+  res.json({ total: list.length, solvents: page });
+});
+
+app.get('/api/v1/demo/solvents/:id', (req, res) => {
+  const s = DEMO_SOLVENTS.find((x) => x.id === req.params.id);
+  if (!s) return res.status(404).json({ error: 'Not found' });
+  res.json(s);
+});
+
+app.get('/api/v1/demo/solvents/:id/compare/:baseline_id', (req, res) => {
+  const candidate = DEMO_SOLVENTS.find((x) => x.id === req.params.id);
+  const baseline = DEMO_SOLVENTS.find((x) => x.id === req.params.baseline_id);
+  res.json({ candidate, baseline });
+});
+
+app.get('/api/v1/demo/operations', (_req, res) => {
+  res.json({ telemetry: DEMO_TELEMETRY });
+});
+
+app.get('/api/v1/demo/lab-results', (_req, res) => {
+  res.json({ lab_results: DEMO_LAB });
+});
+
+app.get('/api/v1/demo/chaos-results', (_req, res) => {
+  res.json({ chaos_results: DEMO_CHAOS });
+});
+
+app.post('/api/v1/demo/roi/calculate', (req, res) => {
+  const {
+    plant_capacity_mt_per_year = 1_000_000,
+    electricity_price_usd_per_kwh = 0.07,
+    steam_price_usd_per_gj = 8.0,
+    carbon_credit_price_usd_per_ton = 40,
+    discount_rate = 0.08,
+  } = req.body ?? {};
+
+  const capacity = Number(plant_capacity_mt_per_year);
+  const energy_saving_gj_per_ton = 1.35; // 32% of 4.2 GJ/t
+  const annual_steam_savings = capacity * energy_saving_gj_per_ton * Number(steam_price_usd_per_gj);
+  const annual_electricity_savings = capacity * 20 * Number(electricity_price_usd_per_kwh);
+  const annual_solvent_savings = capacity * 0.003 * 2500; // 0.3% makeup reduction
+  const annual_carbon_credits = capacity * Number(carbon_credit_price_usd_per_ton);
+  const annual_benefits = annual_steam_savings + annual_electricity_savings + annual_solvent_savings + annual_carbon_credits;
+  const annual_costs = capacity * 2.5; // maintenance + monitoring
+  const initial_investment = 8_000_000 + capacity * 0.5;
+  const net_annual = annual_benefits - annual_costs;
+  const payback_months = (initial_investment / net_annual) * 12;
+  const r = Number(discount_rate);
+  const npv_10yr = -initial_investment + Array.from({ length: 10 }, (_, i) => net_annual / Math.pow(1 + r, i + 1)).reduce((a, b) => a + b, 0);
+  const irr = net_annual / initial_investment;
+
+  res.json({
+    roi_analysis: {
+      initial_investment_usd: initial_investment,
+      annual_benefits_usd: annual_benefits,
+      annual_costs_usd: annual_costs,
+      payback_period_months: payback_months,
+      npv_10_year_usd: npv_10yr,
+      irr,
+    },
+  });
+});
+
+app.get('/api/v1/demo/comparison', (_req, res) => {
+  res.json({
+    carbonize: {
+      time_to_discovery_months: 2,
+      time_to_pilot_months: 6,
+      cost_per_discovery_usd: 500_000,
+      candidates_evaluated: 12000,
+      success_rate: 0.8,
+    },
+    traditional: {
+      time_to_discovery_months: 24,
+      time_to_pilot_months: 60,
+      cost_per_discovery_usd: 50_000_000,
+      candidates_evaluated: 20,
+      success_rate: 0.1,
+    },
+  });
+});
+
+app.post('/api/v1/demo/proposal', (req, res) => {
+  const { contact_name, company_name, email, plant_capacity_mt_per_year, pilot_start_date, use_case } = req.body ?? {};
+  res.json({
+    proposal_id: `PROP-${Date.now()}`,
+    contact_name,
+    company_name,
+    email,
+    plant_capacity_mt_per_year,
+    pilot_start_date,
+    use_case,
+    estimated_savings_usd: plant_capacity_mt_per_year * 26,
+    next_steps: ['Proposal PDF within 24h', '30-min chemistry team call', 'Digital twin on your data', 'Pilot LOI'],
+    created_at: new Date().toISOString(),
+  });
+});
+
+app.get('/api/v1/demo/forecast', (_req, res) => {
+  res.json({ forecast: Array.from({ length: 36 }, (_, i) => ({
+    month: i + 1,
+    co2_captured_t: 80000 + i * 800,
+    opex_savings_usd: 1_800_000 + i * 40_000,
+    cumulative_npv_usd: -8_000_000 + (1_900_000 * (i + 1)),
+  })) });
+});
+
+app.get('/api/v1/demo/tour/steps', (_req, res) => {
+  res.json({ steps: [
+    { id: 1, title: 'The Problem', subtitle: 'CO₂ capture costs $50/ton', content: 'MEA degrades 15%/yr and consumes 4.2 GJ/t in reboiler steam.' },
+    { id: 2, title: 'Our Approach', subtitle: 'AI screens 12,000 candidates/day', content: 'MACE/PaiNN equivariant GNNs predict absorption, kinetics, and degradation from first principles.' },
+    { id: 3, title: 'Hero Candidate: SOLV-0237', subtitle: 'Breakthrough lab-validated solvent', content: '32% energy savings, 18% higher loading, 8× slower degradation vs MEA.' },
+    { id: 4, title: 'Plant Impact', subtitle: '$26M/yr OPEX savings', content: 'At 1 Mt/yr: $26M/yr savings, 5.8-month payback, $234M 10-year NPV.' },
+    { id: 5, title: 'Full Platform', subtitle: 'Digital twin + anomaly detection', content: 'Real-time anomaly scoring, chaos engineering resilience drills, and predictive maintenance.' },
+    { id: 6, title: 'External Validation', subtitle: '92.4% accuracy on 34 datasets', content: 'Validated against IEAGHG benchmarks and peer-reviewed VLE/kinetics datasets.' },
+  ] });
+});
+
+// ─── End Demo Endpoints ───────────────────────────────────────────────────────
+
 function broadcast(msg: any) {
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {

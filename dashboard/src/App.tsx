@@ -28,6 +28,18 @@ const LabDashboard = lazy(() => import('@/pages/LabDashboard').then((m) => ({ de
 const CompChemDashboard = lazy(() => import('@/pages/CompChemDashboard').then((m) => ({ default: m.CompChemDashboard })));
 const SSMLDashboard = lazy(() => import('@/pages/SSMLDashboard').then((m) => ({ default: m.SSMLDashboard })));
 const MvpDemoDashboard = lazy(() => import('@/pages/MvpDemoDashboard').then((m) => ({ default: m.MvpDemoDashboard })));
+// Demo story sub-pages
+const DemoLanding = lazy(() => import('@/pages/demo/DemoLanding').then((m) => ({ default: m.DemoLanding })));
+const DemoTour = lazy(() => import('@/pages/demo/DemoTour').then((m) => ({ default: m.DemoTour })));
+const ProblemView = lazy(() => import('@/pages/demo/ProblemView').then((m) => ({ default: m.ProblemView })));
+const ApproachView = lazy(() => import('@/pages/demo/ApproachView').then((m) => ({ default: m.ApproachView })));
+const SolventPortfolio = lazy(() => import('@/pages/demo/SolventPortfolio').then((m) => ({ default: m.SolventPortfolio })));
+const Solv237Detail = lazy(() => import('@/pages/demo/Solv237Detail').then((m) => ({ default: m.Solv237Detail })));
+const ROIView = lazy(() => import('@/pages/demo/ROIView').then((m) => ({ default: m.ROIView })));
+const PlatformView = lazy(() => import('@/pages/demo/PlatformView').then((m) => ({ default: m.PlatformView })));
+const ValidationView = lazy(() => import('@/pages/demo/ValidationView').then((m) => ({ default: m.ValidationView })));
+const ComparisonView = lazy(() => import('@/pages/demo/ComparisonView').then((m) => ({ default: m.ComparisonView })));
+const ContactView = lazy(() => import('@/pages/demo/ContactView').then((m) => ({ default: m.ContactView })));
 const Fleet = lazy(() => import('@/pages/Fleet').then((m) => ({ default: m.Fleet })));
 const Alerts = lazy(() => import('@/pages/Alerts').then((m) => ({ default: m.Alerts })));
 const Experiments = lazy(() => import('@/pages/Experiments').then((m) => ({ default: m.Experiments })));
@@ -57,7 +69,18 @@ export function App() {
                 <Route path="/chemistry" element={<Suspense fallback={<PageLoader />}><ChemistryDashboard /></Suspense>} />
                 <Route path="/reactor" element={<Suspense fallback={<PageLoader />}><ReactorDashboard /></Suspense>} />
                 <Route path="/lab" element={<Suspense fallback={<PageLoader />}><LabDashboard /></Suspense>} />
-                <Route path="/demo" element={<Suspense fallback={<PageLoader />}><MvpDemoDashboard /></Suspense>} />
+                <Route path="/demo" element={<Suspense fallback={<PageLoader />}><DemoLanding /></Suspense>} />
+                <Route path="/demo/tour" element={<Suspense fallback={<PageLoader />}><DemoTour /></Suspense>} />
+                <Route path="/demo/problem" element={<Suspense fallback={<PageLoader />}><ProblemView /></Suspense>} />
+                <Route path="/demo/approach" element={<Suspense fallback={<PageLoader />}><ApproachView /></Suspense>} />
+                <Route path="/demo/portfolio" element={<Suspense fallback={<PageLoader />}><SolventPortfolio /></Suspense>} />
+                <Route path="/demo/solv-237" element={<Suspense fallback={<PageLoader />}><Solv237Detail /></Suspense>} />
+                <Route path="/demo/roi" element={<Suspense fallback={<PageLoader />}><ROIView /></Suspense>} />
+                <Route path="/demo/platform" element={<Suspense fallback={<PageLoader />}><PlatformView /></Suspense>} />
+                <Route path="/demo/validation" element={<Suspense fallback={<PageLoader />}><ValidationView /></Suspense>} />
+                <Route path="/demo/comparison" element={<Suspense fallback={<PageLoader />}><ComparisonView /></Suspense>} />
+                <Route path="/demo/contact" element={<Suspense fallback={<PageLoader />}><ContactView /></Suspense>} />
+                <Route path="/demo/overview" element={<Suspense fallback={<PageLoader />}><MvpDemoDashboard /></Suspense>} />
                 <Route path="/compchem" element={<Suspense fallback={<PageLoader />}><CompChemDashboard /></Suspense>} />
                 <Route path="/ssml" element={<Suspense fallback={<PageLoader />}><SSMLDashboard /></Suspense>} />
                 <Route path="/detections" element={<Suspense fallback={<PageLoader />}><Detections /></Suspense>} />
