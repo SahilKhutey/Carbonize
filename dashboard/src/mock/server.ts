@@ -530,6 +530,53 @@ app.get('/v1/reactor/thiele', (req, res) => {
   res.json({ phi, eta });
 });
 
+app.post('/api/v1/lab/molecular/solvent/design', (req, res) => {
+  const amine = req.body?.amine_type || 'primary';
+  res.json({
+    candidates: [
+      { name: `COSMO-Solvent-${amine}-1`, CO2_loading_max: 0.52, cyclic_capacity: 0.41, regeneration_energy: 42.5, overall_score: 88.4, toxicity: 2200, cost: 3.5 },
+      { name: `COSMO-Solvent-${amine}-2`, CO2_loading_max: 0.48, cyclic_capacity: 0.38, regeneration_energy: 39.0, overall_score: 82.1, toxicity: 3100, cost: 2.8 },
+      { name: `COSMO-Solvent-${amine}-3`, CO2_loading_max: 0.55, cyclic_capacity: 0.44, regeneration_energy: 45.0, overall_score: 79.5, toxicity: 1800, cost: 4.2 },
+    ],
+  });
+});
+
+app.post('/api/v1/lab/doe/design', (req, res) => {
+  const type = req.body?.design_type || 'full_factorial';
+  const runs = [
+    [313, 100000, 0.1],
+    [353, 100000, 0.1],
+    [313, 500000, 0.1],
+    [353, 500000, 0.1],
+    [313, 100000, 0.5],
+    [353, 100000, 0.5],
+    [313, 500000, 0.5],
+    [353, 500000, 0.5],
+  ];
+  res.json({ design_type: type, n_runs: runs.length, design: runs });
+});
+
+app.post('/api/v1/lab/safety/hazop/run', (_, res) => {
+  res.json({
+    unit: 'CO2_Absorber_Column',
+    nodes: [
+      { parameter: 'temperature', deviation: 'high', causes: ['Heat exchanger failure'], consequences: ['Amine degradation'], safeguards: ['Temperature alarms'], risk: 'medium' },
+      { parameter: 'solvent_flow', deviation: 'low', causes: ['Pump blockage'], consequences: ['Reduced capture efficiency'], safeguards: ['Low flow trip'], risk: 'medium' },
+      { parameter: 'CO2_pressure', deviation: 'high', causes: ['Downstream valve closure'], consequences: ['Vessel overpressure'], safeguards: ['PSV relief valve'], risk: 'low' },
+    ],
+  });
+});
+
+app.post('/api/v1/lab/discovery/hypotheses/generate', (_, res) => {
+  res.json({
+    hypotheses: [
+      { id: 'h1', statement: 'Increasing sterically hindered group size reduces heat of absorption by 15%', rationale: 'Shielded carbamate formation lowers binding enthalpy', confidence: 0.84 },
+      { id: 'h2', statement: 'Sulfur-impregnated activated carbon increases trace Hg capture efficiency to 98%', rationale: 'Strong chemisorption via Hg-S complexation', confidence: 0.91 },
+    ],
+  });
+});
+
+
 
 
 

@@ -32,6 +32,7 @@ const navItems = [
   { to: '/simulation', label: 'Simulation', icon: Play },
   { to: '/chemistry', label: 'Core Chemistry', icon: Atom },
   { to: '/reactor', label: 'Reactor Modeling', icon: Cpu },
+  { to: '/lab', label: 'Chemistry Lab', icon: FlaskConical },
   { to: '/detections', label: 'Detections', icon: ScanLine },
   { to: '/models', label: 'Model Registry', icon: Brain },
   { to: '/ml-analytics', label: 'ML Analytics', icon: Cpu },
