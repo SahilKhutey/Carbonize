@@ -672,6 +672,56 @@ app.post('/api/v1/ssml/active-learning/run', (req, res) => {
   res.json({ history });
 });
 
+app.get('/api/v1/mvp/demo/seed', (_, res) => {
+  res.json({
+    plant: { plant_name: 'Rotterdam CCS Facility', capacity_t_yr: 1000000 },
+    solvents: [
+      { id: 'SOLV-237', name: 'Sterically Hindered Diamine-Ether', energy_reduction_pct: 32.0, capacity_increase_pct: 18.0 },
+    ],
+    steps: [
+      { step: 1, minute: '0-2', title: 'The Problem', subtitle: 'Solvent is 30-50% of OPEX. Amine degradation slashes 10%/yr efficiency.' },
+      { step: 2, minute: '2-4', title: 'Our Approach', subtitle: 'Screen 10,000+ candidate absorbents/day using equivariant ML.' },
+      { step: 3, minute: '4-6', title: 'SOLV-237 Lead', subtitle: '32% less energy, 18% higher capacity, 8x slower degradation.' },
+      { step: 4, minute: '6-8', title: 'Plant Impact (ROI)', subtitle: '$8.0M/year OPEX savings at 1M t/yr plant (< 6-mo payback).' },
+      { step: 5, minute: '8-9', title: 'Digital Twin Operations', subtitle: 'Real-time telemetry, failure forecast 3 days early, 92% chaos resilience.' },
+      { step: 6, minute: '9-10', title: 'Proof & LOI', subtitle: 'Validated against 30+ published datasets with 92% accuracy. 3 active LOIs.' },
+    ],
+  });
+});
+
+app.post('/api/v1/mvp/roi/calculate', (req, res) => {
+  const cap = req.body?.capacity_t_yr || 1000000;
+  const steam = req.body?.steam_cost_usd_gj || 15.0;
+  const savings = (cap / 1000000) * (steam / 15.0) * 8000000;
+  res.json({
+    capacity_t_yr: cap,
+    annual_savings_usd: savings,
+    retrofitting_capex_usd: cap * 3.5,
+    payback_months: (cap * 3.5 / savings) * 12,
+    npv_10yr_usd: savings * 8.0,
+  });
+});
+
+app.get('/api/v1/mvp/architecture/reference', (_, res) => {
+  res.json({
+    spec: { capacity: '100k - 1M t/yr', gpus: 4, cpus: 32, ram_gb: 128, storage_tb: 10.0 },
+    bom: [{ component: 'ML Inference Nodes', provider: 'AWS EKS', cost_usd_mo: 1800 }],
+  });
+});
+
+app.get('/api/v1/mvp/sales/pitch-deck', (_, res) => {
+  res.json({
+    slides: [
+      { slide: 1, title: 'Title', headline: 'Carbonize: AI-Designed Chemistry for Carbon Capture' },
+      { slide: 2, title: 'The Problem', headline: 'Solvent is 30-50% of OPEX; MEA degrades fast.' },
+      { slide: 3, title: 'Solution', headline: 'Virtual screening of 10,000+ solvents/day using equivariant ML.' },
+      { slide: 4, title: 'Case Study', headline: 'SOLV-237: 32% less energy, 18% higher capacity vs MEA.' },
+      { slide: 5, title: 'Financial ROI', headline: '$8M/year OPEX savings at 1M t/yr plant scale.' },
+    ],
+  });
+});
+
+
 
 
 
