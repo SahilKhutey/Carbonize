@@ -1,0 +1,3 @@
+"""
+Phonons & Vibrational Physics Package
+"""
