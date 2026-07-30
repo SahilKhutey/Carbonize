@@ -576,6 +576,53 @@ app.post('/api/v1/lab/discovery/hypotheses/generate', (_, res) => {
   });
 });
 
+app.post('/api/v1/compchem/md/run', (req, res) => {
+  const steps = req.body?.n_steps || 200;
+  const energies = Array.from({ length: 8 }, (_, i) => ({
+    step: i * 25,
+    time: i * 0.025,
+    KE: 145.2 + Math.random() * 5,
+    PE: -542.1 + Math.random() * 8,
+    total: -396.9,
+    T: 300.0 + Math.random() * 3 - 1.5,
+  }));
+  res.json({ energies, mean_T: 300.2, diffusion_coefficients: { MEA: 1.25e-5 } });
+});
+
+app.post('/api/v1/compchem/qc/:method', (req, res) => {
+  const method = req.params.method || 'dft';
+  res.json({
+    energy: method === 'dft' ? -76.42518 : -75.89124,
+    energy_au: method === 'dft' ? -76.42518 : -75.89124,
+    converged: true,
+    iterations: 8,
+    dipole_moment: [0.0, 0.0, 1.85],
+    solvation_energy: -9.45,
+  });
+});
+
+app.post('/api/v1/compchem/materials/crystal', (req, res) => {
+  const type = req.body?.structure_type || 'rock_salt';
+  res.json({
+    name: `Crystal_${type}`,
+    lattice: [[4.0, 0, 0], [0, 4.0, 0], [0, 0, 4.0]],
+    volume: 64.0,
+    basis: [
+      { element: 'Na', position: [0, 0, 0] },
+      { element: 'Cl', position: [0.5, 0.5, 0.5] },
+    ],
+  });
+});
+
+app.post('/api/v1/compchem/materials/phase-diagram', (_, res) => {
+  res.json({
+    temperatures: [300, 600, 900, 1200, 1500, 1800],
+    mole_fractions: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    phase_names: ['FCC', 'LIQUID'],
+  });
+});
+
+
 
 
 

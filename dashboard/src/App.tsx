@@ -25,6 +25,7 @@ const GameDayDashboard = lazy(() => import('@/pages/GameDayDashboard').then((m) 
 const ChemistryDashboard = lazy(() => import('@/pages/ChemistryDashboard').then((m) => ({ default: m.ChemistryDashboard })));
 const ReactorDashboard = lazy(() => import('@/pages/ReactorDashboard').then((m) => ({ default: m.ReactorDashboard })));
 const LabDashboard = lazy(() => import('@/pages/LabDashboard').then((m) => ({ default: m.LabDashboard })));
+const CompChemDashboard = lazy(() => import('@/pages/CompChemDashboard').then((m) => ({ default: m.CompChemDashboard })));
 const Fleet = lazy(() => import('@/pages/Fleet').then((m) => ({ default: m.Fleet })));
 const Alerts = lazy(() => import('@/pages/Alerts').then((m) => ({ default: m.Alerts })));
 const Experiments = lazy(() => import('@/pages/Experiments').then((m) => ({ default: m.Experiments })));
@@ -54,6 +55,7 @@ export function App() {
                 <Route path="/chemistry" element={<Suspense fallback={<PageLoader />}><ChemistryDashboard /></Suspense>} />
                 <Route path="/reactor" element={<Suspense fallback={<PageLoader />}><ReactorDashboard /></Suspense>} />
                 <Route path="/lab" element={<Suspense fallback={<PageLoader />}><LabDashboard /></Suspense>} />
+                <Route path="/compchem" element={<Suspense fallback={<PageLoader />}><CompChemDashboard /></Suspense>} />
                 <Route path="/detections" element={<Suspense fallback={<PageLoader />}><Detections /></Suspense>} />
                 <Route path="/models" element={<Suspense fallback={<PageLoader />}><Models /></Suspense>} />
                 <Route path="/ml-analytics" element={<Suspense fallback={<PageLoader />}><MLAnalytics /></Suspense>} />
