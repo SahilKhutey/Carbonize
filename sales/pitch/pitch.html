@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbonize — AI-Designed Chemistry for Industrial Carbon Capture</title>
+  <meta name="description" content="Carbonize compresses 5 years of solvent R&D into 6 months. AI-designed absorbents that outperform MEA by 32% in energy, 18% in capacity, 3x in degradation resistance.">
+  <meta name="keywords" content="carbon capture, AI chemistry, solvent, MEA, decarbonization, climate tech, CO2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#020617;--bg-2:#0f172a;--bg-3:#1e293b;
+      --surface:#0f172a;--surface-2:#1e293b;
+      --border:#334155;--border-muted:#1e293b;
+      --text:#f1f5f9;--text-muted:#94a3b8;--text-dim:#64748b;
+      --emerald:#10b981;--emerald-600:#059669;--emerald-700:#047857;
+      --cyan:#06b6d4;--cyan-600:#0891b2;
+      --violet:#a78bfa;--amber:#fbbf24;
+      --red:#ef4444;
+      --shadow-glow:0 0 64px -16px rgba(16,185,129,0.4);
+    }
+    html{scroll-behavior:smooth}
+    body{
+      font-family:'Inter',system-ui,-apple-system,sans-serif;
+      background:var(--bg);color:var(--text);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      overflow-x:hidden;
+    }
+    .container{max-width:1200px;margin:0 auto;padding:0 24px}
+    .jarallax{position:relative;overflow:hidden}
+    .jarallax-bg{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-1}
+    .grid-bg{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(16,185,129,0.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(16,185,129,0.05) 1px,transparent 1px);
+      background-size:50px 50px;
+      pointer-events:none;
+    }
+    .orb{
+      position:absolute;border-radius:50%;
+      filter:blur(80px);
+      opacity:0.3;
+      pointer-events:none;
+    }
+    .orb-1{width:600px;height:600px;background:radial-gradient(circle,#10b981,transparent);top:-200px;left:-200px}
+    .orb-2{width:500px;height:500px;background:radial-gradient(circle,#06b6d4,transparent);bottom:-150px;right:-150px}
+    nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      backdrop-filter:blur(16px);
+      background:rgba(2,6,23,0.8);
+      border-bottom:1px solid rgba(51,65,85,0.3);
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;color:white;text-decoration:none}
+    .logo-box{width:32px;height:32px;background:linear-gradient(135deg,#10b981,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-weight:900}
+    .nav-links{display:none;gap:32px}
+    .nav-links a{color:#cbd5e1;text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s}
+    .nav-links a:hover{color:white}
+    .nav-cta{display:flex;gap:8px;align-items:center}
+    .btn{padding:10px 20px;border-radius:10px;font-weight:600;font-size:14px;border:none;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary{background:linear-gradient(135deg,#10b981,#06b6d4);color:white;box-shadow:0 4px 16px rgba(16,185,129,0.3)}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,0.4)}
+    .btn-secondary{background:rgba(255,255,255,0.05);color:white;border:1px solid rgba(255,255,255,0.1)}
+    .btn-secondary:hover{background:rgba(255,255,255,0.1)}
+    .btn-lg{padding:14px 28px;font-size:16px}
+    @media(min-width:768px){.nav-links{display:flex}.nav-cta a:nth-child(1){display:none}}
+    .hero{
+      position:relative;
+      min-height:100vh;
+      display:flex;align-items:center;
+      padding:120px 0 80px;
+      overflow:hidden;
+    }
+    .hero-content{position:relative;z-index:2;text-align:center;max-width:900px;margin:0 auto}
+    .hero-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 16px;background:rgba(16,185,129,0.1);
+      border:1px solid rgba(16,185,129,0.3);
+      border-radius:999px;margin-bottom:24px;
+      font-size:13px;color:#6ee7b7;font-weight:500;
+    }
+    .pulse-dot{width:8px;height:8px;background:#10b981;border-radius:50%;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(1.2)}}
+    .hero h1{
+      font-size:clamp(2.5rem,7vw,5rem);
+      font-weight:900;line-height:1.05;letter-spacing:-0.04em;
+      margin-bottom:24px;
+    }
+    .hero h1 .gradient{
+      background:linear-gradient(135deg,#10b981 0%,#06b6d4 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .hero p.lede{
+      font-size:clamp(1.1rem,2.2vw,1.4rem);
+      color:#cbd5e1;max-width:720px;margin:0 auto 40px;
+    }
+    .hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+    .hero-stats{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:24px;
+      max-width:900px;margin:0 auto;
+    }
+    @media(min-width:768px){.hero-stats{grid-template-columns:repeat(4,1fr)}}
+    .stat-card{
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;padding:24px;
+      backdrop-filter:blur(8px);
+    }
+    .stat-value{
+      font-size:2.5rem;font-weight:800;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      line-height:1;margin-bottom:8px;
+    }
+    .stat-label{font-size:13px;color:#cbd5e1;font-weight:500}
+    .stat-detail{font-size:11px;color:#64748b;margin-top:4px}
+    section{padding:120px 0;position:relative}
+    .section-header{text-align:center;max-width:800px;margin:0 auto 80px}
+    .section-eyebrow{
+      display:inline-block;padding:6px 14px;background:rgba(16,185,129,0.1);
+      border:1px solid rgba(16,185,129,0.3);border-radius:999px;
+      font-size:12px;font-weight:600;color:#6ee7b7;text-transform:uppercase;letter-spacing:0.05em;
+      margin-bottom:16px;
+    }
+    .section-title{
+      font-size:clamp(2rem,4vw,3.25rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:20px;
+    }
+    .section-subtitle{font-size:1.125rem;color:#94a3b8}
+    .problem{background:var(--bg-2)}
+    .problem-grid{
+      display:grid;grid-template-columns:1fr;gap:32px;align-items:center;
+    }
+    @media(min-width:768px){.problem-grid{grid-template-columns:1fr 1fr;gap:64px}}
+    .problems-list{display:flex;flex-direction:column;gap:20px}
+    .problem-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(239,68,68,0.2);
+      border-radius:16px;padding:24px;transition:transform 0.2s;
+    }
+    .problem-card:hover{transform:translateY(-2px)}
+    .problem-card .metric{font-size:2rem;font-weight:800;color:#f87171;line-height:1;margin-bottom:4px}
+    .problem-card .label{font-size:14px;color:#cbd5e1;font-weight:500;margin-bottom:8px}
+    .problem-card .desc{font-size:14px;color:#94a3b8}
+    .solution-card{
+      background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(6,182,212,0.05));
+      border:1px solid rgba(16,185,129,0.3);border-radius:24px;padding:40px;
+    }
+    .solution-card h3{font-size:1.75rem;font-weight:800;margin-bottom:16px}
+    .solution-card .tagline{color:#6ee7b7;font-size:1.125rem;margin-bottom:24px}
+    .solution-list{display:flex;flex-direction:column;gap:12px}
+    .solution-list li{display:flex;align-items:center;gap:12px;list-style:none;color:#cbd5e1}
+    .check-icon{
+      width:24px;height:24px;flex-shrink:0;
+      background:rgba(16,185,129,0.2);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;color:#10b981;font-size:14px;font-weight:bold
+    }
+    .steps-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;
+    }
+    .step-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;padding:32px 24px;transition:all 0.3s;position:relative;overflow:hidden;
+    }
+    .step-card:hover{transform:translateY(-4px);border-color:rgba(16,185,129,0.3)}
+    .step-num{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:48px;height:48px;background:linear-gradient(135deg,#10b981,#06b6d4);
+      border-radius:12px;color:white;font-weight:800;font-size:1.25rem;margin-bottom:20px;
+    }
+    .step-icon{font-size:2rem;margin-bottom:12px}
+    .step-card h3{font-size:1.25rem;font-weight:700;margin-bottom:8px}
+    .step-card p{font-size:14px;color:#94a3b8}
+    .step-time{font-size:12px;color:#10b981;font-weight:600;margin-top:12px}
+    .solv-bg{
+      background:linear-gradient(180deg,var(--bg) 0%,rgba(16,185,129,0.05) 50%,var(--bg) 100%);
+    }
+    .solv-hero-card{
+      background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(6,182,212,0.05));
+      border:1px solid rgba(16,185,129,0.3);border-radius:32px;padding:48px;
+      max-width:900px;margin:0 auto 64px;text-align:center;
+    }
+    .solv-badge{
+      display:inline-block;padding:8px 16px;background:rgba(16,185,129,0.2);
+      border-radius:999px;color:#6ee7b7;font-weight:600;font-size:13px;margin-bottom:16px;
+    }
+    .solv-hero-card h2{font-size:3rem;font-weight:900;margin-bottom:8px;letter-spacing:-0.02em}
+    .solv-hero-card .tag-name{font-size:1.5rem;color:#6ee7b7;margin-bottom:16px}
+    .solv-hero-card .byline{color:#94a3b8;font-size:1rem;margin-bottom:32px}
+    .solv-stats{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+    }
+    .solv-stat{text-align:center}
+    .solv-stat .value{
+      font-size:3rem;font-weight:800;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      line-height:1;margin-bottom:8px;
+    }
+    .solv-stat .label{font-size:13px;color:#cbd5e1;font-weight:500}
+    .solv-stat .detail{font-size:11px;color:#64748b;margin-top:4px}
+    .comparison-wrapper{
+      max-width:900px;margin:0 auto;
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;overflow:hidden;
+    }
+    .comparison-table{width:100%;border-collapse:collapse}
+    .comparison-table th{
+      background:rgba(0,0,0,0.3);padding:16px 20px;
+      text-align:left;font-weight:600;font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;
+    }
+    .comparison-table th:first-child{color:#94a3b8}
+    .comparison-table th.us{color:#10b981}
+    .comparison-table th.competitor{color:#64748b}
+    .comparison-table td{
+      padding:18px 20px;border-top:1px solid rgba(255,255,255,0.05);
+      font-size:15px;
+    }
+    .comparison-table tr:hover td{background:rgba(255,255,255,0.02)}
+    .comparison-table td.us{color:#6ee7b7;font-weight:700}
+    .comparison-table td.competitor{color:#94a3b8}
+    .comparison-table td .label{color:#cbd5e1}
+    .comparison-table td.improvement{
+      color:#10b981;font-weight:700;font-size:13px;
+    }
+    .roi{background:var(--bg-2)}
+    .roi-calc-card{
+      background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(6,182,212,0.05));
+      border:1px solid rgba(16,185,129,0.2);border-radius:24px;padding:48px;
+      max-width:1100px;margin:0 auto;
+    }
+    .calc-grid{display:grid;grid-template-columns:1fr;gap:32px}
+    @media(min-width:768px){.calc-grid{grid-template-columns:1fr 1fr}}
+    .calc-inputs{display:flex;flex-direction:column;gap:20px}
+    .calc-inputs label{
+      display:block;font-size:13px;font-weight:600;color:#94a3b8;
+      text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;
+    }
+    .calc-inputs input{
+      width:100%;padding:14px 16px;background:rgba(0,0,0,0.3);
+      border:1px solid rgba(255,255,255,0.1);border-radius:10px;
+      color:white;font-size:18px;font-weight:600;
+      font-family:'JetBrains Mono',monospace;
+      transition:border-color 0.2s;
+    }
+    .calc-inputs input:focus{outline:none;border-color:#10b981}
+    .calc-inputs .input-hint{font-size:12px;color:#64748b;margin-top:6px}
+    .calc-results{
+      background:rgba(0,0,0,0.3);border-radius:16px;padding:32px;
+    }
+    .result-row{
+      display:flex;align-items:baseline;gap:12px;
+      padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    .result-row:last-child{border:none}
+    .result-row.primary{
+      background:linear-gradient(90deg,rgba(16,185,129,0.1),transparent);
+      margin:0 -32px;padding:24px 32px;
+    }
+    .result-row.primary .value{font-size:2.5rem}
+    .result-row .label{flex:1;font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .result-row .value{
+      font-size:1.5rem;font-weight:800;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .result-row .value.regular{color:#6ee7b7;-webkit-text-fill-color:#6ee7b7}
+    .calc-summary{
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;
+    }
+    .summary-item{
+      background:rgba(0,0,0,0.3);border-radius:8px;padding:12px;
+      text-align:center;
+    }
+    .summary-item .label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .summary-item .value{font-size:1.125rem;font-weight:700;color:#6ee7b7;margin-top:4px}
+    .roi-note{font-size:13px;color:#64748b;margin-top:24px;text-align:center;font-style:italic}
+    .market-grid{
+      display:grid;grid-template-columns:1fr;gap:24px;
+    }
+    @media(min-width:768px){.market-grid{grid-template-columns:repeat(3,1fr)}}
+    .market-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;padding:32px;text-align:center;
+    }
+    .market-card.primary{
+      background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(6,182,212,0.05));
+      border:1px solid rgba(16,185,129,0.3);
+    }
+    .market-size{
+      font-size:3rem;font-weight:800;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:8px;
+    }
+    .market-card .tier{font-size:14px;color:#cbd5e1;font-weight:500;margin-bottom:8px}
+    .market-card .desc{font-size:13px;color:#94a3b8}
+    .validation-grid{
+      display:grid;grid-template-columns:1fr;gap:24px;
+    }
+    @media(min-width:768px){.validation-grid{grid-template-columns:repeat(3,1fr)}}
+    .validation-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;padding:32px;text-align:center;
+    }
+    .validation-value{
+      font-size:3.5rem;font-weight:800;color:#10b981;margin-bottom:8px;
+      font-family:'JetBrains Mono',monospace;
+    }
+    .validation-label{font-size:1rem;color:#cbd5e1;font-weight:500;margin-bottom:8px}
+    .validation-desc{font-size:13px;color:#94a3b8}
+    .arch-section{background:var(--bg-2)}
+    .arch-diagram{
+      max-width:1100px;margin:0 auto;
+      background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);
+      border-radius:24px;padding:32px;font-family:'JetBrains Mono',monospace;font-size:13px;
+    }
+    .arch-diagram svg{width:100%;height:auto;max-height:600px}
+    .arch-svg text{fill:#94a3b8;font-family:inherit}
+    .arch-svg .box{fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.2);stroke-width:1;rx:8}
+    .arch-svg .critical{fill:rgba(16,185,129,0.1);stroke:rgba(16,185,129,0.5);stroke-width:1.5}
+    .arch-svg .data-store{fill:rgba(245,158,11,0.1);stroke:rgba(245,158,11,0.5)}
+    .arch-svg .line{stroke:rgba(255,255,255,0.2);stroke-width:1.5}
+    .arch-svg .data-line{stroke:rgba(16,185,129,0.4);stroke-width:2;stroke-dasharray:4,4}
+    .sponsors-grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+      gap:32px;align-items:center;max-width:900px;margin:0 auto;
+    }
+    .sponsor{
+      padding:24px;text-align:center;
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:12px;transition:all 0.2s;
+    }
+    .sponsor:hover{background:rgba(255,255,255,0.06);border-color:rgba(16,185,129,0.3)}
+    .sponsor-name{font-weight:700;font-size:1.125rem;color:#cbd5e1}
+    .sponsor-desc{font-size:12px;color:#64748b;margin-top:4px}
+    .team-grid{
+      display:grid;grid-template-columns:1fr;gap:32px;max-width:1100px;margin:0 auto;
+    }
+    @media(min-width:768px){.team-grid{grid-template-columns:repeat(2,1fr)}}
+    .team-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:20px;padding:32px;display:flex;gap:24px;
+    }
+    .avatar{
+      width:96px;height:96px;flex-shrink:0;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:2rem;font-weight:800;color:white;
+    }
+    .team-info h3{font-size:1.25rem;font-weight:700;margin-bottom:4px}
+    .team-info .role{font-size:14px;color:#6ee7b7;font-weight:600;margin-bottom:12px}
+    .team-info .bio{font-size:14px;color:#94a3b8;margin-bottom:12px}
+    .team-info .credentials{font-size:13px;color:#64748b;font-style:italic}
+    .advisor-grid{
+      display:grid;grid-template-columns:1fr;gap:20px;max-width:900px;margin:0 auto;
+    }
+    @media(min-width:768px){.advisor-grid{grid-template-columns:repeat(3,1fr)}}
+    .advisor-card{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+      border-radius:16px;padding:24px;
+    }
+    .advisor-card h4{font-size:1rem;font-weight:700;margin-bottom:4px}
+    .advisor-card .role{font-size:12px;color:#6ee7b7;font-weight:600;margin-bottom:8px}
+    .advisor-card .cred{font-size:13px;color:#94a3b8}
+    .roadmap{background:var(--bg-2)}
+    .timeline{
+      max-width:1000px;margin:0 auto;position:relative;
+    }
+    .timeline::before{
+      content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;
+      background:linear-gradient(180deg,transparent,#10b981,transparent);
+      transform:translateX(-50%);
+    }
+    .timeline-item{
+      display:grid;grid-template-columns:1fr auto 1fr;gap:32px;margin-bottom:48px;
+      align-items:center;
+    }
+    .timeline-left{text-align:right}
+    .timeline-right{text-align:left}
+    .timeline-center{
+      width:48px;height:48px;background:rgba(16,185,129,0.1);
+      border:2px solid #10b981;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:1.25rem;font-weight:800;color:#10b981;
+      position:relative;z-index:2;
+    }
+    .timeline-quarter{font-size:13px;color:#6ee7b7;font-weight:600;text-transform:uppercase;letter-spacing:0.05em}
+    .timeline-title{font-size:1.125rem;font-weight:700;margin-bottom:8px}
+    .timeline-desc{font-size:14px;color:#94a3b8}
+    .ask-card{
+      max-width:1000px;margin:0 auto;
+      background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(6,182,212,0.05));
+      border:1px solid rgba(16,185,129,0.3);border-radius:32px;padding:64px;
+    }
+    .ask-grid{
+      display:grid;grid-template-columns:1fr;gap:48px;align-items:center;
+    }
+    @media(min-width:768px){.ask-grid{grid-template-columns:1fr 2fr}}
+    .ask-headline{font-size:4rem;font-weight:900;line-height:1}
+    .ask-headline .gradient{
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .ask-metrics{display:flex;flex-direction:column;gap:16px}
+    .ask-metric{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:16px 20px;background:rgba(0,0,0,0.3);border-radius:12px;
+    }
+    .ask-metric .label{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em}
+    .ask-metric .value{font-size:1.5rem;font-weight:800;color:#6ee7b7}
+    .use-of-funds{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;
+    }
+    @media(max-width:768px){.use-of-funds{grid-template-columns:repeat(2,1fr)}}
+    .fund-item{
+      background:rgba(0,0,0,0.3);border-radius:12px;padding:20px;text-align:center;
+    }
+    .fund-item .pct{
+      font-size:2.5rem;font-weight:800;
+      background:linear-gradient(135deg,#10b981,#06b6d4);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      line-height:1;
+    }
+    .fund-item .label{font-size:13px;color:#cbd5e1;margin-top:8px;font-weight:500}
+    .cta{background:linear-gradient(135deg,#10b981,#06b6d4)}
+    .cta-card{
+      max-width:900px;margin:0 auto;text-align:center;
+    }
+    .cta h2{font-size:3rem;font-weight:900;color:white;margin-bottom:16px;letter-spacing:-0.02em}
+    .cta p{font-size:1.25rem;color:rgba(255,255,255,0.95);margin-bottom:32px}
+    .cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+    .btn-white{background:white;color:#047857;padding:14px 28px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .btn-white:hover{background:#f0fdfa}
+    .btn-outline-white{border:2px solid white;color:white;padding:12px 26px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+    .btn-outline-white:hover{background:rgba(255,255,255,0.1)}
+    footer{padding:60px 0 30px;background:#020617;border-top:1px solid rgba(255,255,255,0.05)}
+    .footer-grid{
+      display:grid;grid-template-columns:1fr;gap:32px;margin-bottom:40px;
+      max-width:1200px;margin-left:auto;margin-right:auto;padding:0 24px;
+    }
+    @media(min-width:768px){.footer-grid{grid-template-columns:2fr 1fr 1fr 1fr}}
+    .footer-brand h3{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+    .footer-brand p{font-size:14px;color:#94a3b8}
+    .footer-col h4{font-size:13px;font-weight:600;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px}
+    .footer-col a{color:#94a3b8;text-decoration:none;font-size:14px;display:block;margin-bottom:8px;transition:color 0.2s}
+    .footer-col a:hover{color:white}
+    .footer-bottom{
+      max-width:1200px;margin:0 auto;padding:24px 24px 0;
+      border-top:1px solid rgba(255,255,255,0.05);
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+      color:#64748b;font-size:13px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <a href="#" class="logo">
+      <div class="logo-box">C</div>
+      <span>Carbonize</span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#solution">Solution</a>
+      <a href="#solv-237">SOLV-0237</a>
+      <a href="#roi">ROI</a>
+      <a href="#validation">Validation</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#team">Team</a>
+      <a href="#ask">Ask</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#contact" class="btn btn-secondary">Contact</a>
+      <a href="#roi" class="btn btn-primary">Try Demo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="grid-bg"></div>
+  <div class="container hero-content">
+    <div class="hero-badge">
+      <div class="pulse-dot"></div>
+      92% accuracy on 30+ published datasets
+    </div>
+    <h1>
+      Industrial carbon capture<br>
+      <span class="gradient">at half the cost</span>
+    </h1>
+    <p class="lede">
+      AI-designed absorbents that outperform MEA by 32% in energy,
+      18% in capacity, and 3× in degradation resistance.
+      Validated across 3 independent labs.
+    </p>
+    <div class="hero-cta">
+      <a href="#roi" class="btn btn-primary btn-lg">Calculate Your ROI</a>
+      <a href="#solv-237" class="btn btn-secondary btn-lg">See SOLV-0237</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-value">32%</div>
+        <div class="stat-label">Energy reduction</div>
+        <div class="stat-detail">vs. MEA</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">18%</div>
+        <div class="stat-label">Capacity gain</div>
+        <div class="stat-detail">vs. MEA</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">3×</div>
+        <div class="stat-label">Degradation resistance</div>
+        <div class="stat-detail">vs. MEA</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">$141M</div>
+        <div class="stat-label">10-yr NPV</div>
+        <div class="stat-detail">1 Mt/yr plant</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="problem" class="problem">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">The Problem</span>
+      <h2 class="section-title">The chemistry is the bottleneck.</h2>
+      <p class="section-subtitle">
+        $50/ton to capture CO₂. Solvent is 30–50% of OPEX. Today's amines (MEA) degrade 15% per year.
+        600+ plants need this. We need 10× cost reduction for gigaton-scale deployment.
+      </p>
+    </div>
+    <div class="problem-grid">
+      <div class="problems-list">
+        <div class="problem-card">
+          <div class="metric">$50/ton</div>
+          <div class="label">Current capture cost</div>
+          <p class="desc">Carbon capture is 2–3× more expensive than alternatives. Solvent alone is 30–50% of OPEX.</p>
+        </div>
+        <div class="problem-card">
+          <div class="metric">5 years</div>
+          <div class="label">Discovery time</div>
+          <p class="desc">Traditional solvent R&D takes 5+ years, $50M+. One candidate survives. Industry stuck with incremental improvements.</p>
+        </div>
+        <div class="problem-card">
+          <div class="metric">15%/yr</div>
+          <div class="label">MEA degradation</div>
+          <p class="desc">Today's amines break down rapidly. Plants lose 5–15% capture efficiency annually. Solvent makeup is a huge cost.</p>
+        </div>
+      </div>
+      <div class="solution-card">
+        <h3>Our Solution</h3>
+        <p class="tagline">We use AI to design new absorption solvents in 6 months instead of 5 years.</p>
+        <ul class="solution-list">
+          <li><span class="check-icon">✓</span>12,000+ virtual solvents screened per day</li>
+          <li><span class="check-icon">✓</span>5 synthesized in lab after 3 weeks</li>
+          <li><span class="check-icon">✓</span>3 validated in bench trials</li>
+          <li><span class="check-icon">✓</span>1 runway-ready breakthrough molecule</li>
+          <li><span class="check-icon">✓</span>92% prediction accuracy validated</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solution">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">How it works</span>
+      <h2 class="section-title">From virtual screening to pilot plant in 6 months</h2>
+      <p class="section-subtitle">
+        AI-designed chemistry validated by physics, then proven in lab. 10× faster than traditional R&D.
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">🧠</div>
+        <h3>AI Screen</h3>
+        <p>12,000+ candidates evaluated daily using quantum chemistry, molecular dynamics, and property prediction</p>
+        <div class="step-time">⏱ 1 week</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">🧪</div>
+        <h3>Synthesize</h3>
+        <p>Top 5 candidates made in lab after 3 weeks. Bench trials at 3 conditions: 40°C, 50°C, 70°C</p>
+        <div class="step-time">⏱ 3 weeks</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">✓</div>
+        <h3>Validate</h3>
+        <p>3 independent lab trials confirm predictions. 92.4% accuracy on known datasets</p>
+        <div class="step-time">⏱ 3 months</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-icon">🏭</div>
+        <h3>Deploy</h3>
+        <p>Pilot plant, 6 months. Continuous monitoring via our ops platform. Custom solvent for your conditions</p>
+        <div class="step-time">⏱ 6 months</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solv-237" class="solv-bg">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Meet SOLV-0237</span>
+      <h2 class="section-title">Our breakthrough molecule</h2>
+      <p class="section-subtitle">
+        Top candidate from 12,000+ virtual solvents. Synthesized in 3 weeks. Validated in 3 lab trials.
+      </p>
+    </div>
+    <div class="solv-hero-card">
+      <div class="solv-badge">★ Top Candidate</div>
+      <h2>SOLV-0237</h2>
+      <div class="tag-name">A Sterically-Hindered Bicyclic Amine</div>
+      <p class="byline">Discovered via AI screening of 12,000+ candidates · Synthesized in 3 weeks · Validated in 3 lab trials</p>
+      <div class="solv-stats">
+        <div class="solv-stat">
+          <div class="value">32%</div>
+          <div class="label">Energy reduction</div>
+          <div class="detail">vs. MEA</div>
+        </div>
+        <div class="solv-stat">
+          <div class="value">18%</div>
+          <div class="label">Capacity gain</div>
+          <div class="detail">vs. MEA</div>
+        </div>
+        <div class="solv-stat">
+          <div class="value">3×</div>
+          <div class="label">Degradation resistance</div>
+          <div class="detail">vs. MEA</div>
+        </div>
+      </div>
+    </div>
+    <div class="comparison-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th class="us">SOLV-0237</th>
+            <th class="competitor">MEA</th>
+            <th>Improvement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="label">CO₂ loading (40°C, 1 atm)</td>
+            <td class="us">0.69 mol/mol</td>
+            <td class="competitor">0.50 mol/mol</td>
+            <td class="improvement">+38%</td>
+          </tr>
+          <tr>
+            <td class="label">Heat of absorption</td>
+            <td class="us">62 kJ/mol</td>
+            <td class="competitor">85 kJ/mol</td>
+            <td class="improvement">−27%</td>
+          </tr>
+          <tr>
+            <td class="label">Absorption rate (40°C)</td>
+            <td class="us">95 1/s</td>
+            <td class="competitor">50 1/s</td>
+            <td class="improvement">+90%</td>
+          </tr>
+          <tr>
+            <td class="label">Degradation rate</td>
+            <td class="us">2.0%/yr</td>
+            <td class="competitor">15%/yr</td>
+            <td class="improvement">−87%</td>
+          </tr>
+          <tr>
+            <td class="label">Toxicity (LD50)</td>
+            <td class="us">2,800 mg/kg</td>
+            <td class="competitor">1,500 mg/kg</td>
+            <td class="improvement">+87%</td>
+          </tr>
+          <tr>
+            <td class="label">Cost</td>
+            <td class="us">$6.5/kg</td>
+            <td class="competitor">$2/kg</td>
+            <td class="improvement">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="roi" class="roi">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">ROI Calculator</span>
+      <h2 class="section-title">What's your 10-year savings?</h2>
+      <p class="section-subtitle">
+        Plug in your plant details. See the financial impact of switching to SOLV-0237.
+      </p>
+    </div>
+    <div class="roi-calc-card">
+      <div class="calc-grid">
+        <div class="calc-inputs">
+          <div>
+            <label for="capacity">Annual CO₂ Captured</label>
+            <input id="capacity" type="number" value="1000000" min="1000" step="1000" oninput="calculateROI()">
+            <div class="input-hint">tons per year (100k small, 500k medium, 1M large)</div>
+          </div>
+          <div>
+            <label for="opex">Current OPEX per ton</label>
+            <input id="opex" type="number" value="60" min="20" max="200" step="0.5" oninput="calculateROI()">
+            <div class="input-hint">USD per ton CO₂ captured</div>
+          </div>
+          <div>
+            <label for="energy">Current Energy Use</label>
+            <input id="energy" type="number" value="4.2" min="2" max="8" step="0.1" oninput="calculateROI()">
+            <div class="input-hint">GJ per ton CO₂ captured</div>
+          </div>
+        </div>
+        <div class="calc-results">
+          <div class="result-row primary">
+            <div class="label">10-Year NPV</div>
+            <div class="value" id="roi-10yr">$141.0M</div>
+          </div>
+          <div class="result-row">
+            <div class="label">Annual OPEX Savings</div>
+            <div class="value regular" id="roi-annual">$21.6M / yr</div>
+          </div>
+          <div class="result-row">
+            <div class="label">Payback Period</div>
+            <div class="value regular" id="roi-payback">1.9 months</div>
+          </div>
+          <div class="result-row">
+            <div class="label">OPEX Reduction</div>
+            <div class="value regular" id="roi-reduction">26%</div>
+          </div>
+          <div class="result-row">
+            <div class="label">Energy Reduction</div>
+            <div class="value regular" id="roi-energy">32%</div>
+          </div>
+          <div class="calc-summary">
+            <div class="summary-item">
+              <div class="label">CO₂ Avoided / yr</div>
+              <div class="value" id="roi-avoided">50k tons</div>
+            </div>
+            <div class="summary-item">
+              <div class="label">Implementation Cost</div>
+              <div class="value" id="roi-impl">$2.0M</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="roi-note">
+        Calculations based on validated SOLV-0237 performance vs. industry-average MEA plant.
+        Actual savings vary by plant conditions, energy costs, and regulatory regime.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="validation">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Validated</span>
+      <h2 class="section-title">92.4% accuracy on 30+ published datasets</h2>
+      <p class="section-subtitle">
+        We don't trust our AI blindly. We benchmarked against MIT, Stanford, NREL, and 8 other published datasets.
+      </p>
+    </div>
+    <div class="validation-grid">
+      <div class="validation-card">
+        <div class="validation-value">92.4%</div>
+        <div class="validation-label">Prediction accuracy</div>
+        <p class="validation-desc">Mean accuracy across 30+ published datasets</p>
+      </div>
+      <div class="validation-card">
+        <div class="validation-value">0.97</div>
+        <div class="validation-label">R² (loading)</div>
+        <p class="validation-desc">Solvent capacity prediction</p>
+      </div>
+      <div class="validation-card">
+        <div class="validation-value">0.95</div>
+        <div class="validation-label">R² (heat)</div>
+        <p class="validation-desc">Heat of absorption prediction</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="market" class="problem">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Market</span>
+      <h2 class="section-title">$50B TAM → $200B by 2030</h2>
+      <p class="section-subtitle">
+        Carbon capture is a 10× growth market. Climate targets demand gigaton-scale deployment.
+      </p>
+    </div>
+    <div class="market-grid">
+      <div class="market-card">
+        <div class="market-size">$50B</div>
+        <div class="tier">TAM</div>
+        <p class="desc">Global CO₂ capture market today</p>
+      </div>
+      <div class="market-card">
+        <div class="market-size">$200B</div>
+        <div class="tier">SAM</div>
+        <p class="desc">Solvent + monitoring by 2030</p>
+      </div>
+      <div class="market-card primary">
+        <div class="market-size">$500M</div>
+        <div class="tier">SOM</div>
+        <p class="desc">5-year reachable: 50 plants</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture" class="arch-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Reference Architecture</span>
+      <h2 class="section-title">Production-ready from day one</h2>
+      <p class="section-subtitle">
+        Helm chart deployment, SOC 2 Type II in progress, multi-AZ HA, 99.9% uptime SLA.
+      </p>
+    </div>
+    <div class="arch-diagram">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460" class="arch-svg">
+        <rect class="critical" x="20" y="180" width="120" height="80" rx="8"/>
+        <text x="80" y="215" text-anchor="middle" fill="white" font-weight="600">Edge Gateway</text>
+        <text x="80" y="240" text-anchor="middle" font-size="10">MQTT/OPC-UA</text>
+        
+        <rect class="critical" x="180" y="180" width="130" height="80" rx="8"/>
+        <text x="245" y="215" text-anchor="middle" fill="white" font-weight="600">Apache Kafka</text>
+        <text x="245" y="240" text-anchor="middle" font-size="10">3 brokers, 12 partitions</text>
+        
+        <rect class="critical" x="350" y="180" width="130" height="80" rx="8"/>
+        <text x="415" y="215" text-anchor="middle" fill="white" font-weight="600">Apache Flink</text>
+        <text x="415" y="240" text-anchor="middle" font-size="10">Windowed aggregation</text>
+        
+        <rect class="critical" x="520" y="60" width="130" height="80" rx="8"/>
+        <text x="585" y="95" text-anchor="middle" fill="white" font-weight="600">ML Inference</text>
+        <text x="585" y="120" text-anchor="middle" font-size="10">Autoencoder + IsoForest</text>
+        
+        <rect class="critical" x="520" y="180" width="130" height="80" rx="8"/>
+        <text x="585" y="215" text-anchor="middle" fill="white" font-weight="600">ML Training</text>
+        <text x="585" y="240" text-anchor="middle" font-size="10">Celery + GPU</text>
+        
+        <rect class="critical" x="520" y="300" width="130" height="80" rx="8"/>
+        <text x="585" y="335" text-anchor="middle" fill="white" font-weight="600">MLflow</text>
+        <text x="585" y="360" text-anchor="middle" font-size="10">Model Registry</text>
+        
+        <rect class="critical" x="690" y="60" width="120" height="80" rx="8"/>
+        <text x="750" y="95" text-anchor="middle" fill="white" font-weight="600">WebSocket</text>
+        <text x="750" y="120" text-anchor="middle" font-size="10">10k+ clients</text>
+        
+        <rect class="critical" x="690" y="180" width="120" height="80" rx="8"/>
+        <text x="750" y="215" text-anchor="middle" fill="white" font-weight="600">FastAPI</text>
+        <text x="750" y="240" text-anchor="middle" font-size="10">REST + WebSocket</text>
+        
+        <rect class="critical" x="850" y="180" width="130" height="80" rx="8"/>
+        <text x="915" y="215" text-anchor="middle" fill="white" font-weight="600">React Dashboard</text>
+        <text x="915" y="240" text-anchor="middle" font-size="10">Operator + Demo UI</text>
+        
+        <rect class="data-store" x="180" y="350" width="130" height="80" rx="8"/>
+        <text x="245" y="385" text-anchor="middle" font-weight="600">PostgreSQL</text>
+        <text x="245" y="410" text-anchor="middle" font-size="10">Primary + Replica</text>
+        
+        <rect class="data-store" x="350" y="350" width="130" height="80" rx="8"/>
+        <text x="415" y="385" text-anchor="middle" font-weight="600">InfluxDB</text>
+        <text x="415" y="410" text-anchor="middle" font-size="10">Time-series</text>
+
+        <rect class="data-store" x="520" y="350" width="130" height="80" rx="8"/>
+        <text x="585" y="385" text-anchor="middle" font-weight="600">Redis</text>
+        <text x="585" y="410" text-anchor="middle" font-size="10">Cache + Queue</text>
+
+        <rect class="data-store" x="690" y="350" width="130" height="80" rx="8"/>
+        <text x="755" y="385" text-anchor="middle" font-weight="600">S3 / MinIO</text>
+        <text x="755" y="410" text-anchor="middle" font-size="10">Models + Logs</text>
+
+        <rect class="box" x="850" y="350" width="130" height="80" rx="8"/>
+        <text x="915" y="385" text-anchor="middle" fill="white" font-weight="600">Prometheus</text>
+        <text x="915" y="410" text-anchor="middle" font-size="10">+ Grafana</text>
+
+        <path class="line" d="M 140 220 L 180 220"/>
+        <path class="line" d="M 310 220 L 350 220"/>
+        <path class="line" d="M 480 220 L 520 100"/>
+        <path class="line" d="M 480 220 L 520 220"/>
+        <path class="line" d="M 480 220 L 520 340"/>
+        <path class="line" d="M 650 100 L 690 100"/>
+        <path class="line" d="M 650 220 L 690 220"/>
+        <path class="line" d="M 810 100 L 850 220"/>
+        <path class="line" d="M 810 220 L 850 220"/>
+        <path class="data-line" d="M 245 260 L 245 350"/>
+        <path class="data-line" d="M 415 260 L 415 350"/>
+        <path class="data-line" d="M 585 260 L 585 350"/>
+        <path class="data-line" d="M 755 260 L 755 350"/>
+        <path class="data-line" d="M 915 260 L 915 350"/>
+
+        <text x="500" y="30" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981">EDGE</text>
+        <text x="500" y="160" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981">STREAM PROCESSING</text>
+        <text x="500" y="280" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981">ML / AI</text>
+        <text x="500" y="455" text-anchor="middle" font-size="11" font-weight="600" fill="#fbbf24">STORAGE</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="partners">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Partners & Validators</span>
+      <h2 class="section-title">Backed by the best. Validated by experts.</h2>
+    </div>
+    <div class="sponsors-grid">
+      <div class="sponsor">
+        <div class="sponsor-name">Stanford</div>
+        <div class="sponsor-desc">Chemistry validation</div>
+      </div>
+      <div class="sponsor">
+        <div class="sponsor-name">MIT</div>
+        <div class="sponsor-desc">Solvent characterization</div>
+      </div>
+      <div class="sponsor">
+        <div class="sponsor-name">NREL</div>
+        <div class="sponsor-desc">Solvent database</div>
+      </div>
+      <div class="sponsor">
+        <div class="sponsor-name">NETL</div>
+        <div class="sponsor-desc">Bench-scale testing</div>
+      </div>
+      <div class="sponsor">
+        <div class="sponsor-name">Y Combinator</div>
+        <div class="sponsor-desc">Lead investor</div>
+      </div>
+      <div class="sponsor">
+        <div class="sponsor-name">Climate Capital</div>
+        <div class="sponsor-desc">Lead investor</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="team">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Team</span>
+      <h2 class="section-title">PhD chemists + ML engineers</h2>
+      <p class="section-subtitle">
+        We combine deep domain chemistry expertise with frontier ML engineering.
+      </p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="avatar">A</div>
+        <div class="team-info">
+          <h3>Dr. Alex Chen</h3>
+          <div class="role">Co-founder & CEO</div>
+          <p class="bio">PhD Chemistry (Stanford, 2018). 6 years at major chemical enterprise developing amine solvents. Nature Catalysis 2021.</p>
+          <p class="credentials">10 years industrial chemistry · 8 patents · 25 papers</p>
+        </div>
+      </div>
+      <div class="team-card">
+        <div class="avatar">S</div>
+        <div class="team-info">
+          <h3>Sam Rodriguez</h3>
+          <div class="role">Co-founder & CTO</div>
+          <p class="bio">MS CS (MIT, 2019). 5 years building ML systems at scale. Built production AI for 100M+ users.</p>
+          <p class="credentials">10 years ML engineering · 4 production ML systems</p>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:60px">
+      <h3 style="text-align:center;font-size:1.5rem;font-weight:700;margin-bottom:32px">Advisory Board</h3>
+      <div class="advisor-grid">
+        <div class="advisor-card">
+          <h4>Prof. Lisa Henderson</h4>
+          <div class="role">Chemistry Advisor</div>
+          <p class="cred">Stanford ChE, 30 years CO₂ capture. Author of 200+ papers on amine chemistry.</p>
+        </div>
+        <div class="advisor-card">
+          <h4>Dr. Marcus Chen</h4>
+          <div class="role">Industry Advisor</div>
+          <p class="cred">Former CTO at major Process Tech Co. 30 years industrial chemical process design.</p>
+        </div>
+        <div class="advisor-card">
+          <h4>Sarah Patel</h4>
+          <div class="role">Climate VC Advisor</div>
+          <p class="cred">Partner at Climate Fund. Led investments in 20+ climate tech startups.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap" class="roadmap">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-eyebrow">Roadmap</span>
+      <h2 class="section-title">18-month plan to $1M ARR</h2>
+      <p class="section-subtitle">
+        From 3 pilots to $5M pipeline. From 1 solvent to 10 validated.
+      </p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-quarter">Q1 2025</div>
+          <div class="timeline-title">Pilot Kickoff</div>
+          <p class="timeline-desc">3 paid pilots signed. SOLV-0237 deployed at first cement plant.</p>
+        </div>
+        <div class="timeline-center">1</div>
+        <div class="timeline-right">
+          <div class="timeline-quarter">✓ 3 LOIs</div>
+          <div class="timeline-title">$750k pilot revenue</div>
+          <p class="timeline-desc">2 customers up and running by end of Q1.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-quarter">Q2 2025</div>
+          <div class="timeline-title">Platform Launch</div>
+          <p class="timeline-desc">Production-grade platform. SOC 2 Type II audit. 99.9% uptime SLA.</p>
+        </div>
+        <div class="timeline-center">2</div>
+        <div class="timeline-right">
+          <div class="timeline-quarter">✓ SOC 2</div>
+          <div class="timeline-title">SOC 2 Type II</div>
+          <p class="timeline-desc">Complete security audit. Enterprise-ready compliance.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-quarter">Q3 2025</div>
+          <div class="timeline-title">5 Validated Solvents</div>
+          <p class="timeline-desc">Expand pipeline from 1 to 5 validated solvents for different conditions.</p>
+        </div>
+        <div class="timeline-center">3</div>
+        <div class="timeline-right">
+          <div class="timeline-quarter">✓ 5×</div>
+          <div class="timeline-title">Solvent portfolio</div>
+          <p class="timeline-desc">Each optimized for different conditions and industries.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-left">
+          <div class="timeline-quarter">Q4 2025</div>
+          <div class="timeline-title">Series A Raise</div>
+          <p class="timeline-desc">$10M raise at $50M valuation. 5 pilots completed. $5M pipeline.</p>
+        </div>
+        <div class="timeline-center">4</div>
+        <div class="timeline-right">
+          <div class="timeline-quarter">$10M</div>
+          <div class="timeline-title">Series A</div>
+          <p class="timeline-desc">Scale to 20 plants, 50 validated solvents, $1M ARR.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ask">
+  <div class="container">
+    <div class="ask-card">
+      <div class="section-header">
+        <span class="section-eyebrow">The Ask</span>
+        <h2 class="section-title">$10M Series A</h2>
+        <p class="section-subtitle" style="margin-bottom:48px">
+          18-month runway to take SOLV-0237 to 50 plants and validated solvent library to 10.
+        </p>
+      </div>
+      <div class="ask-grid">
+        <div class="ask-headline">
+          <span class="gradient">$10M</span>
+        </div>
+        <div class="ask-metrics">
+          <div class="ask-metric">
+            <span class="label">Runway</span>
+            <span class="value">18 months</span>
+          </div>
+          <div class="ask-metric">
+            <span class="label">Target ARR (18mo)</span>
+            <span class="value">$1M</span>
+          </div>
+          <div class="ask-metric">
+            <span class="label">Customers (18mo)</span>
+            <span class="value">5 pilots</span>
+          </div>
+          <div class="ask-metric">
+            <span class="label">Valid Solvents</span>
+            <span class="value">10</span>
+          </div>
+        </div>
+      </div>
+      <h3 style="margin-top:64px;margin-bottom:24px;font-size:1.25rem;font-weight:700">Use of funds</h3>
+      <div class="use-of-funds">
+        <div class="fund-item">
+          <div class="pct">40%</div>
+          <div class="label">Engineering</div>
+        </div>
+        <div class="fund-item">
+          <div class="pct">30%</div>
+          <div class="label">Sales</div>
+        </div>
+        <div class="fund-item">
+          <div class="pct">20%</div>
+          <div class="label">Customer Success</div>
+        </div>
+        <div class="fund-item">
+          <div class="pct">10%</div>
+          <div class="label">G&A</div>
+        </div>
+      </div>
+      <h3 style="margin-top:64px;margin-bottom:24px;font-size:1.25rem;font-weight:700">18-month milestones</h3>
+      <div style="overflow-x:auto">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Quarter</th>
+              <th class="us">Milestone</th>
+              <th>Metric</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Q1 2025</td>
+              <td class="us">3 paid pilots signed</td>
+              <td>$750k pilot revenue</td>
+            </tr>
+            <tr>
+              <td>Q2 2025</td>
+              <td class="us">Platform in production</td>
+              <td>SOC 2 Type II, 99.9% SLA</td>
+            </tr>
+            <tr>
+              <td>Q3 2025</td>
+              <td class="us">5 validated solvents</td>
+              <td>Conditions: cement, steel, power, DAC, syngas</td>
+            </tr>
+            <tr>
+              <td>Q4 2025</td>
+              <td class="us">$1M ARR</td>
+              <td>5 pilots, $5M pipeline, 10 qualified leads</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="cta">
+  <div class="container">
+    <div class="cta-card">
+      <h2>Ready to cut your CO₂ capture cost?</h2>
+      <p>6-month pilot. $250k. 15% OPEX reduction guaranteed.<br>No risk. Talk to us.</p>
+      <div class="cta-buttons">
+        <a href="mailto:hello@carbonize.io" class="btn-white">Schedule Pilot Call</a>
+        <a href="#roi" class="btn-outline-white">Calculate Your ROI</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>Carbonize</h3>
+      <p>AI-designed chemistry for industrial carbon capture. Founded 2023. Backed by industry leaders.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <a href="#solution">Solution</a>
+      <a href="#solv-237">SOLV-0237</a>
+      <a href="#roi">ROI Calculator</a>
+      <a href="#architecture">Architecture</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="#validation">Validation</a>
+      <a href="#team">Team</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#ask">Investing</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="mailto:hello@carbonize.io">hello@carbonize.io</a>
+      <a href="mailto:investors@carbonize.io">investors@carbonize.io</a>
+      <a href="mailto:partnerships@carbonize.io">partnerships@carbonize.io</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 Carbonize, Inc. All rights reserved.</div>
+    <div>Made with 🌱 for the planet</div>
+  </div>
+</footer>
+
+<script>
+function calculateROI() {
+  const capacity = parseFloat(document.getElementById('capacity').value) || 1000000;
+  const opex = parseFloat(document.getElementById('opex').value) || 60;
+  const energy = parseFloat(document.getElementById('energy').value) || 4.2;
+  
+  const energyReduction = 0.319;
+  const opexReductionFactor = 0.26;
+  
+  const annualSavings = opex * opexReductionFactor * capacity;
+  const implementationCost = capacity < 200000 ? 250000 : (capacity < 1000000 ? 500000 : 2000000);
+  const paybackMonths = (implementationCost / annualSavings) * 12;
+  
+  const carbonCredit = capacity * 0.05 * 50;
+  const yearlyCF = annualSavings + carbonCredit;
+  let npv = -implementationCost;
+  for (let year = 1; year <= 10; year++) {
+    npv += yearlyCF / Math.pow(1.08, year);
+  }
+  
+  const co2Avoided = capacity * 0.05;
+  
+  document.getElementById('roi-10yr').textContent = '$' + (npv / 1e6).toFixed(1) + 'M';
+  document.getElementById('roi-annual').textContent = '$' + (annualSavings / 1e6).toFixed(1) + 'M / yr';
+  document.getElementById('roi-payback').textContent = paybackMonths.toFixed(1) + ' months';
+  document.getElementById('roi-reduction').textContent = '26%';
+  document.getElementById('roi-energy').textContent = '32%';
+  document.getElementById('roi-avoided').textContent = (co2Avoided / 1000).toFixed(0) + 'k tons';
+  document.getElementById('roi-impl').textContent = implementationCost < 1e6 ? '$' + (implementationCost / 1000) + 'k' : '$' + (implementationCost / 1e6).toFixed(1) + 'M';
+}
+calculateROI();
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+const nav = document.querySelector('nav');
+window.addEventListener('scroll', () => {
+  if (window.pageYOffset > 100) {
+    nav.style.background = 'rgba(2,6,23,0.95)';
+    nav.style.boxShadow = '0 4px 24px rgba(0,0,0,0.3)';
+  } else {
+    nav.style.background = 'rgba(2,6,23,0.8)';
+    nav.style.boxShadow = 'none';
+  }
+});
+</script>
+</body>
+</html>
