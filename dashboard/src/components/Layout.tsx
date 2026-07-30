@@ -31,6 +31,7 @@ const navItems = [
   { to: '/scene', label: '3D Scene', icon: Box },
   { to: '/simulation', label: 'Simulation', icon: Play },
   { to: '/chemistry', label: 'Core Chemistry', icon: Atom },
+  { to: '/reactor', label: 'Reactor Modeling', icon: Cpu },
   { to: '/detections', label: 'Detections', icon: ScanLine },
   { to: '/models', label: 'Model Registry', icon: Brain },
   { to: '/ml-analytics', label: 'ML Analytics', icon: Cpu },

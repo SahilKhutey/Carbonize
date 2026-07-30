@@ -503,6 +503,34 @@ app.post('/v1/chemistry/plant/simulate', (_, res) => {
   });
 });
 
+app.post('/v1/reactor/solve', (req, res) => {
+  const len = req.body?.length || 2.0;
+  const n = 50;
+  const z = Array.from({ length: n }, (_, i) => (i * len) / (n - 1));
+  const co = z.map((zVal) => 0.05 * Math.exp(-0.8 * zVal));
+  const co2 = z.map((zVal) => 0.05 * (1 - Math.exp(-0.8 * zVal)));
+  res.json({
+    z,
+    profiles: { CO: co, CO2: co2 },
+    T_profile: z.map((zVal) => 573.15 + 15 * Math.sin((zVal / len) * Math.PI)),
+    P_profile: z.map((zVal) => 200000 - zVal * 700),
+    conversion: { CO: 78.4 },
+    pressure_drop: 1420,
+    ghsv: 3600,
+    space_time: 0.42,
+  });
+});
+
+app.get('/v1/reactor/thiele', (req, res) => {
+  const r = Number(req.query.r) || 0.0015;
+  const k = Number(req.query.k) || 10.0;
+  const D = Number(req.query.D_eff) || 1e-6;
+  const phi = r * Math.sqrt(k / D);
+  const eta = phi < 0.1 ? 1.0 : (3.0 / phi) * (1.0 / Math.tanh(phi) - 1.0 / phi);
+  res.json({ phi, eta });
+});
+
+
 
 
 
