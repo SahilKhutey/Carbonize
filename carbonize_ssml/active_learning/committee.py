@@ -31,10 +31,15 @@ class ActiveLearningLoop:
         self.pool = []
 
     def initialize(self, n_initial: int = 50):
-        for _ in range(n_initial):
-            self.pool.append(self.pool_generator.sample())
-        self.state.n_pool = n_initial
-        self.state.n_labeled = 0
+        if callable(self.pool_generator):
+            res = self.pool_generator()
+            self.pool = res if isinstance(res, list) else [res]
+        elif hasattr(self.pool_generator, 'sample'):
+            self.pool = [self.pool_generator.sample() for _ in range(n_initial)]
+        else:
+            self.pool = list(self.pool_generator)[:n_initial]
+        self.state.n_pool = len(self.pool)
+        self.state.n_labeled = min(n_initial, len(self.pool))
 
     def step(self, batch_size: int = 10) -> Dict:
         self.state.n_iterations += 1

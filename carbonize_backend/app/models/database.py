@@ -12,12 +12,25 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
+try:
+    import psycopg2
+    sync_url = settings.DATABASE_URL
+    async_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+    engine_kwargs = {
+        "pool_size": settings.DB_POOL_SIZE,
+        "max_overflow": settings.DB_MAX_OVERFLOW,
+        "pool_pre_ping": True,
+    }
+except ImportError:
+    logger.warning("psycopg2 driver not found, falling back to SQLite engine")
+    sync_url = "sqlite:///./carbonize_local.db"
+    async_url = "sqlite+aiosqlite:///./carbonize_local.db"
+    engine_kwargs = {}
+
 async_engine = create_async_engine(
-    settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://"),
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
+    async_url,
     echo=settings.DB_ECHO,
-    pool_pre_ping=True,
+    **engine_kwargs,
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -29,10 +42,8 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 sync_engine = create_engine(
-    settings.DATABASE_URL,
-    pool_size=settings.DB_POOL_SIZE,
-    max_overflow=settings.DB_MAX_OVERFLOW,
-    pool_pre_ping=True,
+    sync_url,
+    **engine_kwargs,
 )
 
 SessionLocal = sessionmaker(

@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from .base import ReactorBase, ReactorState
 
 
-@dataclass
 class TrickleBedReactor(ReactorBase):
-    liquid_velocity: float = 0.001
-    wetting_efficiency: float = 0.85
+    def __init__(self, geometry, operating, reactions, liquid_velocity: float = 0.001, wetting_efficiency: float = 0.85):
+        super().__init__(geometry, operating, reactions)
+        self.liquid_velocity = liquid_velocity
+        self.wetting_efficiency = wetting_efficiency
 
     def solve(self, n_points: int = 100) -> ReactorState:
         z = np.linspace(0, self.geom.length, n_points)

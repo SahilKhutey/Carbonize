@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from .base import ReactorBase, ReactorState
 
 
-@dataclass
 class MembraneReactor(ReactorBase):
-    membrane_type: str = 'Pd'
-    permeability: float = 1e-9
+    def __init__(self, geometry, operating, reactions, membrane_type: str = 'Pd', permeability: float = 1e-9):
+        super().__init__(geometry, operating, reactions)
+        self.membrane_type = membrane_type
+        self.permeability = permeability
 
     def solve(self, n_points: int = 100) -> ReactorState:
         z = np.linspace(0, self.geom.length, n_points)

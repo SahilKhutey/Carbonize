@@ -3,7 +3,10 @@ Production FastAPI application
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import ORJSONResponse
+try:
+    from fastapi.responses import ORJSONResponse
+except Exception:
+    from fastapi.responses import JSONResponse as ORJSONResponse
 from contextlib import asynccontextmanager
 import logging
 

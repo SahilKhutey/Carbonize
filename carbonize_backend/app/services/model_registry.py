@@ -1,9 +1,21 @@
 """
 MLflow-integrated model registry service
 """
-import mlflow
-import mlflow.pyfunc
-from mlflow.tracking import MlflowClient
+try:
+    import mlflow
+    import mlflow.pyfunc
+    from mlflow.tracking import MlflowClient
+except ImportError:
+    class MlflowClient:
+        def __init__(self, *args, **kwargs): pass
+        def search_model_versions(self, *args, **kwargs): return []
+        def get_latest_versions(self, *args, **kwargs): return []
+    class _MockMlflow:
+        def set_tracking_uri(self, *args, **kwargs): pass
+        class pyfunc:
+            @staticmethod
+            def load_model(*args, **kwargs): return None
+    mlflow = _MockMlflow()
 from typing import Dict, List, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

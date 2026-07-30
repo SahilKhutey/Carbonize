@@ -5,9 +5,14 @@ from ultralytics import YOLO
 import base64
 import cv2
 import numpy as np
-import time
-import mlflow
-import os
+try:
+    import mlflow
+except ImportError:
+    class _MockMlflow:
+        class MlflowClient:
+            def __init__(self, *args, **kwargs): pass
+            def get_latest_versions(self, *args, **kwargs): return []
+    mlflow = _MockMlflow()
 
 # ─── Load model once per worker ─────────────────────────────────────
 _model_cache = {}

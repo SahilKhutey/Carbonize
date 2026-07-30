@@ -53,6 +53,7 @@ class ReactionNetwork:
     species: List[str] = field(default_factory=list)
 
 
+@dataclass
 class ReactorState:
     z: np.ndarray = None
     T: np.ndarray = None

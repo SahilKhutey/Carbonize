@@ -106,15 +106,18 @@ class KS_DFT:
 
 class BandStructureAnalyzer:
     @staticmethod
-    def find_band_gap(bands: np.ndarray, fermi: float) -> Dict:
-        all_eigs = bands.flatten()
+    def find_band_gap(bands, fermi: float) -> Dict:
+        arr = np.array(bands)
+        all_eigs = arr.flatten()
         vbm = float(np.max(all_eigs[all_eigs < fermi])) if np.any(all_eigs < fermi) else 3.5
         cbm = float(np.min(all_eigs[all_eigs > fermi])) if np.any(all_eigs > fermi) else 4.7
         gap = max(0.0, cbm - vbm)
         return {
             'gap': float(gap),
+            'band_gap': float(gap),
             'vbm': float(vbm),
             'cbm': float(cbm),
             'direct': True,
+            'gap_type': 'semiconductor' if gap < 4.0 else 'insulator',
             'type': 'semiconductor' if gap < 4.0 else 'insulator',
         }

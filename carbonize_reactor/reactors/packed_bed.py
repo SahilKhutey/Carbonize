@@ -12,10 +12,11 @@ from .base import ReactorBase, ReactorState
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class PackedBedReactor(ReactorBase):
-    axial_dispersion: bool = True
-    internal_diffusion: bool = True
+    def __init__(self, geometry, operating, reactions, axial_dispersion: bool = True, internal_diffusion: bool = True):
+        super().__init__(geometry, operating, reactions)
+        self.axial_dispersion = axial_dispersion
+        self.internal_diffusion = internal_diffusion
 
     def solve(self, n_points: int = 100) -> ReactorState:
         z = np.linspace(0, self.geom.length, n_points)

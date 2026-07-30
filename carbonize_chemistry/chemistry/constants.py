@@ -63,6 +63,7 @@ MOLAR_MASSES = {
     'MDEA': 119.163,
     'Piperazine': 86.136,
     'KS1': 396.0,
+    'Air': 28.97,
 }
 
 

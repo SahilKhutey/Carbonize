@@ -7,10 +7,11 @@ from dataclasses import dataclass
 from .base import ReactorBase, ReactorState
 
 
-@dataclass
 class MonolithReactor(ReactorBase):
-    channel_shape: str = 'square'
-    washcoat_thickness: float = 0.00005
+    def __init__(self, geometry, operating, reactions, channel_shape: str = 'square', washcoat_thickness: float = 0.00005):
+        super().__init__(geometry, operating, reactions)
+        self.channel_shape = channel_shape
+        self.washcoat_thickness = washcoat_thickness
 
     def solve(self, n_points: int = 100) -> ReactorState:
         z = np.linspace(0, self.geom.length, n_points)
