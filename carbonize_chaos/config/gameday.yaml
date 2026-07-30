@@ -1,0 +1,17 @@
+game_days:
+  - id: "gd_2024_q1_001"
+    name: "Q1 2024 — Database Failover Drill"
+    description: "Test our ability to handle PostgreSQL primary failure"
+    date: "2024-03-15"
+    duration_minutes: 120
+    notification_channel: "#game-days"
+    participants:
+      - id: "alice"
+        name: "Alice Chen"
+        role: "SRE Lead"
+        team: "sre"
+    injects:
+      - id: "inject_1"
+        name: "Database Primary Failure"
+        description: "PostgreSQL primary becomes unresponsive"
+        duration_seconds: 600

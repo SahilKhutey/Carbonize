@@ -1,0 +1,5 @@
+locust==2.20.0
+requests==2.32.0
+pyyaml==6.0.1
+numpy==1.26.0
+pillow==10.4.0

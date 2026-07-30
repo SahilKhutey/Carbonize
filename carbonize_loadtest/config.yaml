@@ -1,0 +1,14 @@
+name: "Carbonize Production Load Test"
+type: "k6"
+target_host: "http://localhost:8000"
+duration: "10m"
+vus: 1000
+
+thresholds:
+  p95_latency_ms: 200
+  p99_latency_ms: 500
+  error_rate: 0.01
+  inference_p99_ms: 500
+  success_rate: 0.99
+
+output_dir: "./results"
